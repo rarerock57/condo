@@ -22,73 +22,53 @@
     }
 
     #admin-entry {
-      cursor: default;
+      cursor: pointer;
       user-select: none;
     }
 
     .glass-card {
       background: rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
-    .section-blur {
-      background:
-        radial-gradient(circle at top left, rgba(59, 130, 246, 0.10), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.08), transparent 28%);
-    }
-
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .line-clamp-3 {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .animate-marquee {
-      animation: marquee 18s linear infinite;
-      white-space: nowrap;
-    }
-
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    .news-card:hover .news-image {
-      transform: scale(1.06);
+    .logo-hover:hover img {
+      transform: scale(1.1);
     }
   </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
-  <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-3">
-        <div id="admin-entry" class="flex-shrink-0 flex items-center gap-3 transition active:scale-95">
-          <div class="w-11 h-11 rounded-2xl bg-blue-600/10 flex items-center justify-center shadow-sm">
-            <i class='bx bxs-building-house text-2xl text-blue-700'></i>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-bold text-xl text-blue-900 tracking-wide leading-tight">CHAROEN KRUNG</span>
-            <span class="text-xs font-medium text-slate-500 tracking-wide">CONDOMINIUM 3</span>
-          </div>
+<!-- NAVBAR -->
+<nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-3">
+
+      <!-- 🔥 LOGO UPGRADE -->
+      <div id="admin-entry" class="flex items-center gap-3 logo-hover transition">
+
+        <div class="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center overflow-hidden">
+          <img 
+            src="https://img1.pic.in.th/images/-16daae7756d8872a5.png"
+            class="w-full h-full object-contain transition duration-300"
+          >
         </div>
 
-        <div class="hidden md:flex items-center space-x-8 font-medium">
-          <a href="#top" class="text-blue-700">หน้าแรก</a>
-          <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
-          <a href="#quick-links" class="text-slate-600 hover:text-blue-700 transition">บริการ</a>
-          <a href="#contact" class="text-slate-600 hover:text-blue-700 transition">ติดต่อเรา</a>
+        <div class="flex flex-col leading-tight">
+          <span class="font-bold text-xl text-blue-900 tracking-wide">CHAROEN KRUNG</span>
+          <span class="text-xs font-medium text-slate-500 tracking-wide">CONDOMINIUM 3</span>
         </div>
+
+      </div>
+
+      <!-- เมนูเดิม -->
+      <div class="hidden md:flex items-center space-x-8 font-medium">
+        <a href="#top" class="text-blue-700">หน้าแรก</a>
+        <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
+        <a href="#quick-links" class="text-slate-600 hover:text-blue-700 transition">บริการ</a>
+        <a href="#contact" class="text-slate-600 hover:text-blue-700 transition">ติดต่อเรา</a>
+      </div>
 
         <div class="flex items-center gap-3">
           <button onclick="scrollToSection('news')" class="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition items-center gap-2">
@@ -407,12 +387,12 @@
           <h4 class="text-white text-lg font-bold mb-5">เวลาทำการ</h4>
           <div class="space-y-4">
             <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
-              <p class="text-sm text-slate-400">วันจันทร์ - ศุกร์</p>
-              <p class="text-white font-semibold">09:00 - 18:00 น.</p>
+              <p class="text-sm text-slate-400">วันจันทร์ พุธ ศุกร์</p>
+              <p class="text-white font-semibold">18:.00  – 20:00 น.</p>
             </div>
             <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
-              <p class="text-sm text-slate-400">วันเสาร์ - อาทิตย์</p>
-              <p class="text-white font-semibold">09:00 - 12:00 น.</p>
+              <p class="text-sm text-slate-400">วันเสาร์ </p>
+              <p class="text-white font-semibold">10:00 - 14:00 น.</p>
             </div>
           </div>
         </div>
