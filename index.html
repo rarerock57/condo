@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHAROEN KRUNG CONDOMINIUM 3</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .hero-bg {
+      background-image:
+        linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
+        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1400&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+
+    #admin-entry {
+      cursor: default;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md fixed w-full z-50 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div id="admin-entry" class="flex-shrink-0 flex items-center gap-2 transition active:scale-95">
+          <i class='bx bxs-building-house text-3xl text-blue-700'></i>
+          <div class="flex flex-col">
+            <span class="font-bold text-xl text-blue-900 tracking-wide leading-tight">CHAROEN KRUNG</span>
+            <span class="text-xs font-normal text-gray-500">CONDOMINIUM 3</span>
+          </div>
+        </div>
+
+        <div class="hidden md:flex space-x-8 font-medium">
+          <a href="#" class="text-blue-700">หน้าแรก</a>
+          <a href="#news" class="text-gray-600 hover:text-blue-700 transition">ข่าวสาร</a>
+          <a href="#contact" class="text-gray-600 hover:text-blue-700 transition">ติดต่อเรา</a>
+        </div>
+
+        <div>
+          <button onclick="toggleLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class='bx bx-user-circle text-xl'></i>
+            ระบบลูกบ้าน
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero-bg h-[55vh] mt-16 flex items-center justify-center text-center px-4">
+    <div class="text-white max-w-3xl">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">ยินดีต้อนรับสู่สังคมคุณภาพ</h1>
+      <p class="text-lg md:text-xl text-gray-200 mb-8 font-light">
+        พื้นที่แห่งความสุข สะดวก ปลอดภัย สำหรับคุณและครอบครัว
+      </p>
+
+      <div class="bg-red-600/90 backdrop-blur-sm text-white px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-xl animate-pulse border border-red-500">
+        <i class='bx bxs-bell-ring text-xl'></i>
+        <span class="text-sm md:text-base">
+          <strong>ประกาศด่วน:</strong> ติดตามข่าวสารล่าสุดได้จากระบบประกาศกลางของอาคาร
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- News Section -->
+  <section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">ข่าวสารและประกาศ</h2>
+        <div class="w-12 h-1 bg-blue-600 mt-2 rounded"></div>
+      </div>
+      <a href="#news" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+        อัปเดตล่าสุด <i class='bx bx-right-arrow-alt'></i>
+      </a>
+    </div>
+
+    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Supabase announcements will render here -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="bg-gray-900 text-gray-400 py-12 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">เจริญกรุง คอนโดมิเนียม 3</h4>
+        <p class="text-sm leading-relaxed">
+          630 ถนนเจริญกรุง แขวงบางคอแหลม <br />
+          เขตบางคอแหลม กรุงเทพมหานคร 10120
+        </p>
+        <div class="flex gap-4 mt-4 text-2xl text-gray-500">
+          <i class='bx bxl-facebook-circle hover:text-blue-500 transition cursor-pointer'></i>
+          <i class='bx bxl-line hover:text-green-500 transition cursor-pointer'></i>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">นิติบุคคล</h4>
+        <ul class="text-sm space-y-3">
+          <li class="flex items-center gap-2">
+            <i class='bx bx-phone text-blue-500'></i> 02-123-4567
+          </li>
+          <li class="flex items-center gap-2">
+            <i class='bx bx-envelope text-blue-500'></i> juristic@charoenkrung.com
+          </li>
+          <li class="flex items-center gap-2 text-red-400 font-bold">
+            <i class='bx bx-support'></i> ฉุกเฉิน: 02-123-4599
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">เวลาทำการ</h4>
+        <ul class="text-sm space-y-2">
+          <li>จันทร์ - ศุกร์: 09:00 - 18:00 น.</li>
+          <li>เสาร์ - อาทิตย์: 09:00 - 12:00 น.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center text-xs text-gray-600 mt-12 pt-8 border-t border-gray-800 tracking-widest">
+      &copy; 2026 CHAROEN KRUNG CONDOMINIUM 3. ALL RIGHTS RESERVED.
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden relative">
+      <button onclick="toggleLoginModal()" class="absolute right-5 top-5 text-gray-300 hover:text-gray-600 transition">
+        <i class='bx bx-x text-3xl'></i>
+      </button>
+
+      <div class="p-8">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class='bx bxs-user-pin text-4xl text-blue-600'></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
+          <p class="text-gray-400 text-sm">สำหรับลูกบ้านและเจ้าหน้าที่</p>
+        </div>
+
+        <form class="space-y-4" onsubmit="event.preventDefault(); alert('ระบบลูกบ้านจะเปิดใช้งานในลำดับถัดไป');">
+          <input type="text" placeholder="Username" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:bg-white outline-none transition" />
+          <input type="password" placeholder="Password" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:bg-white outline-none transition" />
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+            ตกลง
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // =============================
+    // Basic UI
+    // =============================
+    function toggleLoginModal() {
+      document.getElementById('loginModal').classList.toggle('hidden');
+    }
+
+    window.onclick = function (e) {
+      const modal = document.getElementById('loginModal');
+      if (e.target === modal) toggleLoginModal();
+    };
+
+    // =============================
+    // Admin entry
+    // =============================
+    let failCount = 0;
+
+    document.getElementById('admin-entry').addEventListener('click', function () {
+      verifyStaff();
+    });
+
+    function verifyStaff() {
+      const pass = prompt("ระบบความปลอดภัย: กรุณายืนยันรหัสพนักงาน (Staff Only)");
+      if (pass === null) return;
+
+      if (pass === "Abc@1632") {
+        failCount = 0;
+        window.location.href = 'https://chaichana-dev-io.github.io/charoenkrung-condo3-admin/';
+      } else {
+        failCount++;
+        if (failCount >= 2) {
+          alert("ขออภัย! ยืนยันตัวตนไม่สำเร็จ ระบบจะรีเซ็ตกลับสู่หน้าหลัก");
+          failCount = 0;
+          window.location.href = 'https://chaichana-dev-io.github.io/charoenkrung-condo3-index/';
+        } else {
+          const retry = confirm("ข้อมูลไม่ถูกต้อง! ต้องการลองใหม่อีกครั้งหรือไม่? (หากผิดครั้งถัดไปจะกลับสู่หน้าหลัก)");
+          if (retry) {
+            verifyStaff();
+          } else {
+            failCount = 0;
+          }
+        }
+      }
+    }
+
+    // =============================
+    // Supabase Config
+    // =============================
+    const SUPABASE_URL = 'https://fjvcxqchlvmxnlvhwo.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
+
+    let supabaseClient = null;
+
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    } else {
+      console.error('Supabase library โหลดไม่สำเร็จ');
+    }
+
+    // =============================
+    // Helpers
+    // =============================
+    function getCategoryStyle(category) {
+      const text = (category || '').toLowerCase();
+
+      if (text.includes('ด่วน') || text.includes('urgent')) {
+        return 'bg-red-50 text-red-600';
+      }
+      if (text.includes('การเงิน') || text.includes('finance')) {
+        return 'bg-purple-50 text-purple-600';
+      }
+      if (text.includes('ซ่อมบำรุง') || text.includes('maintenance')) {
+        return 'bg-amber-50 text-amber-600';
+      }
+      if (text.includes('กิจกรรม') || text.includes('event')) {
+        return 'bg-green-50 text-green-600';
+      }
+
+      return 'bg-blue-50 text-blue-600';
+    }
+
+    function formatThaiDate(dateValue) {
+      if (!dateValue) return '-';
+
+      try {
+        return new Date(dateValue).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (error) {
+        return '-';
+      }
+    }
+
+    function createAnnouncementCard(item) {
+      const imageUrl = item.cover_image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop';
+      const category = item.category || 'ทั่วไป';
+      const summary = item.summary || 'ยังไม่มีรายละเอียดเพิ่มเติม';
+      const publishedDate = formatThaiDate(item.published_at);
+      const categoryStyle = getCategoryStyle(category);
+
+      return `
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+          <div class="overflow-hidden">
+            <img
+              src="${imageUrl}"
+              alt="${item.title || 'announcement image'}"
+              onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop'"
+              class="w-full h-48 object-cover group-hover:scale-110 transition duration-500"
+            />
+          </div>
+
+          <div class="p-6">
+            <span class="px-3 py-1 ${categoryStyle} text-xs font-bold rounded-full">${category}</span>
+
+            <h3 class="text-xl font-bold mt-3 mb-2 text-gray-800 line-clamp-2">
+              ${item.title || '-'}
+            </h3>
+
+            <p class="text-gray-500 text-sm mb-4 line-clamp-2">
+              ${summary}
+            </p>
+
+            <div class="flex justify-between items-center text-xs text-gray-400 border-t pt-4">
+              <span><i class='bx bx-calendar'></i> ${publishedDate}</span>
+              <span class="text-blue-600 font-bold">อ่านต่อ</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =============================
+    // Load Announcements
+    // =============================
+    async function loadAnnouncements() {
+      const newsGrid = document.getElementById('newsGrid');
+      if (!newsGrid) {
+        console.error('ไม่พบ element id="newsGrid"');
+        return;
+      }
+
+      newsGrid.innerHTML = `
+        <div class="col-span-full text-center text-gray-400 py-10">
+          กำลังโหลดข่าวสาร...
+        </div>
+      `;
+
+      if (!supabaseClient) {
+        newsGrid.innerHTML = `
+          <div class="col-span-full text-center text-red-500 py-10">
+            โหลดระบบฐานข้อมูลไม่สำเร็จ
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('announcements')
+          .select('*')
+          .eq('is_active', true)
+          .order('published_at', { ascending: false })
+          .limit(6);
+
+        if (error) {
+          console.error('Load announcements error:', error);
+          newsGrid.innerHTML = `
+            <div class="col-span-full text-center text-red-500 py-10">
+              ไม่สามารถโหลดข่าวสารได้
+            </div>
+          `;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          newsGrid.innerHTML = `
+            <div class="col-span-full text-center text-gray-400 py-10">
+              ยังไม่มีข่าวสาร
+            </div>
+          `;
+          return;
+        }
+
+        newsGrid.innerHTML = data.map(createAnnouncementCard).join('');
+      } catch (err) {
+        console.error('Unexpected error:', err);
+        newsGrid.innerHTML = `
+          <div class="col-span-full text-center text-red-500 py-10">
+            เกิดข้อผิดพลาดระหว่างโหลดข่าวสาร
+          </div>
+        `;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      loadAnnouncements();
+    });
+  </script>
+</body>
+</html>
