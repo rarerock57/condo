@@ -10,13 +10,8 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
   <style>
-    body {
-      font-family: 'Prompt', sans-serif;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    body { font-family: 'Prompt', sans-serif; }
+    html { scroll-behavior: smooth; }
 
     .hero-bg {
       background-image:
@@ -75,10 +70,9 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
-  <!-- Navbar -->
   <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-18 items-center py-3">
+      <div class="flex justify-between items-center py-3">
         <div id="admin-entry" class="flex-shrink-0 flex items-center gap-3 transition active:scale-95">
           <div class="w-11 h-11 rounded-2xl bg-blue-600/10 flex items-center justify-center shadow-sm">
             <i class='bx bxs-building-house text-2xl text-blue-700'></i>
@@ -110,7 +104,6 @@
     </div>
   </nav>
 
-  <!-- Hero -->
   <header id="top" class="hero-bg relative pt-28 pb-20 md:pb-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -141,7 +134,6 @@
             </button>
           </div>
 
-          <!-- Urgent Bar -->
           <div class="mt-8">
             <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
               <div class="flex items-center gap-4 px-5 py-4">
@@ -189,7 +181,6 @@
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
         <div class="glass-card rounded-3xl px-5 py-5 text-white">
           <p class="text-sm text-white/70 mb-1">ข่าวทั้งหมดที่แสดง</p>
@@ -211,7 +202,6 @@
     </div>
   </header>
 
-  <!-- Quick Links -->
   <section id="quick-links" class="py-14 section-blur">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between mb-8">
@@ -258,7 +248,6 @@
     </div>
   </section>
 
-  <!-- News / Announcements -->
   <section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
       <div>
@@ -316,7 +305,6 @@
     </div>
   </section>
 
-  <!-- Documents -->
   <section id="documentsSection" class="py-16 bg-white border-y border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between mb-10">
@@ -355,7 +343,6 @@
     </div>
   </section>
 
-  <!-- Contact -->
   <section id="contact" class="py-16 bg-slate-950 text-slate-300 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -437,7 +424,6 @@
     </div>
   </section>
 
-  <!-- Login Modal -->
   <div id="loginModal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-sm overflow-hidden relative">
       <button onclick="toggleLoginModal()" class="absolute right-5 top-5 text-slate-300 hover:text-slate-600 transition">
@@ -464,7 +450,6 @@
     </div>
   </div>
 
-  <!-- Announcement Detail Modal -->
   <div id="announcementModal" class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-3xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAnnouncementModal()" class="absolute right-5 top-5 text-white/90 hover:text-white transition z-10">
@@ -479,9 +464,7 @@
         </div>
 
         <h2 id="announcementModalTitle" class="text-3xl font-bold text-slate-800 mb-3"></h2>
-
         <div id="announcementModalDate" class="text-sm text-slate-400 mb-6 flex items-center gap-2"></div>
-
         <p id="announcementModalContent" class="text-slate-600 leading-8 whitespace-pre-line"></p>
       </div>
     </div>
@@ -490,9 +473,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // =============================
-    // Config
-    // =============================
     const SUPABASE_URL = 'https://fjvcxqchlvmxnlvhwo.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
 
@@ -506,11 +486,9 @@
       console.error('Supabase library โหลดไม่สำเร็จ');
     }
 
-    // =============================
-    // Basic UI
-    // =============================
     function toggleLoginModal() {
       const modal = document.getElementById('loginModal');
+      if (!modal) return;
       modal.classList.toggle('hidden');
       modal.classList.toggle('flex');
     }
@@ -536,9 +514,6 @@
       }
     });
 
-    // =============================
-    // Admin entry
-    // =============================
     let failCount = 0;
 
     document.getElementById('admin-entry').addEventListener('click', function () {
@@ -569,9 +544,6 @@
       }
     }
 
-    // =============================
-    // Helpers
-    // =============================
     function normalizeDriveImage(url) {
       if (!url) return '';
 
@@ -606,32 +578,16 @@
     }
 
     function getDisplayDate(item) {
-      return item.published_at || item.created_at || null;
+      return item?.published_at || item?.created_at || null;
     }
 
     function categoryKey(text) {
       const value = String(text || '').toLowerCase().trim();
 
-      if (
-        value.includes('ด่วน') ||
-        value.includes('urgent')
-      ) return 'urgent';
-
-      if (
-        value.includes('ซ่อม') ||
-        value.includes('maintenance') ||
-        value.includes('บำรุง')
-      ) return 'maintenance';
-
-      if (
-        value.includes('การเงิน') ||
-        value.includes('finance')
-      ) return 'finance';
-
-      if (
-        value.includes('กิจกรรม') ||
-        value.includes('event')
-      ) return 'event';
+      if (value.includes('ด่วน') || value.includes('urgent')) return 'urgent';
+      if (value.includes('ซ่อม') || value.includes('maintenance') || value.includes('บำรุง')) return 'maintenance';
+      if (value.includes('การเงิน') || value.includes('finance')) return 'finance';
+      if (value.includes('กิจกรรม') || value.includes('event')) return 'event';
 
       return 'general';
     }
@@ -665,9 +621,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    // =============================
-    // Render
-    // =============================
     function createAnnouncementCard(item) {
       const imageUrl =
         normalizeDriveImage(item.cover_image_url) ||
@@ -728,6 +681,8 @@
       const newsGrid = document.getElementById('newsGrid');
       const searchInput = document.getElementById('searchInput');
       const categoryFilter = document.getElementById('categoryFilter');
+
+      if (!newsGrid) return;
 
       const keyword = (searchInput?.value || '').trim().toLowerCase();
       const selectedCategory = categoryFilter?.value || 'all';
@@ -800,7 +755,6 @@
       const sorted = [...announcementsData].sort((a, b) => {
         const priorityDiff = getPriorityWeight(b.priority) - getPriorityWeight(a.priority);
         if (priorityDiff !== 0) return priorityDiff;
-
         return new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0);
       });
 
@@ -845,6 +799,8 @@
       const defaultUrgentBar = document.getElementById('defaultUrgentBar');
       const urgentTicker = document.getElementById('urgentTicker');
 
+      if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
+
       const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
 
       if (!urgentItems.length) {
@@ -881,9 +837,6 @@
       if (statLatestDate) statLatestDate.textContent = latest ? formatThaiDate(getDisplayDate(latest)) : '-';
     }
 
-    // =============================
-    // Modal
-    // =============================
     function openAnnouncementModal(id) {
       const item = announcementsData.find(news => String(news.id) === String(id));
       if (!item) return;
@@ -915,13 +868,11 @@
 
     function closeAnnouncementModal() {
       const modal = document.getElementById('announcementModal');
+      if (!modal) return;
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
 
-    // =============================
-    // Controls
-    // =============================
     function setQuickCategory(value) {
       const categoryFilter = document.getElementById('categoryFilter');
       if (!categoryFilter) return;
@@ -930,12 +881,13 @@
       renderAnnouncements();
     }
 
-    // =============================
-    // Load data
-    // =============================
     async function loadAnnouncements() {
       const newsGrid = document.getElementById('newsGrid');
-      if (!newsGrid) return;
+      const summaryText = document.getElementById('newsSummaryText');
+
+      if (!newsGrid) {
+        throw new Error('ไม่พบ newsGrid');
+      }
 
       newsGrid.innerHTML = `
         <div class="col-span-full text-center text-slate-400 py-14">
@@ -943,58 +895,60 @@
         </div>
       `;
 
-      if (!supabaseClient) {
-        newsGrid.innerHTML = `
-          <div class="col-span-full text-center text-red-500 py-14">
-            โหลดระบบฐานข้อมูลไม่สำเร็จ
-          </div>
-        `;
-        return;
+      if (summaryText) {
+        summaryText.textContent = 'กำลังเชื่อมต่อฐานข้อมูล...';
       }
 
-      try {
-        const { data, error } = await supabaseClient
+      if (!supabaseClient) {
+        throw new Error('Supabase client ไม่พร้อมใช้งาน');
+      }
+
+      let { data, error } = await supabaseClient
+        .from('announcements')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.warn('โหลดแบบ is_active=true ไม่สำเร็จ กำลังลองอ่านทั้งหมด...', error);
+
+        const fallbackResult = await supabaseClient
           .from('announcements')
           .select('*')
-          .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(50);
 
-        if (error) {
-          console.error('Load announcements error:', error);
-          newsGrid.innerHTML = `
-            <div class="col-span-full text-center text-red-500 py-14">
-              ไม่สามารถโหลดข่าวสารได้
-            </div>
-          `;
-          return;
-        }
-
-        announcementsData = Array.isArray(data) ? data : [];
-
-        populateCategoryFilter();
-        renderFeaturedAnnouncement();
-        renderUrgentBar();
-        renderStats();
-        renderAnnouncements();
-      } catch (err) {
-        console.error('Unexpected error:', err);
-        newsGrid.innerHTML = `
-          <div class="col-span-full text-center text-red-500 py-14">
-            เกิดข้อผิดพลาดระหว่างโหลดข่าวสาร
-          </div>
-        `;
+        data = fallbackResult.data;
+        error = fallbackResult.error;
       }
+
+      console.log('announcements data:', data);
+      console.log('announcements error:', error);
+
+      if (error) {
+        throw new Error(error.message || 'โหลดข่าวไม่สำเร็จ');
+      }
+
+      announcementsData = Array.isArray(data) ? data : [];
+
+      if (summaryText) {
+        summaryText.textContent = `โหลดสำเร็จ ${announcementsData.length} รายการ`;
+      }
+
+      populateCategoryFilter();
+      renderFeaturedAnnouncement();
+      renderUrgentBar();
+      renderStats();
+      renderAnnouncements();
     }
 
-    // =============================
-    // Init
-    // =============================
-    document.addEventListener('DOMContentLoaded', function () {
-      loadAnnouncements();
+    function initPage() {
+      console.log('initPage started');
 
       const searchInput = document.getElementById('searchInput');
       const categoryFilter = document.getElementById('categoryFilter');
+      const newsSummaryText = document.getElementById('newsSummaryText');
 
       if (searchInput) {
         searchInput.addEventListener('input', renderAnnouncements);
@@ -1003,7 +957,30 @@
       if (categoryFilter) {
         categoryFilter.addEventListener('change', renderAnnouncements);
       }
-    });
+
+      loadAnnouncements().catch((err) => {
+        console.error('init loadAnnouncements error:', err);
+
+        const newsGrid = document.getElementById('newsGrid');
+        if (newsGrid) {
+          newsGrid.innerHTML = `
+            <div class="col-span-full text-center text-red-500 py-14">
+              เกิดข้อผิดพลาดตอนเริ่มโหลด: ${err.message}
+            </div>
+          `;
+        }
+
+        if (newsSummaryText) {
+          newsSummaryText.textContent = `เกิดข้อผิดพลาด: ${err.message}`;
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
   </script>
 </body>
 </html>
