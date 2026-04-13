@@ -14,10 +14,14 @@
       font-family: 'Prompt', sans-serif;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     .hero-bg {
       background-image:
-        linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
-        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1400&auto=format&fit=crop');
+        linear-gradient(135deg, rgba(8, 23, 57, 0.78), rgba(17, 24, 39, 0.55)),
+        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
     }
@@ -26,30 +30,78 @@
       cursor: default;
       user-select: none;
     }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .section-blur {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.10), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.08), transparent 28%);
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .animate-marquee {
+      animation: marquee 18s linear infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .news-card:hover .news-image {
+      transform: scale(1.06);
+    }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
   <!-- Navbar -->
-  <nav class="bg-white shadow-md fixed w-full z-50 top-0">
+  <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <div id="admin-entry" class="flex-shrink-0 flex items-center gap-2 transition active:scale-95">
-          <i class='bx bxs-building-house text-3xl text-blue-700'></i>
+      <div class="flex justify-between h-18 items-center py-3">
+        <div id="admin-entry" class="flex-shrink-0 flex items-center gap-3 transition active:scale-95">
+          <div class="w-11 h-11 rounded-2xl bg-blue-600/10 flex items-center justify-center shadow-sm">
+            <i class='bx bxs-building-house text-2xl text-blue-700'></i>
+          </div>
           <div class="flex flex-col">
             <span class="font-bold text-xl text-blue-900 tracking-wide leading-tight">CHAROEN KRUNG</span>
-            <span class="text-xs font-normal text-gray-500">CONDOMINIUM 3</span>
+            <span class="text-xs font-medium text-slate-500 tracking-wide">CONDOMINIUM 3</span>
           </div>
         </div>
 
-        <div class="hidden md:flex space-x-8 font-medium">
-          <a href="#" class="text-blue-700">หน้าแรก</a>
-          <a href="#news" class="text-gray-600 hover:text-blue-700 transition">ข่าวสาร</a>
-          <a href="#contact" class="text-gray-600 hover:text-blue-700 transition">ติดต่อเรา</a>
+        <div class="hidden md:flex items-center space-x-8 font-medium">
+          <a href="#top" class="text-blue-700">หน้าแรก</a>
+          <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
+          <a href="#quick-links" class="text-slate-600 hover:text-blue-700 transition">บริการ</a>
+          <a href="#contact" class="text-slate-600 hover:text-blue-700 transition">ติดต่อเรา</a>
         </div>
 
-        <div>
-          <button onclick="toggleLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl shadow-md transition flex items-center gap-2">
+        <div class="flex items-center gap-3">
+          <button onclick="scrollToSection('news')" class="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition items-center gap-2">
+            <i class='bx bx-news text-lg'></i>
+            ดูประกาศ
+          </button>
+          <button onclick="toggleLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
             <i class='bx bx-user-circle text-xl'></i>
             ระบบลูกบ้าน
           </button>
@@ -59,87 +111,336 @@
   </nav>
 
   <!-- Hero -->
-  <header class="hero-bg h-[55vh] mt-16 flex items-center justify-center text-center px-4">
-    <div class="text-white max-w-3xl">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">ยินดีต้อนรับสู่สังคมคุณภาพ</h1>
-      <p class="text-lg md:text-xl text-gray-200 mb-8 font-light">
-        พื้นที่แห่งความสุข สะดวก ปลอดภัย สำหรับคุณและครอบครัว
-      </p>
+  <header id="top" class="hero-bg relative pt-28 pb-20 md:pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 text-white">
+          <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm mb-5">
+            <i class='bx bxs-badge-check text-cyan-300'></i>
+            ระบบประชาสัมพันธ์และข่าวสารกลางของอาคาร
+          </div>
 
-      <div class="bg-red-600/90 backdrop-blur-sm text-white px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-xl animate-pulse border border-red-500">
-        <i class='bx bxs-bell-ring text-xl'></i>
-        <span class="text-sm md:text-base">
-          <strong>ประกาศด่วน:</strong> ติดตามข่าวสารล่าสุดได้จากระบบประกาศกลางของอาคาร
-        </span>
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-5">
+            ยินดีต้อนรับสู่<br />
+            <span class="text-cyan-300">สังคมคุณภาพของเจริญกรุง คอนโดมิเนียม 3</span>
+          </h1>
+
+          <p class="text-lg md:text-xl text-slate-200 leading-relaxed max-w-3xl mb-8">
+            ศูนย์รวมข่าวสาร ประกาศสำคัญ เอกสาร และบริการเบื้องต้นสำหรับลูกบ้าน
+            อัปเดตข้อมูลล่าสุดจากอาคารได้ในที่เดียว
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <button onclick="scrollToSection('news')" class="bg-white text-blue-800 hover:bg-slate-100 px-6 py-3 rounded-2xl font-semibold shadow-lg transition flex items-center gap-2">
+              <i class='bx bx-news'></i>
+              ดูข่าวสารล่าสุด
+            </button>
+            <button onclick="scrollToSection('quick-links')" class="glass-card text-white hover:bg-white/20 px-6 py-3 rounded-2xl font-semibold transition flex items-center gap-2">
+              <i class='bx bx-grid-alt'></i>
+              บริการภายใน
+            </button>
+          </div>
+
+          <!-- Urgent Bar -->
+          <div class="mt-8">
+            <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
+              <div class="flex items-center gap-4 px-5 py-4">
+                <div class="flex items-center gap-2 shrink-0 font-bold">
+                  <i class='bx bxs-bell-ring text-xl'></i>
+                  ประกาศด่วน
+                </div>
+                <div class="overflow-hidden w-full">
+                  <div id="urgentTicker" class="animate-marquee text-sm md:text-base font-medium"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="defaultUrgentBar" class="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 text-white/90 max-w-3xl">
+              <div class="flex items-center gap-3">
+                <i class='bx bx-info-circle text-2xl text-cyan-300'></i>
+                <span>ติดตามข่าวสารล่าสุดได้จากระบบประกาศกลางของอาคาร</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <div class="glass-card rounded-[28px] p-5 md:p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <p class="text-white/70 text-sm">ประกาศแนะนำ</p>
+                <h3 class="text-white text-2xl font-bold">Featured Announcement</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                <i class='bx bxs-megaphone text-2xl text-cyan-300'></i>
+              </div>
+            </div>
+
+            <div id="featuredAnnouncement" class="rounded-[24px] bg-white overflow-hidden shadow-xl">
+              <div class="h-56 bg-slate-200 animate-pulse"></div>
+              <div class="p-6">
+                <div class="h-4 w-24 bg-slate-200 rounded mb-4 animate-pulse"></div>
+                <div class="h-6 w-4/5 bg-slate-200 rounded mb-3 animate-pulse"></div>
+                <div class="h-4 w-full bg-slate-200 rounded mb-2 animate-pulse"></div>
+                <div class="h-4 w-3/4 bg-slate-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+        <div class="glass-card rounded-3xl px-5 py-5 text-white">
+          <p class="text-sm text-white/70 mb-1">ข่าวทั้งหมดที่แสดง</p>
+          <h3 id="statNewsCount" class="text-3xl font-bold">0</h3>
+        </div>
+        <div class="glass-card rounded-3xl px-5 py-5 text-white">
+          <p class="text-sm text-white/70 mb-1">ประกาศด่วน</p>
+          <h3 id="statUrgentCount" class="text-3xl font-bold">0</h3>
+        </div>
+        <div class="glass-card rounded-3xl px-5 py-5 text-white">
+          <p class="text-sm text-white/70 mb-1">สถานะระบบ</p>
+          <h3 class="text-3xl font-bold text-emerald-300">ปกติ</h3>
+        </div>
+        <div class="glass-card rounded-3xl px-5 py-5 text-white">
+          <p class="text-sm text-white/70 mb-1">อัปเดตล่าสุด</p>
+          <h3 id="statLatestDate" class="text-xl md:text-2xl font-bold">-</h3>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- News Section -->
-  <section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow">
-    <div class="flex items-center justify-between mb-10">
-      <div>
-        <h2 class="text-3xl font-bold text-gray-800">ข่าวสารและประกาศ</h2>
-        <div class="w-12 h-1 bg-blue-600 mt-2 rounded"></div>
+  <!-- Quick Links -->
+  <section id="quick-links" class="py-14 section-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-800">บริการและลิงก์ด่วน</h2>
+          <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
+        </div>
+        <p class="hidden md:block text-slate-500">รวมเมนูสำคัญสำหรับลูกบ้านและเจ้าหน้าที่</p>
       </div>
-      <a href="#news" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
-        อัปเดตล่าสุด <i class='bx bx-right-arrow-alt'></i>
-      </a>
-    </div>
 
-    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Supabase announcements will render here -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button onclick="toggleLoginModal()" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <i class='bx bx-user text-2xl'></i>
+          </div>
+          <h3 class="font-bold text-slate-800 mb-1">ระบบลูกบ้าน</h3>
+          <p class="text-sm text-slate-500">เข้าสู่ระบบเพื่อใช้งานบริการภายใน</p>
+        </button>
+
+        <button onclick="scrollToSection('news')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4">
+            <i class='bx bx-news text-2xl'></i>
+          </div>
+          <h3 class="font-bold text-slate-800 mb-1">ข่าวและประกาศ</h3>
+          <p class="text-sm text-slate-500">ติดตามข้อมูลอัปเดตล่าสุดจากอาคาร</p>
+        </button>
+
+        <button onclick="scrollToSection('documentsSection')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
+          <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
+            <i class='bx bx-folder-open text-2xl'></i>
+          </div>
+          <h3 class="font-bold text-slate-800 mb-1">เอกสารสำคัญ</h3>
+          <p class="text-sm text-slate-500">รวมเอกสารและข้อมูลสำหรับอาคาร</p>
+        </button>
+
+        <button onclick="scrollToSection('contact')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+            <i class='bx bx-phone-call text-2xl'></i>
+          </div>
+          <h3 class="font-bold text-slate-800 mb-1">ติดต่อสำนักงาน</h3>
+          <p class="text-sm text-slate-500">โทรศัพท์ อีเมล และเวลาทำการ</p>
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer id="contact" class="bg-gray-900 text-gray-400 py-12 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+  <!-- News / Announcements -->
+  <section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
       <div>
-        <h4 class="text-white text-lg font-bold mb-4">เจริญกรุง คอนโดมิเนียม 3</h4>
-        <p class="text-sm leading-relaxed">
-          630 ถนนเจริญกรุง แขวงบางคอแหลม <br />
-          เขตบางคอแหลม กรุงเทพมหานคร 10120
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-800">ข่าวสารและประกาศ</h2>
+        <div class="w-14 h-1 bg-blue-600 mt-3 rounded-full"></div>
+        <p class="text-slate-500 mt-4 max-w-2xl">
+          รวมข่าวสาร ประกาศสำคัญ และการอัปเดตต่างๆ จากอาคาร
+          สามารถค้นหาและกรองตามหมวดหมู่ได้ทันที
         </p>
-        <div class="flex gap-4 mt-4 text-2xl text-gray-500">
-          <i class='bx bxl-facebook-circle hover:text-blue-500 transition cursor-pointer'></i>
-          <i class='bx bxl-line hover:text-green-500 transition cursor-pointer'></i>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative">
+          <i class='bx bx-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg'></i>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="ค้นหาหัวข้อข่าว..."
+            class="w-full sm:w-72 bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+          />
+        </div>
+
+        <select
+          id="categoryFilter"
+          class="bg-white border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+        >
+          <option value="all">ทุกหมวดหมู่</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="newsSummaryBar" class="mb-8 bg-white rounded-3xl border border-slate-100 shadow-sm px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3 text-slate-600">
+        <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <i class='bx bx-line-chart text-2xl'></i>
+        </div>
+        <div>
+          <p class="text-sm text-slate-500">ภาพรวมประกาศ</p>
+          <p id="newsSummaryText" class="font-semibold text-slate-800">กำลังโหลดข้อมูล...</p>
         </div>
       </div>
 
-      <div>
-        <h4 class="text-white text-lg font-bold mb-4">นิติบุคคล</h4>
-        <ul class="text-sm space-y-3">
-          <li class="flex items-center gap-2">
-            <i class='bx bx-phone text-blue-500'></i> 02-123-4567
-          </li>
-          <li class="flex items-center gap-2">
-            <i class='bx bx-envelope text-blue-500'></i> juristic@charoenkrung.com
-          </li>
-          <li class="flex items-center gap-2 text-red-400 font-bold">
-            <i class='bx bx-support'></i> ฉุกเฉิน: 02-123-4599
-          </li>
-        </ul>
-      </div>
-
-      <div>
-        <h4 class="text-white text-lg font-bold mb-4">เวลาทำการ</h4>
-        <ul class="text-sm space-y-2">
-          <li>จันทร์ - ศุกร์: 09:00 - 18:00 น.</li>
-          <li>เสาร์ - อาทิตย์: 09:00 - 12:00 น.</li>
-        </ul>
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="setQuickCategory('all')" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 transition text-slate-700 text-sm font-medium">ทั้งหมด</button>
+        <button onclick="setQuickCategory('urgent')" class="px-4 py-2 rounded-full bg-red-50 hover:bg-red-100 transition text-red-600 text-sm font-medium">ด่วน</button>
+        <button onclick="setQuickCategory('maintenance')" class="px-4 py-2 rounded-full bg-amber-50 hover:bg-amber-100 transition text-amber-700 text-sm font-medium">ซ่อมบำรุง</button>
+        <button onclick="setQuickCategory('finance')" class="px-4 py-2 rounded-full bg-violet-50 hover:bg-violet-100 transition text-violet-700 text-sm font-medium">การเงิน</button>
       </div>
     </div>
 
-    <div class="text-center text-xs text-gray-600 mt-12 pt-8 border-t border-gray-800 tracking-widest">
-      &copy; 2026 CHAROEN KRUNG CONDOMINIUM 3. ALL RIGHTS RESERVED.
+    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div class="col-span-full text-center text-slate-400 py-14">
+        กำลังโหลดข่าวสาร...
+      </div>
     </div>
-  </footer>
+  </section>
+
+  <!-- Documents -->
+  <section id="documentsSection" class="py-16 bg-white border-y border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-800">เอกสารและข้อมูลสำคัญ</h2>
+          <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
+        </div>
+        <p class="hidden md:block text-slate-500">ส่วนนี้สามารถเชื่อมต่อกับระบบเอกสารในลำดับถัดไป</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center mb-4">
+            <i class='bx bx-file text-2xl'></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารระเบียบอาคาร</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">รวมข้อบังคับและระเบียบการใช้งานพื้นที่ส่วนกลางภายในอาคาร</p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mb-4">
+            <i class='bx bx-receipt text-2xl'></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารแจ้งประชุม/ประกาศ</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">ใช้สำหรับเผยแพร่หนังสือแจ้งประชุม ข่าวประชาสัมพันธ์ และเอกสารแนบ</p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+            <i class='bx bx-download text-2xl'></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">ดาวน์โหลดแบบฟอร์ม</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">รองรับการเชื่อมกับฟอร์มการติดต่อ เอกสารคำร้อง และแบบคำขอภายในอาคาร</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-16 bg-slate-950 text-slate-300 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+              <i class='bx bxs-building-house text-2xl text-cyan-300'></i>
+            </div>
+            <div>
+              <h4 class="text-white text-xl font-bold">เจริญกรุง คอนโดมิเนียม 3</h4>
+              <p class="text-slate-400 text-sm">Charoen Krung Condominium 3</p>
+            </div>
+          </div>
+
+          <p class="text-sm leading-relaxed text-slate-400">
+            630 ถนนเจริญกรุง แขวงบางคอแหลม<br />
+            เขตบางคอแหลม กรุงเทพมหานคร 10120
+          </p>
+
+          <div class="flex gap-4 mt-6 text-3xl">
+            <i class='bx bxl-facebook-circle hover:text-blue-400 transition cursor-pointer'></i>
+            <i class='bx bxl-line hover:text-green-400 transition cursor-pointer'></i>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-white text-lg font-bold mb-5">ติดต่อสำนักงานนิติบุคคล</h4>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mt-0.5">
+                <i class='bx bx-phone text-cyan-300'></i>
+              </div>
+              <div>
+                <p class="text-sm text-slate-400">โทรศัพท์สำนักงาน</p>
+                <p class="font-semibold text-white">02-123-4567</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mt-0.5">
+                <i class='bx bx-envelope text-cyan-300'></i>
+              </div>
+              <div>
+                <p class="text-sm text-slate-400">อีเมล</p>
+                <p class="font-semibold text-white">juristic@charoenkrung.com</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-red-500/15 flex items-center justify-center mt-0.5">
+                <i class='bx bx-support text-red-300'></i>
+              </div>
+              <div>
+                <p class="text-sm text-slate-400">ฉุกเฉิน</p>
+                <p class="font-semibold text-red-300">02-123-4599</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-white text-lg font-bold mb-5">เวลาทำการ</h4>
+          <div class="space-y-4">
+            <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
+              <p class="text-sm text-slate-400">วันจันทร์ - ศุกร์</p>
+              <p class="text-white font-semibold">09:00 - 18:00 น.</p>
+            </div>
+            <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
+              <p class="text-sm text-slate-400">วันเสาร์ - อาทิตย์</p>
+              <p class="text-white font-semibold">09:00 - 12:00 น.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-xs text-slate-500 mt-12 pt-8 border-t border-white/10 tracking-[0.2em]">
+        &copy; 2026 CHAROEN KRUNG CONDOMINIUM 3. ALL RIGHTS RESERVED.
+      </div>
+    </div>
+  </section>
 
   <!-- Login Modal -->
-  <div id="loginModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center backdrop-blur-sm p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden relative">
-      <button onclick="toggleLoginModal()" class="absolute right-5 top-5 text-gray-300 hover:text-gray-600 transition">
+  <div id="loginModal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-sm overflow-hidden relative">
+      <button onclick="toggleLoginModal()" class="absolute right-5 top-5 text-slate-300 hover:text-slate-600 transition">
         <i class='bx bx-x text-3xl'></i>
       </button>
 
@@ -148,14 +449,14 @@
           <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <i class='bx bxs-user-pin text-4xl text-blue-600'></i>
           </div>
-          <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
-          <p class="text-gray-400 text-sm">สำหรับลูกบ้านและเจ้าหน้าที่</p>
+          <h2 class="text-2xl font-bold text-slate-800">เข้าสู่ระบบ</h2>
+          <p class="text-slate-400 text-sm">สำหรับลูกบ้านและเจ้าหน้าที่</p>
         </div>
 
         <form class="space-y-4" onsubmit="event.preventDefault(); alert('ระบบลูกบ้านจะเปิดใช้งานในลำดับถัดไป');">
-          <input type="text" placeholder="Username" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:bg-white outline-none transition" />
-          <input type="password" placeholder="Password" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:border-blue-500 focus:bg-white outline-none transition" />
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+          <input type="text" placeholder="Username" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white outline-none transition" />
+          <input type="password" placeholder="Password" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white outline-none transition" />
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition">
             ตกลง
           </button>
         </form>
@@ -163,21 +464,77 @@
     </div>
   </div>
 
-  <!-- Supabase JS -->
+  <!-- Announcement Detail Modal -->
+  <div id="announcementModal" class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-3xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeAnnouncementModal()" class="absolute right-5 top-5 text-white/90 hover:text-white transition z-10">
+        <i class='bx bx-x text-3xl'></i>
+      </button>
+
+      <img id="announcementModalImage" src="" alt="" class="w-full h-72 object-cover bg-slate-100" />
+
+      <div class="p-8">
+        <div class="mb-4">
+          <span id="announcementModalCategory" class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full"></span>
+        </div>
+
+        <h2 id="announcementModalTitle" class="text-3xl font-bold text-slate-800 mb-3"></h2>
+
+        <div id="announcementModalDate" class="text-sm text-slate-400 mb-6 flex items-center gap-2"></div>
+
+        <p id="announcementModalContent" class="text-slate-600 leading-8 whitespace-pre-line"></p>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
     // =============================
+    // Config
+    // =============================
+    const SUPABASE_URL = 'https://fjvcxqchlvmxnlvhwo.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
+
+    let supabaseClient = null;
+    let announcementsData = [];
+    let filteredAnnouncements = [];
+
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    } else {
+      console.error('Supabase library โหลดไม่สำเร็จ');
+    }
+
+    // =============================
     // Basic UI
     // =============================
     function toggleLoginModal() {
-      document.getElementById('loginModal').classList.toggle('hidden');
+      const modal = document.getElementById('loginModal');
+      modal.classList.toggle('hidden');
+      modal.classList.toggle('flex');
     }
 
-    window.onclick = function (e) {
-      const modal = document.getElementById('loginModal');
-      if (e.target === modal) toggleLoginModal();
-    };
+    function scrollToSection(id) {
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    window.addEventListener('click', function (e) {
+      const loginModal = document.getElementById('loginModal');
+      const announcementModal = document.getElementById('announcementModal');
+
+      if (e.target === loginModal) {
+        loginModal.classList.add('hidden');
+        loginModal.classList.remove('flex');
+      }
+
+      if (e.target === announcementModal) {
+        closeAnnouncementModal();
+      }
+    });
 
     // =============================
     // Admin entry
@@ -213,48 +570,34 @@
     }
 
     // =============================
-    // Supabase Config
-    // =============================
-    const SUPABASE_URL = 'https://fjvcqxqchluvmxnlvhwo.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
-
-    let supabaseClient = null;
-
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    } else {
-      console.error('Supabase library โหลดไม่สำเร็จ');
-    }
-
-    // =============================
     // Helpers
     // =============================
-    function getCategoryStyle(category) {
-      const text = (category || '').toLowerCase();
+    function normalizeDriveImage(url) {
+      if (!url) return '';
 
-      if (text.includes('ด่วน') || text.includes('urgent')) {
-        return 'bg-red-50 text-red-600';
-      }
-      if (text.includes('การเงิน') || text.includes('finance')) {
-        return 'bg-purple-50 text-purple-600';
-      }
-      if (text.includes('ซ่อมบำรุง') || text.includes('maintenance')) {
-        return 'bg-amber-50 text-amber-600';
-      }
-      if (text.includes('กิจกรรม') || text.includes('event')) {
-        return 'bg-green-50 text-green-600';
+      if (url.includes('drive.google.com/file/d/')) {
+        const match = url.match(/\/d\/([^/]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+        }
       }
 
-      return 'bg-blue-50 text-blue-600';
+      if (url.includes('drive.google.com/uc?export=view&id=')) {
+        const match = url.match(/id=([^&]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+        }
+      }
+
+      return url;
     }
 
-    function formatThaiDate(dateValue) {
+    function formatThaiDate(dateValue, month = 'short') {
       if (!dateValue) return '-';
-
       try {
         return new Date(dateValue).toLocaleDateString('th-TH', {
           year: 'numeric',
-          month: 'short',
+          month,
           day: 'numeric'
         });
       } catch (error) {
@@ -262,63 +605,347 @@
       }
     }
 
+    function getDisplayDate(item) {
+      return item.published_at || item.created_at || null;
+    }
+
+    function categoryKey(text) {
+      const value = String(text || '').toLowerCase().trim();
+
+      if (
+        value.includes('ด่วน') ||
+        value.includes('urgent')
+      ) return 'urgent';
+
+      if (
+        value.includes('ซ่อม') ||
+        value.includes('maintenance') ||
+        value.includes('บำรุง')
+      ) return 'maintenance';
+
+      if (
+        value.includes('การเงิน') ||
+        value.includes('finance')
+      ) return 'finance';
+
+      if (
+        value.includes('กิจกรรม') ||
+        value.includes('event')
+      ) return 'event';
+
+      return 'general';
+    }
+
+    function getCategoryStyle(category) {
+      const key = categoryKey(category);
+
+      if (key === 'urgent') return 'bg-red-50 text-red-600';
+      if (key === 'maintenance') return 'bg-amber-50 text-amber-700';
+      if (key === 'finance') return 'bg-violet-50 text-violet-700';
+      if (key === 'event') return 'bg-emerald-50 text-emerald-700';
+
+      return 'bg-blue-50 text-blue-600';
+    }
+
+    function getPriorityWeight(priority) {
+      const value = String(priority || '').toLowerCase();
+
+      if (value === 'high' || value === 'urgent') return 3;
+      if (value === 'medium' || value === 'normal') return 2;
+      return 1;
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // =============================
+    // Render
+    // =============================
     function createAnnouncementCard(item) {
-      const imageUrl = item.cover_image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop';
+      const imageUrl =
+        normalizeDriveImage(item.cover_image_url) ||
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+
       const category = item.category || 'ทั่วไป';
       const summary = item.summary || 'ยังไม่มีรายละเอียดเพิ่มเติม';
-      const publishedDate = formatThaiDate(item.published_at);
+      const publishedDate = formatThaiDate(getDisplayDate(item));
       const categoryStyle = getCategoryStyle(category);
 
       return `
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+        <div class="news-card bg-white rounded-[28px] shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300">
           <div class="overflow-hidden">
             <img
               src="${imageUrl}"
-              alt="${item.title || 'announcement image'}"
-              onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop'"
-              class="w-full h-48 object-cover group-hover:scale-110 transition duration-500"
+              alt="${escapeHtml(item.title || 'announcement image')}"
+              onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'"
+              class="news-image w-full h-56 object-cover transition duration-500"
             />
           </div>
 
           <div class="p-6">
-            <span class="px-3 py-1 ${categoryStyle} text-xs font-bold rounded-full">${category}</span>
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <span class="px-3 py-1 ${categoryStyle} text-xs font-bold rounded-full">${escapeHtml(category)}</span>
+              <span class="text-xs text-slate-400 flex items-center gap-1 shrink-0">
+                <i class='bx bx-calendar'></i> ${publishedDate}
+              </span>
+            </div>
 
-            <h3 class="text-xl font-bold mt-3 mb-2 text-gray-800 line-clamp-2">
-              ${item.title || '-'}
+            <h3 class="text-2xl font-bold mb-3 text-slate-800 line-clamp-2">
+              ${escapeHtml(item.title || '-')}
             </h3>
 
-            <p class="text-gray-500 text-sm mb-4 line-clamp-2">
-              ${summary}
+            <p class="text-slate-500 text-sm mb-5 line-clamp-3 leading-7">
+              ${escapeHtml(summary)}
             </p>
 
-            <div class="flex justify-between items-center text-xs text-gray-400 border-t pt-4">
-              <span><i class='bx bx-calendar'></i> ${publishedDate}</span>
-              <span class="text-blue-600 font-bold">อ่านต่อ</span>
+            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+              <button
+                onclick="openAnnouncementModal('${String(item.id).replace(/'/g, "\\'")}')"
+                class="text-blue-600 font-bold hover:text-blue-800 transition flex items-center gap-2"
+                type="button"
+              >
+                อ่านต่อ
+                <i class='bx bx-right-arrow-alt text-lg'></i>
+              </button>
+
+              <span class="text-xs text-slate-400">
+                ${escapeHtml(item.priority || 'normal')}
+              </span>
             </div>
           </div>
         </div>
       `;
     }
 
-    // =============================
-    // Load Announcements
-    // =============================
-    async function loadAnnouncements() {
+    function renderAnnouncements() {
       const newsGrid = document.getElementById('newsGrid');
-      if (!newsGrid) {
-        console.error('ไม่พบ element id="newsGrid"');
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+
+      const keyword = (searchInput?.value || '').trim().toLowerCase();
+      const selectedCategory = categoryFilter?.value || 'all';
+
+      filteredAnnouncements = announcementsData.filter(item => {
+        const categoryMatch =
+          selectedCategory === 'all' ||
+          categoryKey(item.category) === selectedCategory;
+
+        const textBlob = [
+          item.title,
+          item.summary,
+          item.content,
+          item.category
+        ].join(' ').toLowerCase();
+
+        const keywordMatch = !keyword || textBlob.includes(keyword);
+
+        return categoryMatch && keywordMatch;
+      });
+
+      if (!filteredAnnouncements.length) {
+        newsGrid.innerHTML = `
+          <div class="col-span-full text-center text-slate-400 py-14">
+            ไม่พบข่าวสารที่ตรงกับเงื่อนไขที่ค้นหา
+          </div>
+        `;
+      } else {
+        newsGrid.innerHTML = filteredAnnouncements.map(createAnnouncementCard).join('');
+      }
+
+      const summaryText = document.getElementById('newsSummaryText');
+      if (summaryText) {
+        summaryText.textContent = `แสดง ${filteredAnnouncements.length} จากทั้งหมด ${announcementsData.length} รายการ`;
+      }
+    }
+
+    function populateCategoryFilter() {
+      const categoryFilter = document.getElementById('categoryFilter');
+      if (!categoryFilter) return;
+
+      const uniqueCategories = [...new Set(
+        announcementsData
+          .map(item => ({
+            key: categoryKey(item.category),
+            label: item.category || 'ทั่วไป'
+          }))
+          .map(item => JSON.stringify(item))
+      )].map(item => JSON.parse(item));
+
+      categoryFilter.innerHTML = `
+        <option value="all">ทุกหมวดหมู่</option>
+        ${uniqueCategories.map(cat => `<option value="${cat.key}">${escapeHtml(cat.label)}</option>`).join('')}
+      `;
+    }
+
+    function renderFeaturedAnnouncement() {
+      const container = document.getElementById('featuredAnnouncement');
+      if (!container) return;
+
+      if (!announcementsData.length) {
+        container.innerHTML = `
+          <div class="p-6 text-slate-500">
+            ยังไม่มีข่าวเด่นในขณะนี้
+          </div>
+        `;
         return;
       }
 
+      const sorted = [...announcementsData].sort((a, b) => {
+        const priorityDiff = getPriorityWeight(b.priority) - getPriorityWeight(a.priority);
+        if (priorityDiff !== 0) return priorityDiff;
+
+        return new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0);
+      });
+
+      const item = sorted[0];
+      const imageUrl =
+        normalizeDriveImage(item.cover_image_url) ||
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+
+      container.innerHTML = `
+        <div class="overflow-hidden">
+          <img
+            src="${imageUrl}"
+            alt="${escapeHtml(item.title || 'featured')}"
+            onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'"
+            class="w-full h-64 object-cover"
+          />
+        </div>
+
+        <div class="p-6">
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <span class="px-3 py-1 ${getCategoryStyle(item.category)} text-xs font-bold rounded-full">${escapeHtml(item.category || 'ทั่วไป')}</span>
+            <span class="text-xs text-slate-400">${formatThaiDate(getDisplayDate(item))}</span>
+          </div>
+
+          <h3 class="text-2xl font-bold text-slate-800 mb-3">${escapeHtml(item.title || '-')}</h3>
+          <p class="text-slate-500 leading-7 mb-5 line-clamp-3">${escapeHtml(item.summary || 'ยังไม่มีรายละเอียดเพิ่มเติม')}</p>
+
+          <button
+            onclick="openAnnouncementModal('${String(item.id).replace(/'/g, "\\'")}')"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl font-semibold transition inline-flex items-center gap-2"
+            type="button"
+          >
+            ดูรายละเอียด
+            <i class='bx bx-right-arrow-alt'></i>
+          </button>
+        </div>
+      `;
+    }
+
+    function renderUrgentBar() {
+      const urgentBar = document.getElementById('urgentBar');
+      const defaultUrgentBar = document.getElementById('defaultUrgentBar');
+      const urgentTicker = document.getElementById('urgentTicker');
+
+      const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
+
+      if (!urgentItems.length) {
+        urgentBar.classList.add('hidden');
+        defaultUrgentBar.classList.remove('hidden');
+        return;
+      }
+
+      defaultUrgentBar.classList.add('hidden');
+      urgentBar.classList.remove('hidden');
+
+      const messages = urgentItems.map(item => {
+        const dateText = formatThaiDate(getDisplayDate(item));
+        return `${item.title || 'ประกาศด่วน'} • ${item.summary || ''} • ${dateText}`;
+      });
+
+      const repeated = [...messages, ...messages].map(msg => `<span class="mr-12">${escapeHtml(msg)}</span>`).join('');
+      urgentTicker.innerHTML = repeated;
+    }
+
+    function renderStats() {
+      const statNewsCount = document.getElementById('statNewsCount');
+      const statUrgentCount = document.getElementById('statUrgentCount');
+      const statLatestDate = document.getElementById('statLatestDate');
+
+      const urgentCount = announcementsData.filter(item => categoryKey(item.category) === 'urgent').length;
+
+      const latest = [...announcementsData].sort((a, b) => {
+        return new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0);
+      })[0];
+
+      if (statNewsCount) statNewsCount.textContent = announcementsData.length;
+      if (statUrgentCount) statUrgentCount.textContent = urgentCount;
+      if (statLatestDate) statLatestDate.textContent = latest ? formatThaiDate(getDisplayDate(latest)) : '-';
+    }
+
+    // =============================
+    // Modal
+    // =============================
+    function openAnnouncementModal(id) {
+      const item = announcementsData.find(news => String(news.id) === String(id));
+      if (!item) return;
+
+      const imageUrl =
+        normalizeDriveImage(item.cover_image_url) ||
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+
+      document.getElementById('announcementModalImage').src = imageUrl;
+      document.getElementById('announcementModalImage').onerror = function () {
+        this.src = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+      };
+
+      document.getElementById('announcementModalCategory').textContent = item.category || 'ทั่วไป';
+      document.getElementById('announcementModalCategory').className =
+        `px-3 py-1 ${getCategoryStyle(item.category)} text-xs font-bold rounded-full`;
+
+      document.getElementById('announcementModalTitle').textContent = item.title || '-';
+      document.getElementById('announcementModalDate').innerHTML =
+        `<i class='bx bx-calendar'></i> ${formatThaiDate(getDisplayDate(item), 'long')}`;
+
+      document.getElementById('announcementModalContent').textContent =
+        item.content || item.summary || 'ไม่มีรายละเอียดเพิ่มเติม';
+
+      const modal = document.getElementById('announcementModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAnnouncementModal() {
+      const modal = document.getElementById('announcementModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // =============================
+    // Controls
+    // =============================
+    function setQuickCategory(value) {
+      const categoryFilter = document.getElementById('categoryFilter');
+      if (!categoryFilter) return;
+
+      categoryFilter.value = value;
+      renderAnnouncements();
+    }
+
+    // =============================
+    // Load data
+    // =============================
+    async function loadAnnouncements() {
+      const newsGrid = document.getElementById('newsGrid');
+      if (!newsGrid) return;
+
       newsGrid.innerHTML = `
-        <div class="col-span-full text-center text-gray-400 py-10">
+        <div class="col-span-full text-center text-slate-400 py-14">
           กำลังโหลดข่าวสาร...
         </div>
       `;
 
       if (!supabaseClient) {
         newsGrid.innerHTML = `
-          <div class="col-span-full text-center text-red-500 py-10">
+          <div class="col-span-full text-center text-red-500 py-14">
             โหลดระบบฐานข้อมูลไม่สำเร็จ
           </div>
         `;
@@ -330,41 +957,52 @@
           .from('announcements')
           .select('*')
           .eq('is_active', true)
-          .order('published_at', { ascending: false })
-          .limit(6);
+          .order('created_at', { ascending: false })
+          .limit(50);
 
         if (error) {
           console.error('Load announcements error:', error);
           newsGrid.innerHTML = `
-            <div class="col-span-full text-center text-red-500 py-10">
+            <div class="col-span-full text-center text-red-500 py-14">
               ไม่สามารถโหลดข่าวสารได้
             </div>
           `;
           return;
         }
 
-        if (!data || data.length === 0) {
-          newsGrid.innerHTML = `
-            <div class="col-span-full text-center text-gray-400 py-10">
-              ยังไม่มีข่าวสาร
-            </div>
-          `;
-          return;
-        }
+        announcementsData = Array.isArray(data) ? data : [];
 
-        newsGrid.innerHTML = data.map(createAnnouncementCard).join('');
+        populateCategoryFilter();
+        renderFeaturedAnnouncement();
+        renderUrgentBar();
+        renderStats();
+        renderAnnouncements();
       } catch (err) {
         console.error('Unexpected error:', err);
         newsGrid.innerHTML = `
-          <div class="col-span-full text-center text-red-500 py-10">
+          <div class="col-span-full text-center text-red-500 py-14">
             เกิดข้อผิดพลาดระหว่างโหลดข่าวสาร
           </div>
         `;
       }
     }
 
+    // =============================
+    // Init
+    // =============================
     document.addEventListener('DOMContentLoaded', function () {
       loadAnnouncements();
+
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', renderAnnouncements);
+      }
+
+      if (categoryFilter) {
+        categoryFilter.addEventListener('change', renderAnnouncements);
+      }
     });
   </script>
 </body>
