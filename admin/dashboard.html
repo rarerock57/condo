@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .hero {
+      padding: 28px 0 10px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 22px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #64748b;
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      margin: 6px 0 2px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .menu-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .menu-card .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 26px;
+      margin-bottom: 14px;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+
+    .role-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-card h2 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+
+      .grid-4,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        padding: 22px;
+      }
+
+      .hero-card h2 {
+        font-size: 24px;
+      }
+
+      .brand-text h1 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p class="muted">กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText" class="muted">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+            <div class="brand-text">
+              <h1>Admin Dashboard</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div class="top-actions">
+            <a href="../index.html" class="btn btn-secondary">
+              <i class='bx bx-home-alt'></i>
+              หน้าหลัก
+            </a>
+            <button id="logoutBtn" class="btn btn-danger" type="button">
+              <i class='bx bx-log-out'></i>
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2 id="welcomeText">ยินดีต้อนรับ</h2>
+            <p id="welcomeSubtext">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
+
+            <div class="badge-row">
+              <div class="badge" id="badgeRole">Role: -</div>
+              <div class="badge" id="badgeRoom">Room: -</div>
+              <div class="badge">ระบบหลังบ้านพร้อมใช้งาน</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>ภาพรวมระบบ</h3>
+              <p>สรุปข้อมูลเบื้องต้นของผู้ใช้งานและสิทธิ์ในระบบ</p>
+            </div>
+          </div>
+
+          <div class="grid grid-4">
+            <div class="card">
+              <div class="label">สิทธิ์ของคุณ</div>
+              <div class="stat-value" id="statRole">-</div>
+              <div class="muted">ระบบจะเปิดเมนูตาม role อัตโนมัติ</div>
+            </div>
+
+            <div class="card">
+              <div class="label">ชื่อผู้ใช้งาน</div>
+              <div class="stat-value" id="statName" style="font-size:22px;">-</div>
+              <div class="muted">ดึงจากตาราง profiles</div>
+            </div>
+
+            <div class="card">
+              <div class="label">เลขห้อง</div>
+              <div class="stat-value" id="statRoom">-</div>
+              <div class="muted">ใช้เป็นตัวระบุตอนเข้าสู่ระบบ</div>
+            </div>
+
+            <div class="card">
+              <div class="label">สถานะ Session</div>
+              <div class="stat-value" style="font-size:22px;">พร้อมใช้งาน</div>
+              <div class="muted">เข้าสู่ระบบสำเร็จแล้ว</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>เมนูหลักหลังบ้าน</h3>
+              <p>เวอร์ชันแรก เน้นให้เข้าใช้งานและแยกสิทธิ์ได้ก่อน</p>
+            </div>
+          </div>
+
+          <div class="grid grid-3">
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-news'></i></div>
+              <h4>จัดการข่าว</h4>
+              <p>เพิ่ม แก้ไข ปิด/เปิดข่าว และจัดหมวดหมู่ประกาศ</p>
+            </a>
+
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-folder-open'></i></div>
+              <h4>จัดการเอกสาร</h4>
+              <p>อัปโหลด เรียงหมวด และเชื่อมโยงเอกสารสำคัญของอาคาร</p>
+            </a>
+
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-wrench'></i></div>
+              <h4>งานแจ้งซ่อม</h4>
+              <p>ดูภาพรวมงานซ่อมและเชื่อม workflow สำหรับ resident และ technician</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="superAdminSection" class="section hidden">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>สิทธิ์พิเศษสำหรับ Super Admin</h3>
+              <p>เมนูในส่วนนี้จะไม่แสดงสำหรับ admin ทั่วไป</p>
+            </div>
+            <div class="role-chip">
+              <i class='bx bxs-shield-plus'></i>
+              super_admin only
+            </div>
+          </div>
+
+          <div class="grid grid-3">
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-user-plus'></i></div>
+              <h4>จัดการผู้ใช้</h4>
+              <p>เพิ่ม ลบ หรือปรับข้อมูลบัญชีในระบบ</p>
+            </a>
+
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-key'></i></div>
+              <h4>รีเซ็ตรหัสผ่าน</h4>
+              <p>รีเซ็ตรหัสผ่านให้ admin, resident และ technician</p>
+            </a>
+
+            <a href="javascript:void(0)" class="card menu-card">
+              <div class="icon"><i class='bx bx-cog'></i></div>
+              <h4>ตั้งค่าระบบ</h4>
+              <p>พื้นที่สำหรับฟังก์ชันระบบขั้นสูงในลำดับถัดไป</p>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('dashboardApp').classList.add('hidden');
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorScreen').classList.remove('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('dashboardApp').classList.remove('hidden');
+    }
+
+    function fillProfile(profile) {
+      const role = profile.role || '-';
+      const fullName = profile.full_name || 'ไม่ระบุชื่อ';
+      const roomNumber = profile.room_number || '-';
+
+      document.getElementById('welcomeText').textContent = `ยินดีต้อนรับ ${fullName}`;
+      document.getElementById('welcomeSubtext').textContent = 'คุณกำลังเข้าสู่ระบบจัดการหลังบ้านของอาคาร';
+      document.getElementById('badgeRole').textContent = `Role: ${role}`;
+      document.getElementById('badgeRoom').textContent = `Room: ${roomNumber}`;
+
+      document.getElementById('statRole').textContent = role;
+      document.getElementById('statName').textContent = fullName;
+      document.getElementById('statRoom').textContent = roomNumber;
+
+      if (role === 'super_admin') {
+        document.getElementById('superAdminSection').classList.remove('hidden');
+      }
+    }
+
+    async function loadAdminDashboard() {
+      if (typeof supabaseClient === 'undefined') {
+        showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
+        return;
+      }
+
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        return;
+      }
+
+      const userId = authData.user.id;
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('Profile error:', profileError);
+        showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
+        return;
+      }
+
+      if (profile.role !== 'admin' && profile.role !== 'super_admin') {
+        showError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานส่วนจัดการระบบ');
+        return;
+      }
+
+      fillProfile(profile);
+      showDashboard();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadAdminDashboard);
+    } else {
+      loadAdminDashboard();
+    }
+  </script>
+</body>
+</html>
