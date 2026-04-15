@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เข้าสู่ระบบ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-box">
+  <h2>เข้าสู่ระบบ</h2>
+
+  <input type="text" id="room" placeholder="เลขห้อง เช่น 6301">
+  <input type="password" id="password" placeholder="รหัสผ่าน">
+
+  <button onclick="login()">เข้าสู่ระบบ</button>
+
+  <div class="error" id="error"></div>
+</div>
+
+<script>
+async function login() {
+  const room = document.getElementById('room').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const errorBox = document.getElementById('error');
+
+  errorBox.textContent = '';
+
+  if (!room || !password) {
+    errorBox.textContent = 'กรุณากรอกข้อมูลให้ครบ';
+    return;
+  }
+
+  const fakeEmail = room + '@condo.local';
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: fakeEmail,
+    password: password
+  });
+
+  if (error) {
+    errorBox.textContent = 'เลขห้องหรือรหัสผ่านไม่ถูกต้อง';
+    return;
+  }
+
+  await redirectByRole();
+}
+
+async function redirectByRole() {
+  const { data: authData } = await supabaseClient.auth.getUser();
+
+  if (!authData?.user) {
+    alert('ไม่พบผู้ใช้');
+    return;
+  }
+
+  const userId = authData.user.id;
+
+  const { data: profile, error } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !profile) {
+    alert('ไม่พบข้อมูลผู้ใช้');
+    return;
+  }
+
+  const role = profile.role;
+
+  if (role === 'super_admin' || role === 'admin') {
+    window.location.href = '../admin/dashboard.html';
+    return;
+  }
+
+  if (role === 'resident') {
+    window.location.href = '../resident/dashboard.html';
+    return;
+  }
+
+  if (role === 'technician') {
+    window.location.href = '../technician/dashboard.html';
+    return;
+  }
+
+  alert('ไม่มีสิทธิ์เข้าใช้งาน');
+}
+</script>
+
+</body>
+</html>
