@@ -110,16 +110,17 @@
 
         <div class="mt-8">
           <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
-            <div class="flex items-center gap-4 px-5 py-4">
-              <div class="flex items-center gap-2 shrink-0 font-bold">
-                <i class='bx bxs-bell-ring text-xl'></i>
-                ประกาศด่วน
-              </div>
-              <div class="overflow-hidden w-full">
-                <div id="urgentTicker" class="animate-marquee text-sm md:text-base font-medium"></div>
-              </div>
-            </div>
-          </div>
+  <div class="flex items-center gap-4 px-5 py-4">
+    <div class="flex items-center gap-2 shrink-0 font-bold">
+      <i class='bx bxs-bell-ring text-xl'></i>
+      ประกาศด่วน
+    </div>
+
+    <div class="marquee-wrap w-full">
+      <div id="urgentTicker" class="marquee-track text-sm md:text-base font-medium"></div>
+    </div>
+  </div>
+</div>
 
           <div id="defaultUrgentBar" class="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 text-white/90 max-w-3xl">
             <div class="flex items-center gap-3">
@@ -768,32 +769,33 @@
       `;
     }
 
-    function renderUrgentBar() {
-      const urgentBar = document.getElementById('urgentBar');
-      const defaultUrgentBar = document.getElementById('defaultUrgentBar');
-      const urgentTicker = document.getElementById('urgentTicker');
+function renderUrgentBar() {
+  const urgentBar = document.getElementById('urgentBar');
+  const defaultUrgentBar = document.getElementById('defaultUrgentBar');
+  const urgentTicker = document.getElementById('urgentTicker');
 
-      if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
+  if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
 
-      const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
+  const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
 
-      if (!urgentItems.length) {
-        urgentBar.classList.add('hidden');
-        defaultUrgentBar.classList.remove('hidden');
-        return;
-      }
+  if (!urgentItems.length) {
+    urgentBar.classList.add('hidden');
+    defaultUrgentBar.classList.remove('hidden');
+    return;
+  }
 
-      defaultUrgentBar.classList.add('hidden');
-      urgentBar.classList.remove('hidden');
+  defaultUrgentBar.classList.add('hidden');
+  urgentBar.classList.remove('hidden');
 
-      const messages = urgentItems.map(item => {
-        const dateText = formatThaiDate(getDisplayDate(item));
-        return `${item.title || 'ประกาศด่วน'} • ${item.summary || ''} • ${dateText}`;
-      });
+  const messages = urgentItems.map(item => {
+    const summary = item.summary || item.title || 'ประกาศด่วน';
+    return summary;
+  });
 
-      const repeated = [...messages, ...messages].map(msg => `<span class="mr-12">${escapeHtml(msg)}</span>`).join('');
-      urgentTicker.innerHTML = repeated;
-    }
+  urgentTicker.innerHTML = messages
+    .map(msg => `<span class="inline-block pr-24">${escapeHtml(msg)}</span>`)
+    .join(' • ');
+}
 
     function renderStats() {
       const statNewsCount = document.getElementById('statNewsCount');
