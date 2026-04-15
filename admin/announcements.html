@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>จัดการข่าว</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+
+  <style>
+    body { font-family: sans-serif; background: #f1f5f9; padding:20px; }
+    h2 { margin-bottom: 10px; }
+
+    .card {
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    input, textarea, select {
+      width:100%;
+      padding:8px;
+      margin-bottom:10px;
+      border-radius:8px;
+      border:1px solid #ddd;
+    }
+
+    button {
+      padding:8px 12px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .btn-primary { background:#2563eb; color:white; }
+    .btn-danger { background:#dc2626; color:white; }
+    .btn-toggle { background:#f59e0b; color:white; }
+
+    table {
+      width:100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding:10px;
+      border-bottom:1px solid #eee;
+      text-align:left;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>📢 จัดการข่าว</h2>
+
+<div class="card">
+  <h3>เพิ่มข่าว</h3>
+
+  <input id="title" placeholder="หัวข้อข่าว">
+  <input id="summary" placeholder="สรุปสั้น">
+  <textarea id="content" placeholder="รายละเอียด"></textarea>
+
+  <select id="category">
+    <option value="ทั่วไป">ทั่วไป</option>
+    <option value="ด่วน">ด่วน</option>
+    <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
+    <option value="การเงิน">การเงิน</option>
+  </select>
+
+  <select id="priority">
+    <option value="low">low</option>
+    <option value="medium">medium</option>
+    <option value="high">high</option>
+  </select>
+
+  <input id="image" placeholder="cover_image_url">
+
+  <button class="btn-primary" onclick="addNews()">เพิ่มข่าว</button>
+</div>
+
+<div class="card">
+  <h3>รายการข่าว</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>หัวข้อ</th>
+        <th>หมวด</th>
+        <th>สถานะ</th>
+        <th>จัดการ</th>
+      </tr>
+    </thead>
+    <tbody id="newsTable"></tbody>
+  </table>
+</div>
+
+<script>
+
+async function checkAuth() {
+  const { data } = await supabaseClient.auth.getUser();
+
+  if (!data?.user) {
+    window.location.href = "../auth/login.html";
+    return;
+  }
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", data.user.id)
+    .single();
+
+  if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
+    alert("ไม่มีสิทธิ์");
+    window.location.href = "../auth/login.html";
+  }
+}
+
+async function addNews() {
+  const title = document.getElementById("title").value;
+  const summary = document.getElementById("summary").value;
+  const content = document.getElementById("content").value;
+  const category = document.getElementById("category").value;
+  const priority = document.getElementById("priority").value;
+  const image = document.getElementById("image").value;
+
+  const { error } = await supabaseClient.from("announcements").insert([
+    {
+      title,
+      summary,
+      content,
+      category,
+      priority,
+      cover_image_url: image,
+      is_active: true
+    }
+  ]);
+
+  if (error) {
+    alert("เพิ่มไม่สำเร็จ");
+    return;
+  }
+
+  alert("เพิ่มข่าวสำเร็จ");
+  loadNews();
+}
+
+async function loadNews() {
+  const { data } = await supabaseClient
+    .from("announcements")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const table = document.getElementById("newsTable");
+  table.innerHTML = "";
+
+  data.forEach(item => {
+    const row = `
+      <tr>
+        <td>${item.title}</td>
+        <td>${item.category}</td>
+        <td>${item.is_active ? "🟢 เปิด" : "🔴 ปิด"}</td>
+        <td>
+          <button class="btn-toggle" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
+          <button class="btn-danger" onclick="deleteNews('${item.id}')">ลบ</button>
+        </td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
+}
+
+async function toggleNews(id, current) {
+  await supabaseClient
+    .from("announcements")
+    .update({ is_active: !current })
+    .eq("id", id);
+
+  loadNews();
+}
+
+async function deleteNews(id) {
+  if (!confirm("ลบข่าวนี้?")) return;
+
+  await supabaseClient
+    .from("announcements")
+    .delete()
+    .eq("id", id);
+
+  loadNews();
+}
+
+checkAuth();
+loadNews();
+
+</script>
+
+</body>
+</html>
