@@ -52,12 +52,8 @@
     }
 
     @keyframes marquee-left {
-      0% {
-        transform: translateX(0);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
@@ -97,11 +93,11 @@
 
         <!-- LOGIN -->
         <div class="flex items-center">
-  <a href="auth/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
-    <i class='bx bx-user-circle text-xl'></i>
-    ระบบลูกบ้าน
-  </a>
-</div>
+          <a href="auth/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
+            <i class='bx bx-user-circle text-xl'></i>
+            ระบบลูกบ้าน
+          </a>
+        </div>
 
       </div>
     </div>
@@ -352,32 +348,6 @@
     </div>
   </section>
 
-  <div id="loginModal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center backdrop-blur-sm p-4">
-    <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-sm overflow-hidden relative">
-      <button onclick="toggleLoginModal()" class="absolute right-5 top-5 text-slate-300 hover:text-slate-600 transition">
-        <i class='bx bx-x text-3xl'></i>
-      </button>
-
-      <div class="p-8">
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <i class='bx bxs-user-pin text-4xl text-blue-600'></i>
-          </div>
-          <h2 class="text-2xl font-bold text-slate-800">เข้าสู่ระบบ</h2>
-          <p class="text-slate-400 text-sm">สำหรับลูกบ้านและเจ้าหน้าที่</p>
-        </div>
-
-        <form class="space-y-4" onsubmit="event.preventDefault(); alert('ระบบลูกบ้านจะเปิดใช้งานในลำดับถัดไป');">
-          <input type="text" placeholder="Username" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white outline-none transition" />
-          <input type="password" placeholder="Password" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white outline-none transition" />
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition">
-            ตกลง
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <div id="announcementModal" class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-3xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAnnouncementModal()" class="absolute right-5 top-5 text-white/90 hover:text-white transition z-10">
@@ -414,33 +384,12 @@
       console.error('Supabase library โหลดไม่สำเร็จ');
     }
 
-    function toggleLoginModal() {
-      const modal = document.getElementById('loginModal');
-      if (!modal) return;
-      modal.classList.toggle('hidden');
-      modal.classList.toggle('flex');
-    }
-
     function scrollToSection(id) {
       const target = document.getElementById(id);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
-
-    window.addEventListener('click', function (e) {
-      const loginModal = document.getElementById('loginModal');
-      const announcementModal = document.getElementById('announcementModal');
-
-      if (e.target === loginModal) {
-        loginModal.classList.add('hidden');
-        loginModal.classList.remove('flex');
-      }
-
-      if (e.target === announcementModal) {
-        closeAnnouncementModal();
-      }
-    });
 
     document.getElementById('admin-entry').addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -769,6 +718,27 @@
       renderAnnouncements();
     }
 
+    async function fetchAnnouncements() {
+      let result = await supabaseClient
+        .from('announcements')
+        .select('id,title,summary,content,category,priority,cover_image_url,is_active,published_at,created_at')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!result.error && Array.isArray(result.data) && result.data.length > 0) {
+        return result;
+      }
+
+      const fallback = await supabaseClient
+        .from('announcements')
+        .select('id,title,summary,content,category,priority,cover_image_url,is_active,published_at,created_at')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      return fallback;
+    }
+
     async function loadAnnouncements() {
       const newsGrid = document.getElementById('newsGrid');
       const summaryText = document.getElementById('newsSummaryText');
@@ -791,25 +761,7 @@
         throw new Error('Supabase client ไม่พร้อมใช้งาน');
       }
 
-      let { data, error } = await supabaseClient
-        .from('announcements')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        console.warn('โหลดแบบ is_active=true ไม่สำเร็จ กำลังลองอ่านทั้งหมด...', error);
-
-        const fallbackResult = await supabaseClient
-          .from('announcements')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(50);
-
-        data = fallbackResult.data;
-        error = fallbackResult.error;
-      }
+      const { data, error } = await fetchAnnouncements();
 
       console.log('announcements data:', data);
       console.log('announcements error:', error);
@@ -869,18 +821,18 @@
       initPage();
     }
 
-    const scrollBtn = document.getElementById("scrollTopBtn");
+    const scrollBtn = document.getElementById('scrollTopBtn');
 
-    window.addEventListener("scroll", () => {
+    window.addEventListener('scroll', () => {
       if (window.scrollY > 300) {
-        scrollBtn.classList.remove("hidden");
+        scrollBtn.classList.remove('hidden');
       } else {
-        scrollBtn.classList.add("hidden");
+        scrollBtn.classList.add('hidden');
       }
     });
 
-    scrollBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 </body>
