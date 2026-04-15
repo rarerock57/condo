@@ -2,173 +2,561 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>จัดการข่าว</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-client.js"></script>
 
   <style>
-    body { font-family: sans-serif; background: #f1f5f9; padding:20px; }
-    h2 { margin-bottom: 10px; }
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: sans-serif;
+      background: #f1f5f9;
+      padding: 20px;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .back-link {
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .page-note {
+      color: #64748b;
+      font-size: 14px;
+      margin: 0 0 18px;
+    }
 
     .card {
-      background:white;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.05);
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
     }
 
     input, textarea, select {
-      width:100%;
-      padding:8px;
-      margin-bottom:10px;
-      border-radius:8px;
-      border:1px solid #ddd;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
     }
 
     button {
-      padding:8px 12px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
     }
 
-    .btn-primary { background:#2563eb; color:white; }
-    .btn-danger { background:#dc2626; color:white; }
-    .btn-toggle { background:#f59e0b; color:white; }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-toggle {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-toggle:hover {
+      background: #d97706;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #64748b;
+      margin: -4px 0 10px;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status.success {
+      color: #15803d;
+    }
+
+    .status.error {
+      color: #dc2626;
+    }
+
+    .preview-wrap {
+      margin-top: 10px;
+    }
+
+    .preview-wrap img {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      display: none;
+      background: #f8fafc;
+    }
 
     table {
-      width:100%;
+      width: 100%;
       border-collapse: collapse;
+      background: white;
     }
 
     th, td {
-      padding:10px;
-      border-bottom:1px solid #eee;
-      text-align:left;
+      padding: 12px 10px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-general {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .badge-urgent {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .badge-maintenance {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .badge-finance {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
 <body>
-<div style="margin-bottom:10px;">
-  <a href="dashboard.html" style="text-decoration:none; color:#2563eb;">
-    ← กลับ
-  </a>
-</div>
-<h2>📢 จัดการข่าว</h2>
 
-<div class="card">
-  <h3>เพิ่มข่าว</h3>
+  <div class="topbar">
+    <a href="dashboard.html" class="back-link">← กลับ Dashboard</a>
+  </div>
 
-  <input id="title" placeholder="หัวข้อข่าว">
-  <input id="summary" placeholder="สรุปสั้น">
-  <textarea id="content" placeholder="รายละเอียด"></textarea>
+  <h2>📢 จัดการข่าว</h2>
+  <p class="page-note">เพิ่มข่าวใหม่, ใช้ Google Drive เป็นรูปหน้าปก, เปิด/ปิดข่าว และลบข่าวได้จากหน้านี้</p>
 
-  <select id="category">
-    <option value="ทั่วไป">ทั่วไป</option>
-    <option value="ด่วน">ด่วน</option>
-    <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
-    <option value="การเงิน">การเงิน</option>
-  </select>
+  <div class="card">
+    <h3>เพิ่มข่าว</h3>
 
-  <select id="priority">
-    <option value="low">low</option>
-    <option value="medium">medium</option>
-    <option value="high">high</option>
-  </select>
+    <div class="grid">
+      <div class="full">
+        <input id="title" placeholder="หัวข้อข่าว">
+      </div>
 
-  <input id="image" placeholder="cover_image_url">
+      <div class="full">
+        <input id="summary" placeholder="สรุปสั้น">
+      </div>
 
-  <button class="btn-primary" onclick="addNews()">เพิ่มข่าว</button>
-</div>
+      <div class="full">
+        <textarea id="content" placeholder="รายละเอียด"></textarea>
+      </div>
 
-<div class="card">
-  <h3>รายการข่าว</h3>
+      <div>
+        <select id="category">
+          <option value="ทั่วไป">ทั่วไป</option>
+          <option value="ด่วน">ด่วน</option>
+          <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
+          <option value="การเงิน">การเงิน</option>
+        </select>
+      </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>หัวข้อ</th>
-        <th>หมวด</th>
-        <th>สถานะ</th>
-        <th>จัดการ</th>
-      </tr>
-    </thead>
-    <tbody id="newsTable"></tbody>
-  </table>
-</div>
+      <div>
+        <select id="priority">
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <input id="driveInput" placeholder="วาง Google Drive File ID หรือวางลิงก์ Google Drive เต็ม">
+        <div class="hint">ตัวอย่าง File ID: 1ABCxyz123... หรือวางลิงก์แบบ drive.google.com/file/d/... ได้เลย</div>
+      </div>
+
+      <div class="full">
+        <input id="image" placeholder="cover_image_url (ระบบจะสร้างให้อัตโนมัติ)">
+        <div class="btn-row">
+          <button type="button" class="btn-secondary" onclick="convertDriveToImageUrl()">แปลงลิงก์รูป</button>
+          <button type="button" class="btn-secondary" onclick="previewImage()">แสดงตัวอย่างรูป</button>
+          <button type="button" class="btn-secondary" onclick="clearForm()">ล้างฟอร์ม</button>
+        </div>
+      </div>
+
+      <div class="full preview-wrap">
+        <img id="imagePreview" alt="preview">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" type="button" onclick="addNews()">เพิ่มข่าว</button>
+    </div>
+
+    <div id="statusBox" class="status"></div>
+  </div>
+
+  <div class="card">
+    <h3>รายการข่าว</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:220px;">หัวข้อ</th>
+            <th>หมวด</th>
+            <th>สถานะ</th>
+            <th>รูป</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="newsTable"></tbody>
+      </table>
+    </div>
+  </div>
 
 <script>
+let currentUserProfile = null;
 
-async function checkAuth() {
-  const { data } = await supabaseClient.auth.getUser();
+function setStatus(message, type = '') {
+  const box = document.getElementById('statusBox');
+  box.textContent = message;
+  box.className = `status ${type}`.trim();
+}
 
-  if (!data?.user) {
-    window.location.href = "../auth/login.html";
+function clearStatus() {
+  const box = document.getElementById('statusBox');
+  box.textContent = '';
+  box.className = 'status';
+}
+
+function getCategoryBadgeClass(category) {
+  const value = String(category || '').toLowerCase();
+
+  if (value.includes('ด่วน')) return 'badge badge-urgent';
+  if (value.includes('ซ่อม')) return 'badge badge-maintenance';
+  if (value.includes('การเงิน')) return 'badge badge-finance';
+
+  return 'badge badge-general';
+}
+
+function extractDriveFileId(input) {
+  if (!input) return '';
+
+  const value = input.trim();
+
+  if (!value) return '';
+
+  if (!value.includes('drive.google.com')) {
+    return value;
+  }
+
+  const fileMatch = value.match(/\/file\/d\/([^/]+)/);
+  if (fileMatch && fileMatch[1]) return fileMatch[1];
+
+  const openMatch = value.match(/[?&]id=([^&]+)/);
+  if (openMatch && openMatch[1]) return openMatch[1];
+
+  return '';
+}
+
+function buildDriveThumbnailUrl(fileId) {
+  if (!fileId) return '';
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
+}
+
+function convertDriveToImageUrl() {
+  const rawInput = document.getElementById('driveInput').value.trim();
+  const imageInput = document.getElementById('image');
+
+  const fileId = extractDriveFileId(rawInput);
+
+  if (!fileId) {
+    setStatus('ไม่พบ Google Drive File ID', 'error');
     return;
   }
 
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", data.user.id)
+  const imageUrl = buildDriveThumbnailUrl(fileId);
+  imageInput.value = imageUrl;
+  setStatus('แปลงลิงก์รูปสำเร็จ', 'success');
+  previewImage();
+}
+
+function previewImage() {
+  const imageUrl = document.getElementById('image').value.trim();
+  const preview = document.getElementById('imagePreview');
+
+  if (!imageUrl) {
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+    setStatus('ยังไม่มีลิงก์รูปสำหรับแสดงตัวอย่าง', 'error');
+    return;
+  }
+
+  preview.src = imageUrl;
+  preview.style.display = 'block';
+  preview.onerror = function () {
+    preview.style.display = 'none';
+    setStatus('ไม่สามารถแสดงรูปได้ กรุณาเช็ก File ID หรือสิทธิ์ไฟล์ Google Drive', 'error');
+  };
+  preview.onload = function () {
+    setStatus('แสดงตัวอย่างรูปสำเร็จ', 'success');
+  };
+}
+
+function clearForm() {
+  document.getElementById('title').value = '';
+  document.getElementById('summary').value = '';
+  document.getElementById('content').value = '';
+  document.getElementById('category').value = 'ทั่วไป';
+  document.getElementById('priority').value = 'low';
+  document.getElementById('driveInput').value = '';
+  document.getElementById('image').value = '';
+
+  const preview = document.getElementById('imagePreview');
+  preview.style.display = 'none';
+  preview.removeAttribute('src');
+
+  clearStatus();
+}
+
+async function checkAuth() {
+  if (typeof supabaseClient === 'undefined') {
+    alert('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
+    window.location.href = '../auth/login.html';
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error || !data?.user) {
+    window.location.href = '../auth/login.html';
+    return false;
+  }
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', data.user.id)
     .single();
 
-  if (!profile || (profile.role !== "admin" && profile.role !== "super_admin")) {
-    alert("ไม่มีสิทธิ์");
-    window.location.href = "../auth/login.html";
+  if (profileError || !profile) {
+    alert('ไม่พบข้อมูลผู้ใช้');
+    window.location.href = '../auth/login.html';
+    return false;
   }
+
+  if (profile.role !== 'admin' && profile.role !== 'super_admin') {
+    alert('ไม่มีสิทธิ์');
+    window.location.href = '../auth/login.html';
+    return false;
+  }
+
+  currentUserProfile = profile;
+  return true;
 }
 
 async function addNews() {
-  const title = document.getElementById("title").value;
-  const summary = document.getElementById("summary").value;
-  const content = document.getElementById("content").value;
-  const category = document.getElementById("category").value;
-  const priority = document.getElementById("priority").value;
-  const image = document.getElementById("image").value;
+  clearStatus();
 
-  const { error } = await supabaseClient.from("announcements").insert([
-    {
-      title,
-      summary,
-      content,
-      category,
-      priority,
-      cover_image_url: image,
-      is_active: true
-    }
-  ]);
+  const title = document.getElementById('title').value.trim();
+  const summary = document.getElementById('summary').value.trim();
+  const content = document.getElementById('content').value.trim();
+  const category = document.getElementById('category').value;
+  const priority = document.getElementById('priority').value;
+  const driveInput = document.getElementById('driveInput').value.trim();
+  let image = document.getElementById('image').value.trim();
 
-  if (error) {
-    alert("เพิ่มไม่สำเร็จ");
+  if (!title) {
+    setStatus('กรุณากรอกหัวข้อข่าว', 'error');
     return;
   }
 
-  alert("เพิ่มข่าวสำเร็จ");
+  if (!summary) {
+    setStatus('กรุณากรอกสรุปสั้น', 'error');
+    return;
+  }
+
+  if (!content) {
+    setStatus('กรุณากรอกรายละเอียด', 'error');
+    return;
+  }
+
+  if (!image && driveInput) {
+    const fileId = extractDriveFileId(driveInput);
+    if (fileId) {
+      image = buildDriveThumbnailUrl(fileId);
+      document.getElementById('image').value = image;
+    }
+  }
+
+  const payload = {
+    title,
+    summary,
+    content,
+    category,
+    priority,
+    cover_image_url: image || null,
+    is_active: true
+  };
+
+  const { error } = await supabaseClient
+    .from('announcements')
+    .insert([payload]);
+
+  if (error) {
+    console.error(error);
+    setStatus(`เพิ่มข่าวไม่สำเร็จ: ${error.message}`, 'error');
+    return;
+  }
+
+  setStatus('เพิ่มข่าวสำเร็จ', 'success');
+  clearForm();
   loadNews();
 }
 
 async function loadNews() {
-  const { data } = await supabaseClient
-    .from("announcements")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabaseClient
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-  const table = document.getElementById("newsTable");
-  table.innerHTML = "";
+  const table = document.getElementById('newsTable');
+  table.innerHTML = '';
+
+  if (error) {
+    console.error(error);
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" style="color:red;">โหลดข่าวไม่สำเร็จ</td>
+      </tr>
+    `;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5">ยังไม่มีข่าว</td>
+      </tr>
+    `;
+    return;
+  }
 
   data.forEach(item => {
+    const imageCell = item.cover_image_url
+      ? `<a href="${item.cover_image_url}" target="_blank" rel="noopener noreferrer">ดูรูป</a>`
+      : '-';
+
     const row = `
       <tr>
-        <td>${item.title}</td>
-        <td>${item.category}</td>
-        <td>${item.is_active ? "🟢 เปิด" : "🔴 ปิด"}</td>
+        <td>${escapeHtml(item.title || '-')}</td>
+        <td><span class="${getCategoryBadgeClass(item.category)}">${escapeHtml(item.category || '-')}</span></td>
+        <td>${item.is_active ? '🟢 เปิด' : '🔴 ปิด'}</td>
+        <td>${imageCell}</td>
         <td>
-          <button class="btn-toggle" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
-          <button class="btn-danger" onclick="deleteNews('${item.id}')">ลบ</button>
+          <div class="actions">
+            <button class="btn-toggle" type="button" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
+            <button class="btn-danger" type="button" onclick="deleteNews('${item.id}')">ลบ</button>
+          </div>
         </td>
       </tr>
     `;
@@ -177,28 +565,54 @@ async function loadNews() {
 }
 
 async function toggleNews(id, current) {
-  await supabaseClient
-    .from("announcements")
+  const { error } = await supabaseClient
+    .from('announcements')
     .update({ is_active: !current })
-    .eq("id", id);
+    .eq('id', id);
+
+  if (error) {
+    console.error(error);
+    alert('เปลี่ยนสถานะไม่สำเร็จ');
+    return;
+  }
 
   loadNews();
 }
 
 async function deleteNews(id) {
-  if (!confirm("ลบข่าวนี้?")) return;
+  if (!confirm('ลบข่าวนี้?')) return;
 
-  await supabaseClient
-    .from("announcements")
+  const { error } = await supabaseClient
+    .from('announcements')
     .delete()
-    .eq("id", id);
+    .eq('id', id);
+
+  if (error) {
+    console.error(error);
+    alert('ลบข่าวไม่สำเร็จ');
+    return;
+  }
 
   loadNews();
 }
 
-checkAuth();
-loadNews();
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
+async function initPage() {
+  const ok = await checkAuth();
+  if (!ok) return;
+  await loadNews();
+}
+
+initPage();
 </script>
 
 </body>
