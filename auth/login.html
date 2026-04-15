@@ -1,195 +1,449 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>เข้าสู่ระบบ</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบ | CHAROEN KRUNG CONDOMINIUM 3</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .login-box {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      width: 320px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      position: relative;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+    * {
       box-sizing: border-box;
     }
 
-    button {
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Prompt', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.10), transparent 35%),
+        linear-gradient(135deg, #eef4ff 0%, #f8fafc 45%, #eef2f7 100%);
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-shell {
       width: 100%;
-      padding: 10px;
-      background: #2563eb;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+    }
+
+    .login-visual {
+      position: relative;
+      padding: 54px 48px;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 64, 175, 0.84)),
+        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
       color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 680px;
     }
 
-    button:hover {
-      background: #1e40af;
-    }
-
-    .back-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background: #e5e7eb;
-      color: #374151;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .back-btn:hover {
-      background: #d1d5db;
-    }
-
-    .error {
-      color: red;
-      margin-top: 10px;
+    .visual-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       font-size: 14px;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .visual-title {
+      margin: 22px 0 14px;
+      font-size: 46px;
+      line-height: 1.18;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .visual-text {
+      max-width: 520px;
+      font-size: 18px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.82);
+      margin: 0;
+    }
+
+    .visual-footer {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .footer-chip {
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 14px;
+    }
+
+    .login-panel {
+      padding: 42px 38px;
+      background: rgba(255, 255, 255, 0.86);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .logo-wrap {
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo-wrap img {
+      height: 86px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .login-heading {
       text-align: center;
+      margin-bottom: 26px;
+    }
+
+    .login-heading h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .login-heading p {
+      margin: 8px 0 0;
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #dbe3ee;
+      background: #ffffff;
+      font: inherit;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .field-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+      background: #fff;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.20);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    }
+
+    .btn-secondary {
+      background: #eef2f7;
+      color: #1f2937;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .helper-row {
+      margin-top: 16px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .helper-row span {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .error-box {
+      min-height: 24px;
+      margin-top: 14px;
+      text-align: center;
+      color: #dc2626;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 980px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .login-visual {
+        min-height: auto;
+        padding: 38px 28px;
+      }
+
+      .visual-title {
+        font-size: 34px;
+      }
+
+      .visual-text {
+        font-size: 16px;
+      }
+
+      .login-panel {
+        padding: 32px 24px 34px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 14px;
+      }
+
+      .login-shell {
+        border-radius: 24px;
+      }
+
+      .login-visual {
+        padding: 28px 20px;
+      }
+
+      .login-panel {
+        padding: 24px 18px 26px;
+      }
+
+      .login-heading h1 {
+        font-size: 26px;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .logo-wrap img {
+        height: 74px;
+      }
     }
   </style>
 </head>
-
 <body>
 
-<div class="login-box">
+  <div class="login-shell">
+    <section class="login-visual">
+      <div>
+        <div class="visual-badge">ระบบหลังบ้านและการเข้าใช้งานของอาคาร</div>
+        <h2 class="visual-title">ยินดีต้อนรับสู่<br>ระบบลูกบ้านและเจ้าหน้าที่</h2>
+        <p class="visual-text">
+          เข้าสู่ระบบเพื่อใช้งานส่วนจัดการข้อมูลของอาคาร ตรวจสอบข่าวสาร เอกสาร และเข้าถึงระบบตามสิทธิ์ของผู้ใช้งานแต่ละประเภท
+        </p>
+      </div>
 
-  <!-- 🔙 ปุ่มกลับ -->
-  <button class="back-btn" onclick="goHome()">← กลับ</button>
+      <div class="visual-footer">
+        <div class="footer-chip">Login ด้วยเลขห้องและรหัสผ่าน</div>
+        <div class="footer-chip">Admin / Super Admin / Resident / Technician</div>
+      </div>
+    </section>
 
-  <h2>เข้าสู่ระบบ</h2>
+    <section class="login-panel">
+      <div class="login-card">
+        <div class="logo-wrap">
+          <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="Charoen Krung Condominium 3 Logo">
+        </div>
 
-  <input type="text" id="room" placeholder="เลขห้อง เช่น 6301">
-  <input type="password" id="password" placeholder="รหัสผ่าน">
+        <div class="login-heading">
+          <h1>เข้าสู่ระบบ</h1>
+          <p>กรอกเลขห้องและรหัสผ่านเพื่อเข้าสู่ระบบของอาคาร</p>
+        </div>
 
-  <button type="button" onclick="login()">เข้าสู่ระบบ</button>
+        <div class="field-group">
+          <label class="field-label" for="room">เลขห้อง</label>
+          <input class="field-input" type="text" id="room" placeholder="เช่น 6301" autocomplete="username">
+        </div>
 
-  <div class="error" id="error"></div>
-</div>
+        <div class="field-group">
+          <label class="field-label" for="password">รหัสผ่าน</label>
+          <input class="field-input" type="password" id="password" placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
+        </div>
 
-<script>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" onclick="login()">เข้าสู่ระบบ</button>
+          <button class="btn btn-secondary" type="button" onclick="goHome()">กลับ</button>
+        </div>
 
-function goHome() {
-  window.location.href = "../index.html";
-}
+        <div class="helper-row">
+          กด <span>Enter</span> เพื่อเข้าสู่ระบบ และกด <span>Esc</span> เพื่อล้างค่าที่กรอก
+        </div>
 
-// ✅ ENTER = login
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    login();
-  }
+        <div class="error-box" id="error"></div>
+      </div>
+    </section>
+  </div>
 
-  // ✅ ESC = clear
-  if (e.key === "Escape") {
-    clearForm();
-  }
-});
+  <script>
+    function goHome() {
+      window.location.href = "../index.html";
+    }
 
-function clearForm() {
-  document.getElementById('room').value = '';
-  document.getElementById('password').value = '';
-  document.getElementById('error').textContent = '';
-}
+    function clearForm() {
+      document.getElementById("room").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("error").textContent = "";
+      document.getElementById("room").focus();
+    }
 
-async function login() {
-  const room = document.getElementById('room').value.trim();
-  const password = document.getElementById('password').value.trim();
-  const errorBox = document.getElementById('error');
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        login();
+      }
 
-  errorBox.textContent = '';
+      if (e.key === "Escape") {
+        clearForm();
+      }
+    });
 
-  if (!room || !password) {
-    errorBox.textContent = 'กรุณากรอกข้อมูลให้ครบ';
-    return;
-  }
+    async function login() {
+      const room = document.getElementById("room").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorBox = document.getElementById("error");
 
-  const fakeEmail = room + '@condo.local';
+      errorBox.textContent = "";
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: fakeEmail,
-    password: password
-  });
+      if (typeof supabaseClient === "undefined") {
+        errorBox.textContent = "ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ";
+        return;
+      }
 
-  if (error) {
-    errorBox.textContent = 'เลขห้องหรือรหัสผ่านไม่ถูกต้อง';
-    return;
-  }
+      if (!room || !password) {
+        errorBox.textContent = "กรุณากรอกข้อมูลให้ครบ";
+        return;
+      }
 
-  await redirectByRole();
-}
+      const fakeEmail = room + "@condo.local";
 
-async function redirectByRole() {
-  const { data: authData } = await supabaseClient.auth.getUser();
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: fakeEmail,
+        password: password
+      });
 
-  if (!authData?.user) {
-    alert('ไม่พบผู้ใช้');
-    return;
-  }
+      if (error) {
+        console.error("Login error:", error);
+        errorBox.textContent = "เลขห้องหรือรหัสผ่านไม่ถูกต้อง";
+        return;
+      }
 
-  const userId = authData.user.id;
+      await redirectByRole();
+    }
 
-  const { data: profile } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+    async function redirectByRole() {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
 
-  if (!profile) {
-    alert('ไม่พบข้อมูลผู้ใช้');
-    return;
-  }
+      if (authError || !authData?.user) {
+        console.error("Auth error:", authError);
+        alert("ไม่พบผู้ใช้");
+        return;
+      }
 
-  const role = profile.role;
+      const userId = authData.user.id;
 
-  if (role === 'super_admin' || role === 'admin') {
-    window.location.href = '../admin/dashboard.html';
-    return;
-  }
+      const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-  if (role === 'resident') {
-    window.location.href = '../resident/dashboard.html';
-    return;
-  }
+      if (error || !profile) {
+        console.error("Profile error:", error);
+        alert("ไม่พบข้อมูลผู้ใช้");
+        return;
+      }
 
-  if (role === 'technician') {
-    window.location.href = '../technician/dashboard.html';
-    return;
-  }
+      const role = profile.role;
 
-  alert('ไม่มีสิทธิ์เข้าใช้งาน');
-}
+      if (role === "super_admin" || role === "admin") {
+        window.location.href = "../admin/dashboard.html";
+        return;
+      }
 
-</script>
+      if (role === "resident") {
+        window.location.href = "../resident/dashboard.html";
+        return;
+      }
 
+      if (role === "technician") {
+        window.location.href = "../technician/dashboard.html";
+        return;
+      }
+
+      alert("ไม่มีสิทธิ์เข้าใช้งาน");
+    }
+  </script>
 </body>
 </html>
