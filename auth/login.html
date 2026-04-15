@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>เข้าสู่ระบบ</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-client.js"></script>
 
@@ -22,6 +23,7 @@
       border-radius: 16px;
       width: 320px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
     }
 
     h2 {
@@ -52,6 +54,23 @@
       background: #1e40af;
     }
 
+    .back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: #e5e7eb;
+      color: #374151;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: #d1d5db;
+    }
+
     .error {
       color: red;
       margin-top: 10px;
@@ -64,6 +83,10 @@
 <body>
 
 <div class="login-box">
+
+  <!-- 🔙 ปุ่มกลับ -->
+  <button class="back-btn" onclick="goHome()">← กลับ</button>
+
   <h2>เข้าสู่ระบบ</h2>
 
   <input type="text" id="room" placeholder="เลขห้อง เช่น 6301">
@@ -75,17 +98,35 @@
 </div>
 
 <script>
+
+function goHome() {
+  window.location.href = "../index.html";
+}
+
+// ✅ ENTER = login
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    login();
+  }
+
+  // ✅ ESC = clear
+  if (e.key === "Escape") {
+    clearForm();
+  }
+});
+
+function clearForm() {
+  document.getElementById('room').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('error').textContent = '';
+}
+
 async function login() {
   const room = document.getElementById('room').value.trim();
   const password = document.getElementById('password').value.trim();
   const errorBox = document.getElementById('error');
 
   errorBox.textContent = '';
-
-  if (typeof supabaseClient === 'undefined') {
-    errorBox.textContent = 'ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ';
-    return;
-  }
 
   if (!room || !password) {
     errorBox.textContent = 'กรุณากรอกข้อมูลให้ครบ';
@@ -94,17 +135,13 @@ async function login() {
 
   const fakeEmail = room + '@condo.local';
 
-  console.log('room:', room);
-  console.log('fakeEmail:', fakeEmail);
-
   const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: fakeEmail,
     password: password
   });
 
   if (error) {
-    console.error('Login error:', error);
-    errorBox.textContent = error.message || 'เลขห้องหรือรหัสผ่านไม่ถูกต้อง';
+    errorBox.textContent = 'เลขห้องหรือรหัสผ่านไม่ถูกต้อง';
     return;
   }
 
@@ -112,24 +149,22 @@ async function login() {
 }
 
 async function redirectByRole() {
-  const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+  const { data: authData } = await supabaseClient.auth.getUser();
 
-  if (authError || !authData?.user) {
-    console.error('Auth error:', authError);
+  if (!authData?.user) {
     alert('ไม่พบผู้ใช้');
     return;
   }
 
   const userId = authData.user.id;
 
-  const { data: profile, error } = await supabaseClient
+  const { data: profile } = await supabaseClient
     .from('profiles')
     .select('*')
     .eq('id', userId)
     .single();
 
-  if (error || !profile) {
-    console.error('Profile error:', error);
+  if (!profile) {
     alert('ไม่พบข้อมูลผู้ใช้');
     return;
   }
@@ -153,6 +188,7 @@ async function redirectByRole() {
 
   alert('ไม่มีสิทธิ์เข้าใช้งาน');
 }
+
 </script>
 
 </body>
