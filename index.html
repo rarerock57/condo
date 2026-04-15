@@ -32,357 +32,282 @@
       border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
- .logo-hover:hover img {
-  transform: scale(1.01);
-}
+    .logo-hover:hover img {
+      transform: scale(1.01);
+    }
 
-.marquee-wrap {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  white-space: nowrap;
-}
+    .marquee-wrap {
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      white-space: nowrap;
+    }
 
-.marquee-track {
-  display: inline-block;
-  white-space: nowrap;
-  padding-left: 100%;
-  animation: marquee-left 36s linear infinite;
-  will-change: transform;
-}
+    .marquee-track {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: marquee-left 36s linear infinite;
+      will-change: transform;
+    }
 
-@keyframes marquee-left {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
+    @keyframes marquee-left {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
   </style>
 </head>
 
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
-  <button id="scrollTopBtn"
-  class="fixed bottom-6 right-6 z-50 hidden bg-white text-blue-600 border border-gray-200 hover:bg-blue-600 hover:text-white p-3 rounded-full shadow-xl transition"
-  <i class='bx bx-up-arrow-alt text-2xl'></i>
-</button>
 
-<!-- NAVBAR -->
-<nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center py-3">
+  <button
+    id="scrollTopBtn"
+    class="fixed bottom-6 right-6 z-50 hidden bg-white text-blue-600 border border-gray-200 hover:bg-blue-600 hover:text-white px-4 py-3 rounded-full shadow-xl transition flex items-center gap-2"
+    type="button"
+  >
+    <i class='bx bx-up-arrow-alt text-2xl'></i>
+    <span class="font-medium text-sm">กลับด้านบน</span>
+  </button>
 
-      <!-- 🔥 LOGO (UPDATED ONLY THIS PART) -->
-      <div id="admin-entry" class="flex items-center logo-hover transition">
-        <img
-          src="https://img1.pic.in.th/images/-16daae7756d8872a5.png"
-          alt="Charoen Krung Condominium 3 Logo"
-          loading="eager"
-          class="h-16 w-auto object-contain transition duration-300"
+  <!-- NAVBAR -->
+  <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-3">
+
+        <!-- LOGO -->
+        <div id="admin-entry" class="flex items-center logo-hover transition">
+          <img
+            src="https://img1.pic.in.th/images/-16daae7756d8872a5.png"
+            alt="Charoen Krung Condominium 3 Logo"
+            loading="eager"
+            class="h-16 w-auto object-contain transition duration-300"
+          >
+        </div>
+
+        <!-- MENU -->
+        <div class="hidden md:flex items-center space-x-8 font-medium">
+          <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
+          <a href="#documentsSection" class="text-slate-600 hover:text-blue-700 transition">เอกสารและข้อมูลสำคัญ</a>
+          <a href="#contact" class="text-slate-600 hover:text-blue-700 transition">ติดต่อเรา</a>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="flex items-center">
+          <button onclick="toggleLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
+            <i class='bx bx-user-circle text-xl'></i>
+            ระบบลูกบ้าน
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <header id="top" class="hero-bg relative pt-28 pb-20 md:pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 text-white">
+          <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm mb-5">
+            <i class='bx bxs-badge-check text-cyan-300'></i>
+            ระบบประชาสัมพันธ์และข่าวสารกลางของอาคาร
+          </div>
+
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-5">
+            ยินดีต้อนรับสู่<br />
+            <span class="text-cyan-300">สังคมคุณภาพของเจริญกรุง คอนโดมิเนียม 3</span>
+          </h1>
+
+          <p class="text-lg md:text-xl text-slate-200 leading-relaxed max-w-3xl mb-8">
+            ศูนย์รวมข่าวสาร ประกาศสำคัญ เอกสาร และบริการเบื้องต้นสำหรับลูกบ้าน
+            อัปเดตข้อมูลล่าสุดจากอาคารได้ในที่เดียว
+          </p>
+
+          <div class="mt-8">
+            <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
+              <div class="flex items-center gap-4 px-5 py-4">
+                <div class="flex items-center gap-2 shrink-0 font-bold">
+                  <i class='bx bxs-bell-ring text-xl'></i>
+                  ประกาศด่วน
+                </div>
+
+                <div class="marquee-wrap w-full">
+                  <div id="urgentTicker" class="marquee-track text-sm md:text-base font-medium"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="defaultUrgentBar" class="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 text-white/90 max-w-3xl">
+              <div class="flex items-center gap-3">
+                <i class='bx bx-info-circle text-2xl text-cyan-300'></i>
+                <span>ติดตามข่าวสารล่าสุดได้จากระบบประกาศกลางของอาคาร</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <div class="glass-card rounded-[28px] p-5 md:p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <p class="text-white/70 text-sm">ประกาศแนะนำ</p>
+                <h3 class="text-white text-2xl font-bold">Featured Announcement</h3>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                <i class='bx bxs-megaphone text-2xl text-cyan-300'></i>
+              </div>
+            </div>
+
+            <div id="featuredAnnouncement" class="rounded-[24px] bg-white overflow-hidden shadow-xl">
+              <div class="h-56 bg-slate-200 animate-pulse"></div>
+              <div class="p-6">
+                <div class="h-4 w-24 bg-slate-200 rounded mb-4 animate-pulse"></div>
+                <div class="h-6 w-4/5 bg-slate-200 rounded mb-3 animate-pulse"></div>
+                <div class="h-4 w-full bg-slate-200 rounded mb-2 animate-pulse"></div>
+                <div class="h-4 w-3/4 bg-slate-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-800">ข่าวสารและประกาศ</h2>
+        <div class="w-14 h-1 bg-blue-600 mt-3 rounded-full"></div>
+        <p class="text-slate-500 mt-4 max-w-2xl">
+          รวมข่าวสาร ประกาศสำคัญ และการอัปเดตต่างๆ จากอาคาร
+          สามารถค้นหาและกรองตามหมวดหมู่ได้ทันที
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative">
+          <i class='bx bx-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg'></i>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="ค้นหาหัวข้อข่าว..."
+            class="w-full sm:w-72 bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+          />
+        </div>
+
+        <select
+          id="categoryFilter"
+          class="bg-white border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
         >
+          <option value="all">ทุกหมวดหมู่</option>
+        </select>
       </div>
-
-      <!-- เมนูเดิม -->
-      <div class="hidden md:flex items-center space-x-8 font-medium">
-        <a href="#top" class="text-blue-700">หน้าแรก</a>
-        <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
-        <a href="#quick-links" class="text-slate-600 hover:text-blue-700 transition">บริการ</a>
-        <a href="#contact" class="text-slate-600 hover:text-blue-700 transition">ติดต่อเรา</a>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <button onclick="scrollToSection('news')" class="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl transition items-center gap-2">
-          <i class='bx bx-news text-lg'></i>
-          ดูประกาศ
-        </button>
-        <button onclick="toggleLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
-          <i class='bx bx-user-circle text-xl'></i>
-          ระบบลูกบ้าน
-        </button>
-      </div>
-
     </div>
-  </div>
-</nav>
 
-<header id="top" class="hero-bg relative pt-28 pb-20 md:pb-24">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-      <div class="lg:col-span-7 text-white">
-        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm mb-5">
-          <i class='bx bxs-badge-check text-cyan-300'></i>
-          ระบบประชาสัมพันธ์และข่าวสารกลางของอาคาร
+    <div id="newsSummaryBar" class="mb-8 bg-white rounded-3xl border border-slate-100 shadow-sm px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3 text-slate-600">
+        <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <i class='bx bx-line-chart text-2xl'></i>
         </div>
-
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-5">
-          ยินดีต้อนรับสู่<br />
-          <span class="text-cyan-300">สังคมคุณภาพของเจริญกรุง คอนโดมิเนียม 3</span>
-        </h1>
-
-        <p class="text-lg md:text-xl text-slate-200 leading-relaxed max-w-3xl mb-8">
-          ศูนย์รวมข่าวสาร ประกาศสำคัญ เอกสาร และบริการเบื้องต้นสำหรับลูกบ้าน
-          อัปเดตข้อมูลล่าสุดจากอาคารได้ในที่เดียว
-        </p>
-
-        <div class="flex flex-wrap items-center gap-4">
-          <button onclick="scrollToSection('news')" class="bg-white text-blue-800 hover:bg-slate-100 px-6 py-3 rounded-2xl font-semibold shadow-lg transition flex items-center gap-2">
-            <i class='bx bx-news'></i>
-            ดูข่าวสารล่าสุด
-          </button>
-          <button onclick="scrollToSection('quick-links')" class="glass-card text-white hover:bg-white/20 px-6 py-3 rounded-2xl font-semibold transition flex items-center gap-2">
-            <i class='bx bx-grid-alt'></i>
-            บริการภายใน
-          </button>
+        <div>
+          <p class="text-sm text-slate-500">ภาพรวมประกาศ</p>
+          <p id="newsSummaryText" class="font-semibold text-slate-800">กำลังโหลดข้อมูล...</p>
         </div>
+      </div>
 
-        <div class="mt-8">
-        <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
-  <div class="flex items-center gap-4 px-5 py-4">
-    <div class="flex items-center gap-2 shrink-0 font-bold">
-      <i class='bx bxs-bell-ring text-xl'></i>
-      ประกาศด่วน
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="setQuickCategory('all')" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 transition text-slate-700 text-sm font-medium">ทั้งหมด</button>
+        <button onclick="setQuickCategory('urgent')" class="px-4 py-2 rounded-full bg-red-50 hover:bg-red-100 transition text-red-600 text-sm font-medium">ด่วน</button>
+        <button onclick="setQuickCategory('maintenance')" class="px-4 py-2 rounded-full bg-amber-50 hover:bg-amber-100 transition text-amber-700 text-sm font-medium">ซ่อมบำรุง</button>
+        <button onclick="setQuickCategory('finance')" class="px-4 py-2 rounded-full bg-violet-50 hover:bg-violet-100 transition text-violet-700 text-sm font-medium">การเงิน</button>
+      </div>
     </div>
 
-    <div class="marquee-wrap w-full">
-      <div id="urgentTicker" class="marquee-track text-sm md:text-base font-medium"></div>
+    <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div class="col-span-full text-center text-slate-400 py-14">
+        กำลังโหลดข่าวสาร...
+      </div>
     </div>
-  </div>
-</div>
+  </section>
 
-          <div id="defaultUrgentBar" class="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 text-white/90 max-w-3xl">
-            <div class="flex items-center gap-3">
-              <i class='bx bx-info-circle text-2xl text-cyan-300'></i>
-              <span>ติดตามข่าวสารล่าสุดได้จากระบบประกาศกลางของอาคาร</span>
-            </div>
+  <section id="documentsSection" class="py-16 bg-white border-y border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-800">เอกสารและข้อมูลสำคัญ</h2>
+          <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
+        </div>
+        <p class="hidden md:block text-slate-500">ส่วนนี้สามารถเชื่อมต่อกับระบบเอกสารในลำดับถัดไป</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center mb-4">
+            <i class='bx bx-file text-2xl'></i>
           </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารระเบียบอาคาร</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">รวมข้อบังคับและระเบียบการใช้งานพื้นที่ส่วนกลางภายในอาคาร</p>
         </div>
-      </div>
 
-      <div class="lg:col-span-5">
-        <div class="glass-card rounded-[28px] p-5 md:p-6 shadow-2xl">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <p class="text-white/70 text-sm">ประกาศแนะนำ</p>
-              <h3 class="text-white text-2xl font-bold">Featured Announcement</h3>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
-              <i class='bx bxs-megaphone text-2xl text-cyan-300'></i>
-            </div>
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mb-4">
+            <i class='bx bx-receipt text-2xl'></i>
           </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารแจ้งประชุม/ประกาศ</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">ใช้สำหรับเผยแพร่หนังสือแจ้งประชุม ข่าวประชาสัมพันธ์ และเอกสารแนบ</p>
+        </div>
 
-          <div id="featuredAnnouncement" class="rounded-[24px] bg-white overflow-hidden shadow-xl">
-            <div class="h-56 bg-slate-200 animate-pulse"></div>
-            <div class="p-6">
-              <div class="h-4 w-24 bg-slate-200 rounded mb-4 animate-pulse"></div>
-              <div class="h-6 w-4/5 bg-slate-200 rounded mb-3 animate-pulse"></div>
-              <div class="h-4 w-full bg-slate-200 rounded mb-2 animate-pulse"></div>
-              <div class="h-4 w-3/4 bg-slate-200 rounded animate-pulse"></div>
-            </div>
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+            <i class='bx bx-download text-2xl'></i>
           </div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">ดาวน์โหลดแบบฟอร์ม</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">รองรับการเชื่อมกับฟอร์มการติดต่อ เอกสารคำร้อง และแบบคำขอภายในอาคาร</p>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
-      <div class="glass-card rounded-3xl px-5 py-5 text-white">
-        <p class="text-sm text-white/70 mb-1">ข่าวทั้งหมดที่แสดง</p>
-        <h3 id="statNewsCount" class="text-3xl font-bold">0</h3>
-      </div>
-      <div class="glass-card rounded-3xl px-5 py-5 text-white">
-        <p class="text-sm text-white/70 mb-1">ประกาศด่วน</p>
-        <h3 id="statUrgentCount" class="text-3xl font-bold">0</h3>
-      </div>
-      <div class="glass-card rounded-3xl px-5 py-5 text-white">
-        <p class="text-sm text-white/70 mb-1">สถานะระบบ</p>
-        <h3 class="text-3xl font-bold text-emerald-300">ปกติ</h3>
-      </div>
-      <div class="glass-card rounded-3xl px-5 py-5 text-white">
-        <p class="text-sm text-white/70 mb-1">อัปเดตล่าสุด</p>
-        <h3 id="statLatestDate" class="text-xl md:text-2xl font-bold">-</h3>
-      </div>
-    </div>
-  </div>
-</header>
-
-<section id="quick-links" class="py-14 section-blur">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h2 class="text-3xl font-bold text-slate-800">บริการและลิงก์ด่วน</h2>
-        <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
-      </div>
-      <p class="hidden md:block text-slate-500">รวมเมนูสำคัญสำหรับลูกบ้านและเจ้าหน้าที่</p>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <button onclick="toggleLoginModal()" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
-        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-          <i class='bx bx-user text-2xl'></i>
-        </div>
-        <h3 class="font-bold text-slate-800 mb-1">ระบบลูกบ้าน</h3>
-        <p class="text-sm text-slate-500">เข้าสู่ระบบเพื่อใช้งานบริการภายใน</p>
-      </button>
-
-      <button onclick="scrollToSection('news')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
-        <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4">
-          <i class='bx bx-news text-2xl'></i>
-        </div>
-        <h3 class="font-bold text-slate-800 mb-1">ข่าวและประกาศ</h3>
-        <p class="text-sm text-slate-500">ติดตามข้อมูลอัปเดตล่าสุดจากอาคาร</p>
-      </button>
-
-      <button onclick="scrollToSection('documentsSection')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
-        <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
-          <i class='bx bx-folder-open text-2xl'></i>
-        </div>
-        <h3 class="font-bold text-slate-800 mb-1">เอกสารสำคัญ</h3>
-        <p class="text-sm text-slate-500">รวมเอกสารและข้อมูลสำหรับอาคาร</p>
-      </button>
-
-      <button onclick="scrollToSection('contact')" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-lg transition text-left">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
-          <i class='bx bx-phone-call text-2xl'></i>
-        </div>
-        <h3 class="font-bold text-slate-800 mb-1">ติดต่อสำนักงาน</h3>
-        <p class="text-sm text-slate-500">โทรศัพท์ อีเมล และเวลาทำการ</p>
-      </button>
-    </div>
-  </div>
-</section>
-
-<section id="news" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-    <div>
-      <h2 class="text-3xl md:text-4xl font-bold text-slate-800">ข่าวสารและประกาศ</h2>
-      <div class="w-14 h-1 bg-blue-600 mt-3 rounded-full"></div>
-      <p class="text-slate-500 mt-4 max-w-2xl">
-        รวมข่าวสาร ประกาศสำคัญ และการอัปเดตต่างๆ จากอาคาร
-        สามารถค้นหาและกรองตามหมวดหมู่ได้ทันที
-      </p>
-    </div>
-
-    <div class="flex flex-col sm:flex-row gap-3">
-      <div class="relative">
-        <i class='bx bx-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg'></i>
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="ค้นหาหัวข้อข่าว..."
-          class="w-full sm:w-72 bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-        />
-      </div>
-
-      <select
-        id="categoryFilter"
-        class="bg-white border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-      >
-        <option value="all">ทุกหมวดหมู่</option>
-      </select>
-    </div>
-  </div>
-
-  <div id="newsSummaryBar" class="mb-8 bg-white rounded-3xl border border-slate-100 shadow-sm px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-    <div class="flex items-center gap-3 text-slate-600">
-      <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-        <i class='bx bx-line-chart text-2xl'></i>
-      </div>
-      <div>
-        <p class="text-sm text-slate-500">ภาพรวมประกาศ</p>
-        <p id="newsSummaryText" class="font-semibold text-slate-800">กำลังโหลดข้อมูล...</p>
-      </div>
-    </div>
-
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="setQuickCategory('all')" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 transition text-slate-700 text-sm font-medium">ทั้งหมด</button>
-      <button onclick="setQuickCategory('urgent')" class="px-4 py-2 rounded-full bg-red-50 hover:bg-red-100 transition text-red-600 text-sm font-medium">ด่วน</button>
-      <button onclick="setQuickCategory('maintenance')" class="px-4 py-2 rounded-full bg-amber-50 hover:bg-amber-100 transition text-amber-700 text-sm font-medium">ซ่อมบำรุง</button>
-      <button onclick="setQuickCategory('finance')" class="px-4 py-2 rounded-full bg-violet-50 hover:bg-violet-100 transition text-violet-700 text-sm font-medium">การเงิน</button>
-    </div>
-  </div>
-
-  <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-    <div class="col-span-full text-center text-slate-400 py-14">
-      กำลังโหลดข่าวสาร...
-    </div>
-  </div>
-</section>
-
-<section id="documentsSection" class="py-16 bg-white border-y border-slate-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-10">
-      <div>
-        <h2 class="text-3xl font-bold text-slate-800">เอกสารและข้อมูลสำคัญ</h2>
-        <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
-      </div>
-      <p class="hidden md:block text-slate-500">ส่วนนี้สามารถเชื่อมต่อกับระบบเอกสารในลำดับถัดไป</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center mb-4">
-          <i class='bx bx-file text-2xl'></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารระเบียบอาคาร</h3>
-        <p class="text-slate-500 text-sm leading-relaxed">รวมข้อบังคับและระเบียบการใช้งานพื้นที่ส่วนกลางภายในอาคาร</p>
-      </div>
-
-      <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mb-4">
-          <i class='bx bx-receipt text-2xl'></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารแจ้งประชุม/ประกาศ</h3>
-        <p class="text-slate-500 text-sm leading-relaxed">ใช้สำหรับเผยแพร่หนังสือแจ้งประชุม ข่าวประชาสัมพันธ์ และเอกสารแนบ</p>
-      </div>
-
-      <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-          <i class='bx bx-download text-2xl'></i>
-        </div>
-        <h3 class="text-xl font-bold text-slate-800 mb-2">ดาวน์โหลดแบบฟอร์ม</h3>
-        <p class="text-slate-500 text-sm leading-relaxed">รองรับการเชื่อมกับฟอร์มการติดต่อ เอกสารคำร้อง และแบบคำขอภายในอาคาร</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="contact" class="py-16 bg-slate-950 text-slate-300 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-      <div>
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-            <i class='bx bxs-building-house text-2xl text-cyan-300'></i>
-          </div>
-          <div>
-            <h4 class="text-white text-xl font-bold">เจริญกรุง คอนโดมิเนียม 3</h4>
-            <p class="text-slate-400 text-sm">Charoen Krung Condominium 3</p>
-          </div>
-        </div>
-
-        <p class="text-sm leading-relaxed text-slate-400">
-          630 ถนนเจริญกรุง แขวงบางคอแหลม<br />
-          เขตบางคอแหลม กรุงเทพมหานคร 10120
-        </p>
-
-        <div class="flex gap-4 mt-6 text-3xl">
-          <i class='bx bxl-facebook-circle hover:text-blue-400 transition cursor-pointer'></i>
-          <i class='bx bxl-line hover:text-green-400 transition cursor-pointer'></i>
-        </div>
-      </div>
-
-      <div>
-        <h4 class="text-white text-lg font-bold mb-5">ติดต่อสำนักงานนิติบุคคล</h4>
-        <div class="space-y-4">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mt-0.5">
-              <i class='bx bx-phone text-cyan-300'></i>
+  <section id="contact" class="py-16 bg-slate-950 text-slate-300 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div>
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+              <i class='bx bxs-building-house text-2xl text-cyan-300'></i>
             </div>
             <div>
-              <p class="text-sm text-slate-400">โทรศัพท์สำนักงาน</p>
-              <p class="font-semibold text-white">02-123-4567</p>
+              <h4 class="text-white text-xl font-bold">เจริญกรุง คอนโดมิเนียม 3</h4>
+              <p class="text-slate-400 text-sm">Charoen Krung Condominium 3</p>
             </div>
           </div>
+
+          <p class="text-sm leading-relaxed text-slate-400">
+            630 ถนนเจริญกรุง แขวงบางคอแหลม<br />
+            เขตบางคอแหลม กรุงเทพมหานคร 10120
+          </p>
+
+          <div class="flex gap-4 mt-6 text-3xl">
+            <i class='bx bxl-facebook-circle hover:text-blue-400 transition cursor-pointer'></i>
+            <i class='bx bxl-line hover:text-green-400 transition cursor-pointer'></i>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-white text-lg font-bold mb-5">ติดต่อสำนักงานนิติบุคคล</h4>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mt-0.5">
+                <i class='bx bx-phone text-cyan-300'></i>
+              </div>
+              <div>
+                <p class="text-sm text-slate-400">โทรศัพท์สำนักงาน</p>
+                <p class="font-semibold text-white">02-123-4567</p>
+              </div>
+            </div>
 
             <div class="flex items-start gap-3">
               <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mt-0.5">
@@ -414,7 +339,7 @@
               <p class="text-white font-semibold">18:00 – 20:00 น.</p>
             </div>
             <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
-              <p class="text-sm text-slate-400">วันเสาร์ </p>
+              <p class="text-sm text-slate-400">วันเสาร์</p>
               <p class="text-white font-semibold">10:00 - 14:00 น.</p>
             </div>
           </div>
@@ -517,12 +442,9 @@
       }
     });
 
-    let failCount = 0;
-
-document.getElementById('admin-entry').addEventListener('click', function () {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-   
+    document.getElementById('admin-entry').addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
     function normalizeDriveImage(url) {
       if (!url) return '';
@@ -774,50 +696,33 @@ document.getElementById('admin-entry').addEventListener('click', function () {
       `;
     }
 
-function renderUrgentBar() {
-  const urgentBar = document.getElementById('urgentBar');
-  const defaultUrgentBar = document.getElementById('defaultUrgentBar');
-  const urgentTicker = document.getElementById('urgentTicker');
+    function renderUrgentBar() {
+      const urgentBar = document.getElementById('urgentBar');
+      const defaultUrgentBar = document.getElementById('defaultUrgentBar');
+      const urgentTicker = document.getElementById('urgentTicker');
 
-  if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
+      if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
 
-  const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
+      const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
 
-  if (!urgentItems.length) {
-    urgentBar.classList.add('hidden');
-    defaultUrgentBar.classList.remove('hidden');
-    return;
-  }
+      if (!urgentItems.length) {
+        urgentBar.classList.add('hidden');
+        defaultUrgentBar.classList.remove('hidden');
+        return;
+      }
 
-  defaultUrgentBar.classList.add('hidden');
-  urgentBar.classList.remove('hidden');
+      defaultUrgentBar.classList.add('hidden');
+      urgentBar.classList.remove('hidden');
 
-  const messages = urgentItems.map(item => {
-    const dateText = formatThaiDate(getDisplayDate(item));
-    const title = item.title || 'ประกาศด่วน';
-    const summary = item.summary || '';
-    return summary || title;
-  });
+      const messages = urgentItems.map(item => {
+        const title = item.title || 'ประกาศด่วน';
+        const summary = item.summary || '';
+        return summary || title;
+      });
 
-  urgentTicker.innerHTML = messages
-    .map(msg => `<span class="inline-block pr-16">${escapeHtml(msg)}</span>`)
-    .join('');
-}
-
-    function renderStats() {
-      const statNewsCount = document.getElementById('statNewsCount');
-      const statUrgentCount = document.getElementById('statUrgentCount');
-      const statLatestDate = document.getElementById('statLatestDate');
-
-      const urgentCount = announcementsData.filter(item => categoryKey(item.category) === 'urgent').length;
-
-      const latest = [...announcementsData].sort((a, b) => {
-        return new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0);
-      })[0];
-
-      if (statNewsCount) statNewsCount.textContent = announcementsData.length;
-      if (statUrgentCount) statUrgentCount.textContent = urgentCount;
-      if (statLatestDate) statLatestDate.textContent = latest ? formatThaiDate(getDisplayDate(latest)) : '-';
+      urgentTicker.innerHTML = messages
+        .map(msg => `<span class="inline-block pr-16">${escapeHtml(msg)}</span>`)
+        .join('');
     }
 
     function openAnnouncementModal(id) {
@@ -922,7 +827,6 @@ function renderUrgentBar() {
       populateCategoryFilter();
       renderFeaturedAnnouncement();
       renderUrgentBar();
-      renderStats();
       renderAnnouncements();
     }
 
@@ -964,21 +868,20 @@ function renderUrgentBar() {
     } else {
       initPage();
     }
+
     const scrollBtn = document.getElementById("scrollTopBtn");
 
-// แสดงปุ่มเมื่อเลื่อนลง
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 300) {
-    scrollBtn.classList.remove("hidden");
-  } else {
-    scrollBtn.classList.add("hidden");
-  }
-});
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        scrollBtn.classList.remove("hidden");
+      } else {
+        scrollBtn.classList.add("hidden");
+      }
+    });
 
-// คลิกแล้วขึ้นบน
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+    scrollBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   </script>
 </body>
 </html>
