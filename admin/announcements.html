@@ -128,6 +128,15 @@
       background: #d1d5db;
     }
 
+    .btn-edit {
+      background: #0f766e;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #115e59;
+    }
+
     .hint {
       font-size: 13px;
       color: #64748b;
@@ -218,6 +227,21 @@
       flex-wrap: wrap;
     }
 
+    .mode-box {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: 1fr;
@@ -229,14 +253,18 @@
 <body>
 
   <div class="topbar">
-    <a href="dashboard.html" class="back-link">← กลับ Dashboard</a>
+    <a href="dashboard.html" class="back-link">← กลับ</a>
   </div>
 
   <h2>📢 จัดการข่าว</h2>
-  <p class="page-note">เพิ่มข่าวใหม่, ใช้ Google Drive เป็นรูปหน้าปก, เปิด/ปิดข่าว และลบข่าวได้จากหน้านี้</p>
+  <p class="page-note">เพิ่มข่าวใหม่, แก้ไขข่าว, ใช้ Google Drive เป็นรูปหน้าปก, เปิด/ปิดข่าว และลบข่าวได้จากหน้านี้</p>
 
   <div class="card">
-    <h3>เพิ่มข่าว</h3>
+    <div id="formModeLabel" class="mode-box">โหมด: เพิ่มข่าวใหม่</div>
+
+    <h3 id="formTitle">เพิ่มข่าว</h3>
+
+    <input type="hidden" id="editId">
 
     <div class="grid">
       <div class="full">
@@ -278,7 +306,7 @@
         <div class="btn-row">
           <button type="button" class="btn-secondary" onclick="convertDriveToImageUrl()">แปลงลิงก์รูป</button>
           <button type="button" class="btn-secondary" onclick="previewImage()">แสดงตัวอย่างรูป</button>
-          <button type="button" class="btn-secondary" onclick="clearForm()">ล้างฟอร์ม</button>
+          <button type="button" class="btn-secondary" onclick="resetForm()">ล้างฟอร์ม</button>
         </div>
       </div>
 
@@ -288,7 +316,8 @@
     </div>
 
     <div class="btn-row">
-      <button class="btn-primary" type="button" onclick="addNews()">เพิ่มข่าว</button>
+      <button id="saveBtn" class="btn-primary" type="button" onclick="saveNews()">เพิ่มข่าว</button>
+      <button id="cancelEditBtn" class="btn-secondary hidden" type="button" onclick="cancelEdit()">ยกเลิกแก้ไข</button>
     </div>
 
     <div id="statusBox" class="status"></div>
@@ -315,6 +344,8 @@
 
 <script>
 let currentUserProfile = null;
+let editingNewsId = null;
+let allNews = [];
 
 function setStatus(message, type = '') {
   const box = document.getElementById('statusBox');
@@ -342,7 +373,6 @@ function extractDriveFileId(input) {
   if (!input) return '';
 
   const value = input.trim();
-
   if (!value) return '';
 
   if (!value.includes('drive.google.com')) {
@@ -402,7 +432,8 @@ function previewImage() {
   };
 }
 
-function clearForm() {
+function clearFormFields() {
+  document.getElementById('editId').value = '';
   document.getElementById('title').value = '';
   document.getElementById('summary').value = '';
   document.getElementById('content').value = '';
@@ -414,8 +445,37 @@ function clearForm() {
   const preview = document.getElementById('imagePreview');
   preview.style.display = 'none';
   preview.removeAttribute('src');
+}
 
+function updateFormMode() {
+  const label = document.getElementById('formModeLabel');
+  const title = document.getElementById('formTitle');
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+
+  if (editingNewsId) {
+    label.textContent = 'โหมด: แก้ไขข่าว';
+    title.textContent = 'แก้ไขข่าว';
+    saveBtn.textContent = 'บันทึกการแก้ไข';
+    cancelBtn.classList.remove('hidden');
+  } else {
+    label.textContent = 'โหมด: เพิ่มข่าวใหม่';
+    title.textContent = 'เพิ่มข่าว';
+    saveBtn.textContent = 'เพิ่มข่าว';
+    cancelBtn.classList.add('hidden');
+  }
+}
+
+function resetForm() {
+  editingNewsId = null;
+  clearFormFields();
   clearStatus();
+  updateFormMode();
+}
+
+function cancelEdit() {
+  resetForm();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function checkAuth() {
@@ -454,9 +514,7 @@ async function checkAuth() {
   return true;
 }
 
-async function addNews() {
-  clearStatus();
-
+function collectFormData() {
   const title = document.getElementById('title').value.trim();
   const summary = document.getElementById('summary').value.trim();
   const content = document.getElementById('content').value.trim();
@@ -465,52 +523,82 @@ async function addNews() {
   const driveInput = document.getElementById('driveInput').value.trim();
   let image = document.getElementById('image').value.trim();
 
-  if (!title) {
+  return { title, summary, content, category, priority, driveInput, image };
+}
+
+function validateForm(data) {
+  if (!data.title) {
     setStatus('กรุณากรอกหัวข้อข่าว', 'error');
-    return;
+    return false;
   }
 
-  if (!summary) {
+  if (!data.summary) {
     setStatus('กรุณากรอกสรุปสั้น', 'error');
-    return;
+    return false;
   }
 
-  if (!content) {
+  if (!data.content) {
     setStatus('กรุณากรอกรายละเอียด', 'error');
-    return;
+    return false;
   }
 
-  if (!image && driveInput) {
-    const fileId = extractDriveFileId(driveInput);
+  return true;
+}
+
+async function saveNews() {
+  clearStatus();
+
+  const formData = collectFormData();
+  if (!validateForm(formData)) return;
+
+  if (!formData.image && formData.driveInput) {
+    const fileId = extractDriveFileId(formData.driveInput);
     if (fileId) {
-      image = buildDriveThumbnailUrl(fileId);
-      document.getElementById('image').value = image;
+      formData.image = buildDriveThumbnailUrl(fileId);
+      document.getElementById('image').value = formData.image;
     }
   }
 
   const payload = {
-    title,
-    summary,
-    content,
-    category,
-    priority,
-    cover_image_url: image || null,
-    is_active: true
+    title: formData.title,
+    summary: formData.summary,
+    content: formData.content,
+    category: formData.category,
+    priority: formData.priority,
+    cover_image_url: formData.image || null
   };
 
-  const { error } = await supabaseClient
-    .from('announcements')
-    .insert([payload]);
+  if (editingNewsId) {
+    const { error } = await supabaseClient
+      .from('announcements')
+      .update(payload)
+      .eq('id', editingNewsId);
 
-  if (error) {
-    console.error(error);
-    setStatus(`เพิ่มข่าวไม่สำเร็จ: ${error.message}`, 'error');
-    return;
+    if (error) {
+      console.error(error);
+      setStatus(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`, 'error');
+      return;
+    }
+
+    setStatus('บันทึกการแก้ไขสำเร็จ', 'success');
+  } else {
+    payload.is_active = true;
+
+    const { error } = await supabaseClient
+      .from('announcements')
+      .insert([payload]);
+
+    if (error) {
+      console.error(error);
+      setStatus(`เพิ่มข่าวไม่สำเร็จ: ${error.message}`, 'error');
+      return;
+    }
+
+    setStatus('เพิ่มข่าวสำเร็จ', 'success');
   }
 
-  setStatus('เพิ่มข่าวสำเร็จ', 'success');
-  clearForm();
-  loadNews();
+  resetForm();
+  await loadNews();
 }
 
 async function loadNews() {
@@ -532,7 +620,9 @@ async function loadNews() {
     return;
   }
 
-  if (!data || data.length === 0) {
+  allNews = Array.isArray(data) ? data : [];
+
+  if (!allNews.length) {
     table.innerHTML = `
       <tr>
         <td colspan="5">ยังไม่มีข่าว</td>
@@ -541,7 +631,7 @@ async function loadNews() {
     return;
   }
 
-  data.forEach(item => {
+  allNews.forEach(item => {
     const imageCell = item.cover_image_url
       ? `<a href="${item.cover_image_url}" target="_blank" rel="noopener noreferrer">ดูรูป</a>`
       : '-';
@@ -554,6 +644,7 @@ async function loadNews() {
         <td>${imageCell}</td>
         <td>
           <div class="actions">
+            <button class="btn-edit" type="button" onclick="startEdit('${item.id}')">แก้ไข</button>
             <button class="btn-toggle" type="button" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
             <button class="btn-danger" type="button" onclick="deleteNews('${item.id}')">ลบ</button>
           </div>
@@ -564,6 +655,39 @@ async function loadNews() {
   });
 }
 
+function startEdit(id) {
+  clearStatus();
+
+  const item = allNews.find(news => String(news.id) === String(id));
+  if (!item) {
+    setStatus('ไม่พบข้อมูลข่าวที่ต้องการแก้ไข', 'error');
+    return;
+  }
+
+  editingNewsId = item.id;
+  document.getElementById('editId').value = item.id;
+  document.getElementById('title').value = item.title || '';
+  document.getElementById('summary').value = item.summary || '';
+  document.getElementById('content').value = item.content || '';
+  document.getElementById('category').value = item.category || 'ทั่วไป';
+  document.getElementById('priority').value = item.priority || 'low';
+  document.getElementById('image').value = item.cover_image_url || '';
+  document.getElementById('driveInput').value = '';
+
+  updateFormMode();
+
+  if (item.cover_image_url) {
+    previewImage();
+  } else {
+    const preview = document.getElementById('imagePreview');
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+  }
+
+  setStatus('โหลดข้อมูลข่าวเข้าฟอร์มแล้ว', 'success');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 async function toggleNews(id, current) {
   const { error } = await supabaseClient
     .from('announcements')
@@ -571,8 +695,8 @@ async function toggleNews(id, current) {
     .eq('id', id);
 
   if (error) {
-    console.error(error);
-    alert('เปลี่ยนสถานะไม่สำเร็จ');
+    console.error('Toggle news error:', error);
+    alert('เปลี่ยนสถานะไม่สำเร็จ: ' + error.message);
     return;
   }
 
@@ -593,6 +717,10 @@ async function deleteNews(id) {
     return;
   }
 
+  if (editingNewsId && String(editingNewsId) === String(id)) {
+    resetForm();
+  }
+
   loadNews();
 }
 
@@ -607,6 +735,7 @@ function escapeHtml(text) {
 }
 
 async function initPage() {
+  updateFormMode();
   const ok = await checkAuth();
   if (!ok) return;
   await loadNews();
