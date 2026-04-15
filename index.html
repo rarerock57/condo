@@ -32,9 +32,33 @@
       border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
-    .logo-hover:hover img {
-      transform: scale(1.1);
-    }
+ .logo-hover:hover img {
+  transform: scale(1.01);
+}
+
+.marquee-wrap {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: marquee-left 36s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
   </style>
 </head>
 
@@ -109,7 +133,7 @@
         </div>
 
         <div class="mt-8">
-          <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
+        <div id="urgentBar" class="hidden bg-red-500/90 backdrop-blur-sm text-white rounded-2xl border border-red-400/40 overflow-hidden shadow-2xl">
   <div class="flex items-center gap-4 px-5 py-4">
     <div class="flex items-center gap-2 shrink-0 font-bold">
       <i class='bx bxs-bell-ring text-xl'></i>
@@ -383,7 +407,7 @@
           <div class="space-y-4">
             <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
               <p class="text-sm text-slate-400">วันจันทร์ พุธ ศุกร์</p>
-              <p class="text-white font-semibold">18:.00 – 20:00 น.</p>
+              <p class="text-white font-semibold">18:00 – 20:00 น.</p>
             </div>
             <div class="rounded-2xl bg-white/5 border border-white/10 px-5 py-4">
               <p class="text-sm text-slate-400">วันเสาร์ </p>
@@ -491,33 +515,10 @@
 
     let failCount = 0;
 
-    document.getElementById('admin-entry').addEventListener('click', function () {
-      verifyStaff();
-    });
-
-    function verifyStaff() {
-      const pass = prompt("ระบบความปลอดภัย: กรุณายืนยันรหัสพนักงาน (Staff Only)");
-      if (pass === null) return;
-
-      if (pass === "Abc@1632") {
-        failCount = 0;
-        window.location.href = 'https://chaichana-dev-io.github.io/charoenkrung-condo3-admin/';
-      } else {
-        failCount++;
-        if (failCount >= 2) {
-          alert("ขออภัย! ยืนยันตัวตนไม่สำเร็จ ระบบจะรีเซ็ตกลับสู่หน้าหลัก");
-          failCount = 0;
-          window.location.href = 'https://chaichana-dev-io.github.io/charoenkrung-condo3-index/';
-        } else {
-          const retry = confirm("ข้อมูลไม่ถูกต้อง! ต้องการลองใหม่อีกครั้งหรือไม่? (หากผิดครั้งถัดไปจะกลับสู่หน้าหลัก)");
-          if (retry) {
-            verifyStaff();
-          } else {
-            failCount = 0;
-          }
-        }
-      }
-    }
+document.getElementById('admin-entry').addEventListener('click', function () {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+   
 
     function normalizeDriveImage(url) {
       if (!url) return '';
@@ -788,13 +789,15 @@ function renderUrgentBar() {
   urgentBar.classList.remove('hidden');
 
   const messages = urgentItems.map(item => {
-    const summary = item.summary || item.title || 'ประกาศด่วน';
-    return summary;
+    const dateText = formatThaiDate(getDisplayDate(item));
+    const title = item.title || 'ประกาศด่วน';
+    const summary = item.summary || '';
+    return summary || title;
   });
 
   urgentTicker.innerHTML = messages
-    .map(msg => `<span class="inline-block pr-24">${escapeHtml(msg)}</span>`)
-    .join(' • ');
+    .map(msg => `<span class="inline-block pr-16">${escapeHtml(msg)}</span>`)
+    .join('');
 }
 
     function renderStats() {
