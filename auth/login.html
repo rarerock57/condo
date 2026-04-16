@@ -31,7 +31,7 @@
       max-width: 1100px;
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
-      background: rgba(255, 255, 255, 0.78);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(20px);
       border-radius: 32px;
       overflow: hidden;
@@ -58,11 +58,11 @@
     }
 
     .login-panel {
-      padding: 40px;
+      padding: 60px 40px; /* เพิ่ม Padding บนล่างให้ดูโปร่งเหมือนในรูป */
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.9);
+      background: #ffffff;
     }
 
     .login-card {
@@ -72,87 +72,108 @@
 
     .logo-wrap {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .logo-wrap img {
-      height: 80px;
+      height: 70px; /* ปรับขนาดโลโก้ให้พอดี */
     }
 
     .login-heading {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 32px;
     }
 
     .login-heading h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1e293b;
     }
 
     .login-heading p {
       margin-top: 8px;
       color: #64748b;
+      font-size: 15px;
     }
 
+    /* สไตล์สำหรับ Label */
+    .input-label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #334155;
+      text-align: left;
+    }
+
+    /* ปรับความสูงและความมนของ Input */
     input {
       width: 100%;
-      padding: 14px 14px;
-      margin-bottom: 10px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      font-size: 18px;
+      padding: 16px 20px; 
+      margin-bottom: 20px;
+      border-radius: 14px; 
+      border: 1px solid #e2e8f0;
+      font-size: 16px;
       font-family: 'Prompt', sans-serif;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
+      background-color: #fcfcfc;
     }
 
     input:focus {
       border-color: #2563eb;
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
     }
 
-    .hint {
-      font-size: 13px;
-      color: #64748b;
-      margin-top: -4px;
-      margin-bottom: 12px;
+    input::placeholder {
+      color: #94a3b8;
     }
 
     .btn-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
       margin-top: 10px;
     }
 
+    /* ปรับความสูงและความมนของปุ่ม */
     .btn {
-      padding: 12px;
-      border-radius: 12px;
+      padding: 16px; 
+      border-radius: 14px;
       border: none;
       cursor: pointer;
       font-weight: 600;
       font-size: 16px;
       font-family: 'Prompt', sans-serif;
-      transition: opacity 0.2s;
-    }
-
-    .btn:active {
-      opacity: 0.8;
+      transition: all 0.2s;
     }
 
     .btn-primary {
       background: #2563eb;
       color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
-      background: #e5e7eb;
-      color: #4b5563;
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
     }
 
     .error-box {
       color: #ef4444;
       text-align: center;
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 14px;
       min-height: 20px;
     }
@@ -160,9 +181,13 @@
     @media(max-width: 900px){
       .login-shell {
         grid-template-columns: 1fr;
+        border-radius: 24px;
       }
       .login-visual {
         display: none;
+      }
+      .login-panel {
+        padding: 40px 24px;
       }
     }
   </style>
@@ -185,13 +210,14 @@
 
       <div class="login-heading">
         <h1>เข้าสู่ระบบ</h1>
-        <p>กรอกเลขห้องและรหัสผ่าน</p>
+        <p>กรอกเลขห้องและรหัสผ่านเพื่อเข้าสู่ระบบของอาคาร</p>
       </div>
-
-      <div class="hint">ตัวอย่าง: 63 + เลขห้อง 2 หลัก → 6301</div>
       
-      <input type="text" id="room" placeholder="เลขห้อง เช่น 6301" autocomplete="off">
-      <input type="password" id="password" placeholder="รหัสผ่าน">
+      <label class="input-label">เลขห้อง</label>
+      <input type="text" id="room" placeholder="เช่น 6301" autocomplete="off">
+      
+      <label class="input-label">รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="กรอกรหัสผ่าน">
 
       <div class="btn-row">
         <button class="btn btn-primary" onclick="login()">เข้าสู่ระบบ</button>
@@ -204,31 +230,23 @@
 </div>
 
 <script>
-// ฟังก์ชันนำทางกลับหน้าหลัก
 function goHome(){
   window.location.href = "../index.html";
 }
 
-// ฟังก์ชันล้างค่าในฟอร์ม (Escape)
 function clearForm(){
   document.getElementById("room").value = "";
   document.getElementById("password").value = "";
   document.getElementById("error").textContent = "";
-  document.getElementById("room").focus(); // คืน Focus ไปที่ช่องแรกหลังล้างค่า
+  document.getElementById("room").focus();
 }
 
-// ตรวจจับการกดปุ่ม Enter และ Escape
 document.addEventListener("keydown", function(e){
-  if(e.key === "Enter") {
-    login();
-  }
-  if(e.key === "Escape") {
-    clearForm();
-  }
+  if(e.key === "Enter") login();
+  if(e.key === "Escape") clearForm();
 });
 
-// ฟังก์ชันเข้าสู่ระบบ
-async function login(){
+async function login() {
   const room = document.getElementById("room").value.trim();
   const password = document.getElementById("password").value.trim();
   const errorBox = document.getElementById("error");
@@ -240,7 +258,6 @@ async function login(){
     return;
   }
 
-  // สร้าง fake email สำหรับ Supabase Auth
   const fakeEmail = room + "@condo.local";
 
   try {
@@ -254,9 +271,7 @@ async function login(){
       return;
     }
 
-    // ถ้าผ่าน ให้ไปที่หน้า Dashboard
     window.location.href = "../admin/dashboard.html";
-    
   } catch (err) {
     errorBox.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
   }
