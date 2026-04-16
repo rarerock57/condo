@@ -182,6 +182,10 @@
       gap: 18px;
     }
 
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     .grid-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -241,6 +245,64 @@
       font-weight: 600;
     }
 
+    .summary-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card .summary-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .summary-card .summary-value {
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 6px;
+      color: #0f172a;
+    }
+
+    .summary-card .summary-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 6px;
+    }
+
+    .summary-card .summary-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .summary-blue .summary-icon {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .summary-green .summary-icon {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .summary-red .summary-icon {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .summary-violet .summary-icon {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
     .loading-screen,
     .error-screen {
       min-height: 100vh;
@@ -267,6 +329,10 @@
     }
 
     @media (max-width: 980px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .grid-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -283,6 +349,7 @@
         flex-direction: column;
       }
 
+      .grid-4,
       .grid-3 {
         grid-template-columns: 1fr;
       }
@@ -358,6 +425,55 @@
               <div class="badge" id="badgeRole">Role: -</div>
               <div class="badge" id="badgeRoom">Room: -</div>
               <div class="badge">ระบบหลังบ้านพร้อมใช้งาน</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>ภาพรวมข้อมูล</h3>
+              <p>ข้อมูลสรุปแบบเรียลไทม์ของระบบข่าวและผู้ใช้งาน</p>
+            </div>
+          </div>
+
+          <div class="grid grid-4">
+            <div class="card summary-card summary-blue">
+              <div class="summary-icon">
+                <i class='bx bx-news'></i>
+              </div>
+              <div class="summary-value" id="summaryTotalNews">-</div>
+              <p class="summary-label">ข่าวทั้งหมด</p>
+              <p class="summary-desc">รวมข่าวทุกสถานะในระบบ</p>
+            </div>
+
+            <div class="card summary-card summary-green">
+              <div class="summary-icon">
+                <i class='bx bx-check-circle'></i>
+              </div>
+              <div class="summary-value" id="summaryActiveNews">-</div>
+              <p class="summary-label">ข่าวที่เปิดอยู่</p>
+              <p class="summary-desc">ข่าวที่แสดงอยู่บนหน้าหลัก</p>
+            </div>
+
+            <div class="card summary-card summary-red">
+              <div class="summary-icon">
+                <i class='bx bx-hide'></i>
+              </div>
+              <div class="summary-value" id="summaryInactiveNews">-</div>
+              <p class="summary-label">ข่าวที่ปิดอยู่</p>
+              <p class="summary-desc">ข่าวที่ถูกซ่อนจากหน้าหลัก</p>
+            </div>
+
+            <div class="card summary-card summary-violet">
+              <div class="summary-icon">
+                <i class='bx bx-group'></i>
+              </div>
+              <div class="summary-value" id="summaryUsers">-</div>
+              <p class="summary-label">ผู้ใช้ทั้งหมด</p>
+              <p class="summary-desc">อ้างอิงจากตาราง profiles</p>
             </div>
           </div>
         </div>
@@ -470,6 +586,33 @@
       }
     }
 
+    async function loadSummary() {
+      const [
+        announcementsResult,
+        profilesResult
+      ] = await Promise.all([
+        supabaseClient
+          .from('announcements')
+          .select('id, is_active'),
+        supabaseClient
+          .from('profiles')
+          .select('id')
+      ]);
+
+      const announcements = announcementsResult.data || [];
+      const profiles = profilesResult.data || [];
+
+      const totalNews = announcements.length;
+      const activeNews = announcements.filter(item => item.is_active === true).length;
+      const inactiveNews = announcements.filter(item => item.is_active !== true).length;
+      const totalUsers = profiles.length;
+
+      document.getElementById('summaryTotalNews').textContent = totalNews;
+      document.getElementById('summaryActiveNews').textContent = activeNews;
+      document.getElementById('summaryInactiveNews').textContent = inactiveNews;
+      document.getElementById('summaryUsers').textContent = totalUsers;
+    }
+
     async function loadAdminDashboard() {
       if (typeof supabaseClient === 'undefined') {
         showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
@@ -504,6 +647,7 @@
 
       fillProfile(profile);
       showDashboard();
+      await loadSummary();
     }
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
