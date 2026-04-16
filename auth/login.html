@@ -58,7 +58,7 @@
     }
 
     .login-panel {
-      padding: 60px 40px; /* เพิ่ม Padding บนล่างให้ดูโปร่งเหมือนในรูป */
+      padding: 60px 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -76,7 +76,7 @@
     }
 
     .logo-wrap img {
-      height: 70px; /* ปรับขนาดโลโก้ให้พอดี */
+      height: 70px;
     }
 
     .login-heading {
@@ -97,7 +97,6 @@
       font-size: 15px;
     }
 
-    /* สไตล์สำหรับ Label */
     .input-label {
       display: block;
       font-weight: 600;
@@ -107,12 +106,11 @@
       text-align: left;
     }
 
-    /* ปรับความสูงและความมนของ Input */
     input {
       width: 100%;
-      padding: 16px 20px; 
+      padding: 16px 20px;
       margin-bottom: 20px;
-      border-radius: 14px; 
+      border-radius: 14px;
       border: 1px solid #e2e8f0;
       font-size: 16px;
       font-family: 'Prompt', sans-serif;
@@ -138,9 +136,8 @@
       margin-top: 10px;
     }
 
-    /* ปรับความสูงและความมนของปุ่ม */
     .btn {
-      padding: 16px; 
+      padding: 16px;
       border-radius: 14px;
       border: none;
       cursor: pointer;
@@ -183,9 +180,11 @@
         grid-template-columns: 1fr;
         border-radius: 24px;
       }
+
       .login-visual {
         display: none;
       }
+
       .login-panel {
         padding: 40px 24px;
       }
@@ -212,16 +211,16 @@
         <h1>เข้าสู่ระบบ</h1>
         <p>กรอกเลขห้องและรหัสผ่านเพื่อเข้าสู่ระบบของอาคาร</p>
       </div>
-      
-      <label class="input-label">เลขห้อง</label>
+
+      <label class="input-label" for="room">เลขห้อง</label>
       <input type="text" id="room" placeholder="เช่น 6301" autocomplete="off">
-      
-      <label class="input-label">รหัสผ่าน</label>
+
+      <label class="input-label" for="password">รหัสผ่าน</label>
       <input type="password" id="password" placeholder="กรอกรหัสผ่าน">
 
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="login()">เข้าสู่ระบบ</button>
-        <button class="btn btn-secondary" onclick="goHome()">กลับ</button>
+        <button class="btn btn-primary" type="button" onclick="login()">เข้าสู่ระบบ</button>
+        <button class="btn btn-secondary" type="button" onclick="goHome()">กลับ</button>
       </div>
 
       <div class="error-box" id="error"></div>
@@ -230,20 +229,24 @@
 </div>
 
 <script>
-function goHome(){
+function goHome() {
   window.location.href = "../index.html";
 }
 
-function clearForm(){
+function clearForm() {
   document.getElementById("room").value = "";
   document.getElementById("password").value = "";
   document.getElementById("error").textContent = "";
   document.getElementById("room").focus();
 }
 
-document.addEventListener("keydown", function(e){
-  if(e.key === "Enter") login();
-  if(e.key === "Escape") clearForm();
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    login();
+  }
+  if (e.key === "Escape") {
+    clearForm();
+  }
 });
 
 async function login() {
@@ -253,7 +256,12 @@ async function login() {
 
   errorBox.textContent = "";
 
-  if(!room || !password){
+  if (typeof supabaseClient === "undefined") {
+    errorBox.textContent = "ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ";
+    return;
+  }
+
+  if (!room || !password) {
     errorBox.textContent = "กรุณากรอกข้อมูลให้ครบ";
     return;
   }
@@ -261,20 +269,74 @@ async function login() {
   const fakeEmail = room + "@condo.local";
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email: fakeEmail,
       password: password
     });
 
-    if(error){
+    if (error) {
       errorBox.textContent = "เลขห้องหรือรหัสผ่านไม่ถูกต้อง";
       return;
     }
 
-    window.location.href = "../admin/dashboard.html";
+    await redirectByRole();
   } catch (err) {
+    console.error(err);
     errorBox.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
   }
+}
+
+async function redirectByRole() {
+  const errorBox = document.getElementById("error");
+
+  const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+  if (authError || !authData?.user) {
+    console.error("Auth error:", authError);
+    errorBox.textContent = "ไม่พบข้อมูลผู้ใช้";
+    return;
+  }
+
+  const userId = authData.user.id;
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (profileError || !profile) {
+    console.error("Profile error:", profileError);
+    errorBox.textContent = "ไม่พบข้อมูลผู้ใช้ในระบบ";
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  if (profile.is_active === false) {
+    errorBox.textContent = "บัญชีนี้ถูกระงับการใช้งาน";
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  const role = profile.role;
+
+  if (role === "super_admin" || role === "admin") {
+    window.location.href = "../admin/dashboard.html";
+    return;
+  }
+
+  if (role === "resident") {
+    window.location.href = "../resident/dashboard.html";
+    return;
+  }
+
+  if (role === "technician") {
+    window.location.href = "../technician/dashboard.html";
+    return;
+  }
+
+  errorBox.textContent = "ไม่มีสิทธิ์เข้าใช้งาน";
+  await supabaseClient.auth.signOut();
 }
 </script>
 
