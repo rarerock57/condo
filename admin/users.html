@@ -1,200 +1,954 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>จัดการผู้ใช้</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดการผู้ใช้</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-client.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; }
 
-<style>
-body {
-  font-family: 'Prompt', sans-serif;
-  background:#f8fafc;
-  margin:0;
-  padding:20px;
-}
-
-.container {
-  max-width:1000px;
-  margin:auto;
-}
-
-h2 {
-  margin-bottom:10px;
-}
-
-.card {
-  background:white;
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.05);
-}
-
-table {
-  width:100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding:10px;
-  border-bottom:1px solid #eee;
-  text-align:left;
-}
-
-select, button, input {
-  padding:6px 10px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-
-button {
-  cursor:pointer;
-}
-
-.btn-primary {
-  background:#2563eb;
-  color:white;
-}
-
-.btn-danger {
-  background:#dc2626;
-  color:white;
-}
-
-.topbar {
-  margin-bottom:15px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <div class="topbar">
-    <a href="dashboard.html">← กลับ Dashboard</a>
-  </div>
-
-  <h2>จัดการผู้ใช้</h2>
-
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>ชื่อ</th>
-          <th>เลขห้อง</th>
-          <th>Role</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-      <tbody id="userTable"></tbody>
-    </table>
-  </div>
-
-</div>
-
-<script>
-
-let currentUserRole = null;
-
-async function checkAuth() {
-  const { data } = await supabaseClient.auth.getUser();
-
-  if (!data?.user) {
-    window.location.href = "../auth/login.html";
-    return;
-  }
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", data.user.id)
-    .single();
-
-  if (!profile) {
-    alert("ไม่พบข้อมูลผู้ใช้");
-    return;
-  }
-
-  if (profile.role !== "admin" && profile.role !== "super_admin") {
-    alert("ไม่มีสิทธิ์");
-    window.location.href = "../auth/login.html";
-    return;
-  }
-
-  currentUserRole = profile.role;
-}
-
-async function loadUsers() {
-  const { data } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  const table = document.getElementById("userTable");
-  table.innerHTML = "";
-
-  data.forEach(user => {
-    let actions = "";
-
-    if (currentUserRole === "super_admin") {
-      actions = `
-        <select onchange="changeRole('${user.id}', this.value)">
-          <option ${user.role==="resident"?"selected":""}>resident</option>
-          <option ${user.role==="technician"?"selected":""}>technician</option>
-          <option ${user.role==="admin"?"selected":""}>admin</option>
-        </select>
-        <button class="btn-danger" onclick="resetPassword('${user.id}')">รีเซ็ตรหัส</button>
-      `;
-    } else {
-      actions = `<span>ดูข้อมูล</span>`;
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
     }
 
-    table.innerHTML += `
-      <tr>
-        <td>${user.full_name || "-"}</td>
-        <td>${user.room_number || "-"}</td>
-        <td>${user.role}</td>
-        <td>${actions}</td>
-      </tr>
-    `;
-  });
-}
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
 
-async function changeRole(id, role) {
-  await supabaseClient
-    .from("profiles")
-    .update({ role })
-    .eq("id", id);
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-  alert("เปลี่ยน role สำเร็จ");
-  loadUsers();
-}
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-async function resetPassword(id) {
-  const newPass = prompt("ใส่รหัสผ่านใหม่:");
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-  if (!newPass) return;
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
 
-  const { error } = await supabaseClient.auth.admin.updateUserById(id, {
-    password: newPass
-  });
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
 
-  if (error) {
-    alert("ไม่สำเร็จ");
-    return;
-  }
+    .brand-text p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
 
-  alert("รีเซ็ตรหัสสำเร็จ");
-}
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-checkAuth().then(loadUsers);
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
 
-</script>
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
 
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .btn-success {
+      background: #059669;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .btn-muted {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-muted:hover {
+      background: #e2e8f0;
+    }
+
+    .hero {
+      padding: 28px 0 10px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 22px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .search-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 18px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ee;
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+      background: #fff;
+    }
+
+    .search-wrap input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #eef2f7;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .name-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .name-block strong {
+      font-size: 15px;
+      color: #0f172a;
+    }
+
+    .name-block span {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .role-chip,
+    .status-chip,
+    .protected-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .role-super {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .role-admin {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    .role-resident {
+      background: #ecfeff;
+      color: #0f766e;
+    }
+
+    .role-technician {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .status-active {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .status-banned {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .protected-chip {
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .action-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: #64748b;
+    }
+
+    .helper-text {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 460px;
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.20);
+    }
+
+    .modal-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .modal-card p {
+      margin: 0;
+      color: #64748b;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .modal-card .field {
+      margin-top: 18px;
+    }
+
+    .modal-card label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .modal-card select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ee;
+      font: inherit;
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .status-message {
+      min-height: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+
+    .status-success {
+      color: #15803d;
+    }
+
+    .status-error {
+      color: #dc2626;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p>กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="dashboard.html">กลับ Dashboard</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="usersApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+            <div class="brand-text">
+              <h1>จัดการผู้ใช้</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div class="top-actions">
+            <a href="dashboard.html" class="btn btn-secondary">
+              <i class='bx bx-left-arrow-alt'></i>
+              กลับ Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero section">
+        <div class="container">
+          <div class="hero-card">
+            <h2 id="welcomeTitle">จัดการบัญชีผู้ใช้งาน</h2>
+            <p id="welcomeSubtitle">ดูรายชื่อผู้ใช้ทั้งหมด ค้นหาตามเลขห้อง ปรับ role ระงับการใช้งาน และรีเซ็ตรหัสผ่านได้จากหน้านี้</p>
+
+            <div class="badge-row">
+              <div class="badge" id="currentRoleBadge">Role: -</div>
+              <div class="badge">Reset password: Abc@1234</div>
+              <div class="badge">super_admin protected</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="card">
+            <div class="section-title">
+              <div>
+                <h3>รายชื่อผู้ใช้งาน</h3>
+                <p>ค้นหาเลขห้องได้ทันที และจัดการสิทธิ์เฉพาะผู้ที่ไม่ใช่ super_admin</p>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="search-wrap">
+                <i class='bx bx-search'></i>
+                <input
+                  id="searchRoomInput"
+                  type="text"
+                  placeholder="ค้นหาเลขห้อง เช่น 6301"
+                  oninput="handleSearch()"
+                />
+              </div>
+
+              <div class="helper-text">
+                หมายเหตุ: บัญชี super_admin จะแสดงผลแต่ไม่สามารถแก้ role, reset password หรือระงับการใช้งานได้
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="min-width: 220px;">ชื่อผู้ใช้</th>
+                    <th>เลขห้อง</th>
+                    <th>Role</th>
+                    <th>สถานะ</th>
+                    <th style="min-width: 320px;">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+              </table>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="roleModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h3>ยืนยันการเปลี่ยน Role</h3>
+      <p id="roleModalText">กรุณาตรวจสอบข้อมูลก่อนยืนยัน</p>
+
+      <div class="field">
+        <label for="roleSelect">Role ใหม่</label>
+        <select id="roleSelect">
+          <option value="resident">resident</option>
+          <option value="technician">technician</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" onclick="closeRoleModal()">ยกเลิก</button>
+        <button class="btn btn-primary" type="button" onclick="confirmChangeRole()">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const RESET_PASSWORD_ENDPOINT = 'PASTE_YOUR_RESET_PASSWORD_ENDPOINT_HERE';
+
+    let currentProfile = null;
+    let allUsers = [];
+    let filteredUsers = [];
+    let pendingRoleChangeUser = null;
+
+    function showError(message) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('usersApp').classList.add('hidden');
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorScreen').classList.remove('hidden');
+    }
+
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('usersApp').classList.remove('hidden');
+    }
+
+    function setStatus(message, type = '') {
+      const el = document.getElementById('statusMessage');
+      el.textContent = message;
+      el.className = `status-message ${type}`.trim();
+    }
+
+    function clearStatus() {
+      const el = document.getElementById('statusMessage');
+      el.textContent = '';
+      el.className = 'status-message';
+    }
+
+    function getRoleClass(role) {
+      if (role === 'super_admin') return 'role-chip role-super';
+      if (role === 'admin') return 'role-chip role-admin';
+      if (role === 'technician') return 'role-chip role-technician';
+      return 'role-chip role-resident';
+    }
+
+    function getStatusClass(isActive) {
+      return isActive === false ? 'status-chip status-banned' : 'status-chip status-active';
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function fillHeader(profile) {
+      document.getElementById('currentRoleBadge').textContent = `Role: ${profile.role || '-'}`;
+    }
+
+    async function checkAuth() {
+      if (typeof supabaseClient === 'undefined') {
+        showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
+        return false;
+      }
+
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        return false;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
+        return false;
+      }
+
+      if (profile.role !== 'admin' && profile.role !== 'super_admin') {
+        showError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานหน้าจัดการผู้ใช้');
+        return false;
+      }
+
+      currentProfile = profile;
+      fillHeader(profile);
+      return true;
+    }
+
+    async function loadUsers() {
+      clearStatus();
+
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error(error);
+        setStatus(`โหลดข้อมูลผู้ใช้ไม่สำเร็จ: ${error.message}`, 'status-error');
+        return;
+      }
+
+      allUsers = Array.isArray(data) ? data : [];
+      filteredUsers = [...allUsers];
+      renderUsers();
+    }
+
+    function handleSearch() {
+      const keyword = document.getElementById('searchRoomInput').value.trim().toLowerCase();
+
+      filteredUsers = allUsers.filter(user => {
+        const room = String(user.room_number || '').toLowerCase();
+        return room.includes(keyword);
+      });
+
+      renderUsers();
+    }
+
+    function renderUsers() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+
+      if (!filteredUsers.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">ไม่พบผู้ใช้ตามเลขห้องที่ค้นหา</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filteredUsers.forEach(user => {
+        const isProtected = user.role === 'super_admin';
+        const isActive = user.is_active !== false;
+
+        let actionsHtml = '';
+
+        if (currentProfile.role === 'super_admin') {
+          if (isProtected) {
+            actionsHtml = `
+              <span class="protected-chip">
+                <i class='bx bx-shield-quarter'></i>
+                Protected
+              </span>
+            `;
+          } else {
+            actionsHtml = `
+              <div class="action-group">
+                <button class="btn btn-primary" type="button" onclick="openRoleModal('${user.id}')">
+                  <i class='bx bx-transfer'></i>
+                  เปลี่ยน role
+                </button>
+                <button class="btn btn-warning" type="button" onclick="resetPassword('${user.id}', '${escapeHtml(user.full_name || '-')}', '${escapeHtml(user.room_number || '-')}')">
+                  <i class='bx bx-key'></i>
+                  รีเซ็ตรหัส
+                </button>
+                <button class="btn ${isActive ? 'btn-danger' : 'btn-success'}" type="button" onclick="toggleBan('${user.id}', ${isActive}, '${escapeHtml(user.full_name || '-')}', '${escapeHtml(user.room_number || '-')}')">
+                  <i class='bx ${isActive ? 'bx-user-x' : 'bx-user-check'}'></i>
+                  ${isActive ? 'ระงับ' : 'ปลดระงับ'}
+                </button>
+              </div>
+            `;
+          }
+        } else {
+          actionsHtml = `<span class="protected-chip">เฉพาะ super_admin</span>`;
+        }
+
+        const row = `
+          <tr>
+            <td>
+              <div class="name-block">
+                <strong>${escapeHtml(user.full_name || '-')}</strong>
+                <span>ID: ${escapeHtml(user.id || '-')}</span>
+              </div>
+            </td>
+            <td>${escapeHtml(user.room_number || '-')}</td>
+            <td><span class="${getRoleClass(user.role)}">${escapeHtml(user.role || '-')}</span></td>
+            <td><span class="${getStatusClass(isActive)}">${isActive ? 'ใช้งานได้' : 'ถูกระงับ'}</span></td>
+            <td>${actionsHtml}</td>
+          </tr>
+        `;
+
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    function openRoleModal(userId) {
+      const user = allUsers.find(item => String(item.id) === String(userId));
+      if (!user) return;
+
+      pendingRoleChangeUser = user;
+
+      const modal = document.getElementById('roleModal');
+      const roleSelect = document.getElementById('roleSelect');
+      const text = document.getElementById('roleModalText');
+
+      roleSelect.value = user.role || 'resident';
+      text.textContent = `คุณกำลังจะเปลี่ยน role ของ "${user.full_name || '-'}" ห้อง ${user.room_number || '-'} กรุณาตรวจสอบก่อนยืนยัน`;
+
+      modal.classList.add('show');
+    }
+
+    function closeRoleModal() {
+      pendingRoleChangeUser = null;
+      document.getElementById('roleModal').classList.remove('show');
+    }
+
+    async function confirmChangeRole() {
+      if (!pendingRoleChangeUser) return;
+
+      const newRole = document.getElementById('roleSelect').value;
+      const user = pendingRoleChangeUser;
+
+      if (user.role === 'super_admin') {
+        setStatus('ไม่สามารถแก้ไขสิทธิ์ของ super_admin ได้', 'status-error');
+        closeRoleModal();
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error(error);
+        setStatus(`เปลี่ยน role ไม่สำเร็จ: ${error.message}`, 'status-error');
+        return;
+      }
+
+      closeRoleModal();
+      setStatus(`เปลี่ยน role ของ "${user.full_name || '-'}" เป็น ${newRole} สำเร็จ`, 'status-success');
+      await loadUsers();
+    }
+
+    async function toggleBan(userId, currentStatus, fullName, roomNumber) {
+      if (currentProfile.role !== 'super_admin') {
+        setStatus('เฉพาะ super_admin เท่านั้น', 'status-error');
+        return;
+      }
+
+      const user = allUsers.find(item => String(item.id) === String(userId));
+      if (user?.role === 'super_admin') {
+        setStatus('ไม่สามารถระงับ super_admin ได้', 'status-error');
+        return;
+      }
+
+      const actionText = currentStatus ? 'ระงับ' : 'ปลดระงับ';
+      const confirmed = window.confirm(`ต้องการ${actionText}ผู้ใช้ "${fullName}" ห้อง ${roomNumber} ใช่หรือไม่?`);
+
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ is_active: !currentStatus })
+        .eq('id', userId);
+
+      if (error) {
+        console.error(error);
+        setStatus(`${actionText}ผู้ใช้ไม่สำเร็จ: ${error.message}`, 'status-error');
+        return;
+      }
+
+      setStatus(`${actionText}ผู้ใช้ "${fullName}" สำเร็จ`, 'status-success');
+      await loadUsers();
+    }
+
+    async function resetPassword(userId, fullName, roomNumber) {
+      if (currentProfile.role !== 'super_admin') {
+        setStatus('เฉพาะ super_admin เท่านั้น', 'status-error');
+        return;
+      }
+
+      const user = allUsers.find(item => String(item.id) === String(userId));
+      if (user?.role === 'super_admin') {
+        setStatus('ไม่สามารถรีเซ็ตรหัสของ super_admin ได้', 'status-error');
+        return;
+      }
+
+      const confirmed = window.confirm(`ต้องการรีเซ็ตรหัสของ "${fullName}" ห้อง ${roomNumber} เป็น Abc@1234 ใช่หรือไม่?`);
+      if (!confirmed) return;
+
+      if (!RESET_PASSWORD_ENDPOINT || RESET_PASSWORD_ENDPOINT === 'PASTE_YOUR_RESET_PASSWORD_ENDPOINT_HERE') {
+        setStatus('ยังไม่ได้ตั้งค่า RESET_PASSWORD_ENDPOINT ในไฟล์ users.html', 'status-error');
+        return;
+      }
+
+      try {
+        const response = await fetch(RESET_PASSWORD_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            target_user_id: userId,
+            new_password: 'Abc@1234'
+          })
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.error || 'รีเซ็ตรหัสผ่านไม่สำเร็จ');
+        }
+
+        setStatus(`รีเซ็ตรหัสของ "${fullName}" สำเร็จ (Abc@1234)`, 'status-success');
+      } catch (error) {
+        console.error(error);
+        setStatus(`รีเซ็ตรหัสไม่สำเร็จ: ${error.message}`, 'status-error');
+      }
+    }
+
+    async function initPage() {
+      const ok = await checkAuth();
+      if (!ok) return;
+
+      showApp();
+      await loadUsers();
+    }
+
+    document.addEventListener('click', (event) => {
+      const modal = document.getElementById('roleModal');
+      if (event.target === modal) {
+        closeRoleModal();
+      }
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
+  </script>
 </body>
 </html>
