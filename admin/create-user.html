@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เพิ่มผู้ใช้</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-muted {
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-muted:hover {
+      background: #eef2f7;
+    }
+
+    .hero {
+      padding: 28px 0 10px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 22px 0 34px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ee;
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+
+    .helper-text {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .info-box {
+      margin-top: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 16px;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .status-box {
+      min-height: 22px;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      color: #15803d;
+    }
+
+    .status-error {
+      color: #dc2626;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+
+      .hero-card h2 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p>กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="dashboard.html">กลับ Dashboard</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="createUserApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+            <div class="brand-text">
+              <h1>เพิ่มผู้ใช้</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div class="top-actions">
+            <a href="dashboard.html" class="btn btn-secondary">
+              <i class='bx bx-left-arrow-alt'></i>
+              กลับ Dashboard
+            </a>
+            <a href="users.html" class="btn btn-muted">
+              <i class='bx bx-user'></i>
+              จัดการผู้ใช้
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2>สร้างบัญชีผู้ใช้ใหม่</h2>
+            <p>สำหรับระบบนี้จะสร้างผู้ใช้จากเลขห้อง โดยแปลงเป็นอีเมลภายในรูปแบบ room@condo.local และกำหนด role ให้พร้อมใช้งานทันที</p>
+
+            <div class="badge-row">
+              <div class="badge" id="currentRoleBadge">Role: -</div>
+              <div class="badge">สร้างได้เฉพาะ super_admin</div>
+              <div class="badge">รูปแบบ login: room_number + password</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="card">
+            <div class="section-title">
+              <h3>ฟอร์มเพิ่มผู้ใช้</h3>
+              <p>กรอกข้อมูลพื้นฐานให้ครบ ระบบจะใช้เลขห้องสร้าง fake email อัตโนมัติ เช่น 6301 → 6301@condo.local</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="fullName">ชื่อผู้ใช้งาน</label>
+                <input type="text" id="fullName" placeholder="เช่น สมชาย ใจดี">
+              </div>
+
+              <div class="form-group">
+                <label for="roomNumber">เลขห้อง</label>
+                <input type="text" id="roomNumber" placeholder="เช่น 6301">
+                <div class="helper-text">ใช้เป็น username ตอน login</div>
+              </div>
+
+              <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role">
+                  <option value="resident">resident</option>
+                  <option value="technician">technician</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="password">รหัสผ่านเริ่มต้น</label>
+                <input type="text" id="password" placeholder="เช่น Abc@1234" value="Abc@1234">
+                <div class="helper-text">ภายหลัง super_admin สามารถรีเซ็ตรหัสให้ใหม่ได้</div>
+              </div>
+
+              <div class="form-group full">
+                <label for="previewEmail">Fake Email ที่จะถูกสร้าง</label>
+                <input type="text" id="previewEmail" placeholder="ระบบจะแสดงให้อัตโนมัติ" readonly>
+              </div>
+            </div>
+
+            <div class="info-box">
+              สิ่งที่ backend ต้องทำเมื่อกดสร้างผู้ใช้:
+              <br>1) สร้าง user ใน Supabase Auth
+              <br>2) ใช้เลขห้องสร้าง email รูปแบบ <strong>room@condo.local</strong>
+              <br>3) บันทึกข้อมูลลงตาราง <strong>profiles</strong>
+              <br>4) ตั้งค่า <strong>is_active = true</strong>
+              <br>5) กำหนด role ตามที่เลือก
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-primary" type="button" onclick="createUser()">สร้างผู้ใช้</button>
+              <button class="btn btn-secondary" type="button" onclick="clearForm()">ล้างฟอร์ม</button>
+            </div>
+
+            <div id="statusBox" class="status-box"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const CREATE_USER_ENDPOINT = 'PASTE_YOUR_CREATE_USER_ENDPOINT_HERE';
+    let currentProfile = null;
+
+    function showError(message) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('createUserApp').classList.add('hidden');
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorScreen').classList.remove('hidden');
+    }
+
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('createUserApp').classList.remove('hidden');
+    }
+
+    function setStatus(message, type = '') {
+      const box = document.getElementById('statusBox');
+      box.textContent = message;
+      box.className = `status-box ${type}`.trim();
+    }
+
+    function clearStatus() {
+      const box = document.getElementById('statusBox');
+      box.textContent = '';
+      box.className = 'status-box';
+    }
+
+    function buildFakeEmail(roomNumber) {
+      return `${roomNumber}@condo.local`;
+    }
+
+    function updatePreviewEmail() {
+      const roomNumber = document.getElementById('roomNumber').value.trim();
+      document.getElementById('previewEmail').value = roomNumber ? buildFakeEmail(roomNumber) : '';
+    }
+
+    function clearForm() {
+      document.getElementById('fullName').value = '';
+      document.getElementById('roomNumber').value = '';
+      document.getElementById('role').value = 'resident';
+      document.getElementById('password').value = 'Abc@1234';
+      document.getElementById('previewEmail').value = '';
+      clearStatus();
+      document.getElementById('fullName').focus();
+    }
+
+    async function checkAuth() {
+      if (typeof supabaseClient === 'undefined') {
+        showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
+        return false;
+      }
+
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        return false;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
+        return false;
+      }
+
+      if (profile.role !== 'super_admin') {
+        showError('เฉพาะ super_admin เท่านั้นที่สามารถสร้างผู้ใช้ใหม่ได้');
+        return false;
+      }
+
+      currentProfile = profile;
+      document.getElementById('currentRoleBadge').textContent = `Role: ${profile.role || '-'}`;
+      return true;
+    }
+
+    async function createUser() {
+      clearStatus();
+
+      const fullName = document.getElementById('fullName').value.trim();
+      const roomNumber = document.getElementById('roomNumber').value.trim();
+      const role = document.getElementById('role').value;
+      const password = document.getElementById('password').value.trim();
+
+      if (!fullName) {
+        setStatus('กรุณากรอกชื่อผู้ใช้งาน', 'status-error');
+        return;
+      }
+
+      if (!roomNumber) {
+        setStatus('กรุณากรอกเลขห้อง', 'status-error');
+        return;
+      }
+
+      if (!password) {
+        setStatus('กรุณากรอกรหัสผ่านเริ่มต้น', 'status-error');
+        return;
+      }
+
+      const fakeEmail = buildFakeEmail(roomNumber);
+      document.getElementById('previewEmail').value = fakeEmail;
+
+      if (!CREATE_USER_ENDPOINT || CREATE_USER_ENDPOINT === 'PASTE_YOUR_CREATE_USER_ENDPOINT_HERE') {
+        setStatus('ยังไม่ได้ตั้งค่า CREATE_USER_ENDPOINT ในไฟล์ create-user.html', 'status-error');
+        return;
+      }
+
+      try {
+        const response = await fetch(CREATE_USER_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            full_name: fullName,
+            room_number: roomNumber,
+            role: role,
+            password: password,
+            fake_email: fakeEmail,
+            is_active: true
+          })
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.error || 'สร้างผู้ใช้ไม่สำเร็จ');
+        }
+
+        setStatus(`สร้างผู้ใช้ "${fullName}" ห้อง ${roomNumber} สำเร็จ`, 'status-success');
+        clearForm();
+      } catch (error) {
+        console.error(error);
+        setStatus(`สร้างผู้ใช้ไม่สำเร็จ: ${error.message}`, 'status-error');
+      }
+    }
+
+    async function initPage() {
+      const ok = await checkAuth();
+      if (!ok) return;
+
+      showApp();
+      document.getElementById('roomNumber').addEventListener('input', updatePreviewEmail);
+      document.getElementById('fullName').focus();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
+  </script>
+</body>
+</html>
