@@ -402,7 +402,7 @@
             </div>
 
             <div class="info-box">
-              สิ่งที่ backend ต้องทำเมื่อกดสร้างผู้ใช้:
+              สิ่งที่ระบบจะทำเมื่อกดสร้างผู้ใช้:
               <br>1) สร้าง user ใน Supabase Auth
               <br>2) ใช้เลขห้องสร้าง email รูปแบบ <strong>room@condo.local</strong>
               <br>3) บันทึกข้อมูลลงตาราง <strong>profiles</strong>
@@ -423,7 +423,6 @@
   </div>
 
   <script>
-    const CREATE_USER_ENDPOINT = 'https://fjvcqxqchluvmxnlvhwo.supabase.co/functions/v1/create-user';
     let currentProfile = null;
 
     function showError(message) {
@@ -530,31 +529,25 @@
       const fakeEmail = buildFakeEmail(roomNumber);
       document.getElementById('previewEmail').value = fakeEmail;
 
-      if (!CREATE_USER_ENDPOINT || CREATE_USER_ENDPOINT === 'PASTE_YOUR_CREATE_USER_ENDPOINT_HERE') {
-        setStatus('ยังไม่ได้ตั้งค่า CREATE_USER_ENDPOINT ในไฟล์ create-user.html', 'status-error');
-        return;
-      }
-
       try {
-        const response = await fetch(CREATE_USER_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        const { data, error } = await supabaseClient.functions.invoke('create-user', {
+          body: {
             full_name: fullName,
             room_number: roomNumber,
             role: role,
             password: password,
             fake_email: fakeEmail,
             is_active: true
-          })
+          }
         });
 
-        const result = await response.json().catch(() => ({}));
+        if (error) {
+          console.error(error);
+          throw new Error(error.message || 'สร้างผู้ใช้ไม่สำเร็จ');
+        }
 
-        if (!response.ok) {
-          throw new Error(result.error || 'สร้างผู้ใช้ไม่สำเร็จ');
+        if (data?.error) {
+          throw new Error(data.error);
         }
 
         setStatus(`สร้างผู้ใช้ "${fullName}" ห้อง ${roomNumber} สำเร็จ`, 'status-success');
