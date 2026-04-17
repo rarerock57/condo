@@ -166,7 +166,7 @@
       margin-top: 18px;
     }
 
-    .badge {
+    .hero-badge {
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.14);
       color: #fff;
@@ -514,9 +514,9 @@
           <p>เพิ่มข่าวใหม่ แก้ไขข่าวเดิม จัดการรูปหน้าปก และควบคุมสถานะการแสดงผลบนหน้าหลักจากหน้านี้ได้ทันที</p>
 
           <div class="badge-row">
-            <div class="badge">รองรับ Google Drive thumbnail</div>
-            <div class="badge">เพิ่ม / แก้ไข / เปิด-ปิด / ลบ</div>
-            <div class="badge">ใช้งานได้สำหรับ admin และ super_admin</div>
+            <div class="hero-badge">รองรับ Google Drive thumbnail</div>
+            <div class="hero-badge">เพิ่ม / แก้ไข / เปิด-ปิด / ลบ</div>
+            <div class="hero-badge">ใช้งานได้สำหรับ admin และ super_admin</div>
           </div>
         </div>
       </div>
@@ -839,4 +839,213 @@ function validateForm(data) {
   return true;
 }
 
-async function saveNews()
+async function saveNews() {
+  clearStatus();
+
+  const formData = collectFormData();
+  if (!validateForm(formData)) return;
+
+  if (!formData.image && formData.driveInput) {
+    const fileId = extractDriveFileId(formData.driveInput);
+    if (fileId) {
+      formData.image = buildDriveThumbnailUrl(fileId);
+      document.getElementById('image').value = formData.image;
+    }
+  }
+
+  const payload = {
+    title: formData.title,
+    summary: formData.summary,
+    content: formData.content,
+    category: formData.category,
+    priority: formData.priority,
+    cover_image_url: formData.image || null
+  };
+
+  if (editingNewsId) {
+    const { error } = await supabaseClient
+      .from('announcements')
+      .update(payload)
+      .eq('id', editingNewsId);
+
+    if (error) {
+      console.error(error);
+      setStatus(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`, 'error');
+      return;
+    }
+
+    setStatus('บันทึกการแก้ไขสำเร็จ', 'success');
+  } else {
+    payload.is_active = true;
+
+    const { error } = await supabaseClient
+      .from('announcements')
+      .insert([payload]);
+
+    if (error) {
+      console.error(error);
+      setStatus(`เพิ่มข่าวไม่สำเร็จ: ${error.message}`, 'error');
+      return;
+    }
+
+    setStatus('เพิ่มข่าวสำเร็จ', 'success');
+  }
+
+  resetForm();
+  await loadNews();
+}
+
+async function loadNews() {
+  const { data, error } = await supabaseClient
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  const table = document.getElementById('newsTable');
+  table.innerHTML = '';
+
+  if (error) {
+    console.error(error);
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty-row" style="color:#dc2626;">โหลดข่าวไม่สำเร็จ</td>
+      </tr>
+    `;
+    return;
+  }
+
+  allNews = Array.isArray(data) ? data : [];
+
+  if (!allNews.length) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="empty-row">ยังไม่มีข่าว</td>
+      </tr>
+    `;
+    return;
+  }
+
+  allNews.forEach(item => {
+    const imageCell = item.cover_image_url
+      ? `<a class="image-link" href="${item.cover_image_url}" target="_blank" rel="noopener noreferrer">ดูรูป</a>`
+      : '-';
+
+    const row = `
+      <tr>
+        <td>
+          <div class="title-cell">
+            <strong>${escapeHtml(item.title || '-')}</strong>
+            <span>${escapeHtml(item.summary || '-')}</span>
+          </div>
+        </td>
+        <td><span class="${getCategoryBadgeClass(item.category)}">${escapeHtml(item.category || '-')}</span></td>
+        <td>
+          <span class="news-status ${item.is_active ? 'active' : 'inactive'}">
+            ${item.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
+          </span>
+        </td>
+        <td>${imageCell}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-edit" type="button" onclick="startEdit('${item.id}')">แก้ไข</button>
+            <button class="btn btn-warning" type="button" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
+            <button class="btn btn-danger" type="button" onclick="deleteNews('${item.id}')">ลบ</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
+}
+
+function startEdit(id) {
+  clearStatus();
+
+  const item = allNews.find(news => String(news.id) === String(id));
+  if (!item) {
+    setStatus('ไม่พบข้อมูลข่าวที่ต้องการแก้ไข', 'error');
+    return;
+  }
+
+  editingNewsId = item.id;
+  document.getElementById('editId').value = item.id;
+  document.getElementById('title').value = item.title || '';
+  document.getElementById('summary').value = item.summary || '';
+  document.getElementById('content').value = item.content || '';
+  document.getElementById('category').value = item.category || 'ทั่วไป';
+  document.getElementById('priority').value = item.priority || 'low';
+  document.getElementById('image').value = item.cover_image_url || '';
+  document.getElementById('driveInput').value = '';
+
+  updateFormMode();
+
+  if (item.cover_image_url) {
+    previewImage();
+  } else {
+    const preview = document.getElementById('imagePreview');
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+  }
+
+  setStatus('โหลดข้อมูลข่าวเข้าฟอร์มแล้ว', 'success');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function toggleNews(id, current) {
+  const { error } = await supabaseClient
+    .from('announcements')
+    .update({ is_active: !current })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Toggle news error:', error);
+    alert('เปลี่ยนสถานะไม่สำเร็จ: ' + error.message);
+    return;
+  }
+
+  loadNews();
+}
+
+async function deleteNews(id) {
+  if (!confirm('ลบข่าวนี้?')) return;
+
+  const { error } = await supabaseClient
+    .from('announcements')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error(error);
+    alert('ลบข่าวไม่สำเร็จ');
+    return;
+  }
+
+  if (editingNewsId && String(editingNewsId) === String(id)) {
+    resetForm();
+  }
+
+  loadNews();
+}
+
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function initPage() {
+  updateFormMode();
+  const ok = await checkAuth();
+  if (!ok) return;
+  await loadNews();
+}
+
+initPage();
+</script>
+
+</body>
+</html>
