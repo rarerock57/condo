@@ -389,7 +389,10 @@
     .badge-general,
     .badge-urgent,
     .badge-maintenance,
-    .badge-finance {
+    .badge-finance,
+    .priority-low,
+    .priority-medium,
+    .priority-high {
       display: inline-block;
       padding: 6px 10px;
       border-radius: 999px;
@@ -416,6 +419,21 @@
     .badge-finance {
       background: #f5f3ff;
       color: #7c3aed;
+    }
+
+    .priority-low {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .priority-medium {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .priority-high {
+      background: #fef2f2;
+      color: #dc2626;
     }
 
     .image-link {
@@ -515,7 +533,7 @@
 
           <div class="badge-row">
             <div class="hero-badge">รองรับ Google Drive thumbnail</div>
-            <div class="hero-badge">เพิ่ม / แก้ไข / เปิด-ปิด / ลบ</div>
+            <div class="hero-badge">priority = high ใช้สำหรับข่าวเลื่อน</div>
             <div class="hero-badge">ใช้งานได้สำหรับ admin และ super_admin</div>
           </div>
         </div>
@@ -569,8 +587,9 @@
               <select id="priority">
                 <option value="low">low</option>
                 <option value="medium">medium</option>
-                <option value="high">high</option>
+                <option value="high">high (ข่าวเลื่อนหน้าแรก)</option>
               </select>
+              <div class="hint">ใช้ priority = high เมื่อต้องการให้ข่าวนี้ไปแสดงเป็นข้อความประกาศแบบเลื่อนบนหน้าแรก</div>
             </div>
 
             <div class="input-block full">
@@ -613,7 +632,7 @@
           <div class="section-title">
             <div>
               <h3>รายการข่าวทั้งหมด</h3>
-              <p>ตรวจสอบข่าวที่มีอยู่ในระบบ พร้อมแก้ไข สลับสถานะ หรือ ลบออกได้จากตารางด้านล่าง</p>
+              <p>ตรวจสอบข่าวที่มีอยู่ในระบบ พร้อมแก้ไข สลับสถานะ หรือลบออกได้จากตารางด้านล่าง</p>
             </div>
           </div>
 
@@ -623,6 +642,7 @@
                 <tr>
                   <th style="min-width: 280px;">หัวข้อ</th>
                   <th>หมวด</th>
+                  <th>ความสำคัญ</th>
                   <th>สถานะ</th>
                   <th>รูป</th>
                   <th style="min-width: 240px;">จัดการ</th>
@@ -661,6 +681,20 @@ function getCategoryBadgeClass(category) {
   if (value.includes('การเงิน')) return 'badge-finance';
 
   return 'badge-general';
+}
+
+function getPriorityBadgeClass(priority) {
+  const value = String(priority || '').toLowerCase();
+  if (value === 'high') return 'priority-high';
+  if (value === 'medium') return 'priority-medium';
+  return 'priority-low';
+}
+
+function getPriorityLabel(priority) {
+  const value = String(priority || '').toLowerCase();
+  if (value === 'high') return 'high';
+  if (value === 'medium') return 'medium';
+  return 'low';
 }
 
 function extractDriveFileId(input) {
@@ -908,7 +942,7 @@ async function loadNews() {
     console.error(error);
     table.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-row" style="color:#dc2626;">โหลดข่าวไม่สำเร็จ</td>
+        <td colspan="6" class="empty-row" style="color:#dc2626;">โหลดข่าวไม่สำเร็จ</td>
       </tr>
     `;
     return;
@@ -919,7 +953,7 @@ async function loadNews() {
   if (!allNews.length) {
     table.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-row">ยังไม่มีข่าว</td>
+        <td colspan="6" class="empty-row">ยังไม่มีข่าว</td>
       </tr>
     `;
     return;
@@ -939,6 +973,7 @@ async function loadNews() {
           </div>
         </td>
         <td><span class="${getCategoryBadgeClass(item.category)}">${escapeHtml(item.category || '-')}</span></td>
+        <td><span class="${getPriorityBadgeClass(item.priority)}">${getPriorityLabel(item.priority)}</span></td>
         <td>
           <span class="news-status ${item.is_active ? 'active' : 'inactive'}">
             ${item.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}
