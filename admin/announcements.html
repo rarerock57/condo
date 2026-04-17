@@ -1,150 +1,310 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จัดการข่าว</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
   <style>
     * { box-sizing: border-box; }
 
     body {
-      font-family: sans-serif;
-      background: #f1f5f9;
-      padding: 20px;
-      color: #0f172a;
       margin: 0;
-    }
-
-    h2, h3 {
-      margin-top: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
     }
 
     .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
     }
 
-    .back-link {
-      text-decoration: none;
-      color: #2563eb;
-      font-weight: 600;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
 
-    .page-note {
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      margin: 2px 0 0;
       color: #64748b;
-      font-size: 14px;
-      margin: 0 0 18px;
+      font-size: 13px;
     }
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font: inherit;
-      background: #fff;
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    button {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .btn-row {
+    .top-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
     .btn-primary {
       background: #2563eb;
-      color: white;
+      color: #fff;
     }
 
     .btn-primary:hover {
       background: #1d4ed8;
     }
 
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
     .btn-danger {
       background: #dc2626;
-      color: white;
+      color: #fff;
     }
 
     .btn-danger:hover {
       background: #b91c1c;
     }
 
-    .btn-toggle {
+    .btn-warning {
       background: #f59e0b;
-      color: white;
+      color: #fff;
     }
 
-    .btn-toggle:hover {
+    .btn-warning:hover {
       background: #d97706;
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-secondary:hover {
-      background: #d1d5db;
     }
 
     .btn-edit {
       background: #0f766e;
-      color: white;
+      color: #fff;
     }
 
     .btn-edit:hover {
       background: #115e59;
     }
 
+    .hero {
+      padding: 28px 0 10px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #fff;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 22px 0 34px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .mode-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ee;
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
     .hint {
+      margin-top: 8px;
       font-size: 13px;
       color: #64748b;
-      margin: -4px 0 10px;
+      line-height: 1.7;
+    }
+
+    .input-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .preview-wrap {
+      margin-top: 6px;
+    }
+
+    .preview-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      background: #f8fafc;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 140px;
+    }
+
+    .preview-wrap img {
+      width: 100%;
+      max-width: 340px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      display: none;
+      background: #fff;
     }
 
     .status {
-      margin-top: 10px;
+      min-height: 22px;
+      margin-top: 14px;
       font-size: 14px;
       font-weight: 600;
     }
@@ -157,28 +317,22 @@
       color: #dc2626;
     }
 
-    .preview-wrap {
-      margin-top: 10px;
-    }
-
-    .preview-wrap img {
-      width: 100%;
-      max-width: 320px;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-      display: none;
-      background: #f8fafc;
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      background: #fff;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      background: #fff;
     }
 
     th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #eee;
+      padding: 14px 12px;
+      border-bottom: 1px solid #eef2f7;
       text-align: left;
       vertical-align: top;
       font-size: 14px;
@@ -186,15 +340,58 @@
 
     th {
       background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
     }
 
-    .table-wrap {
-      overflow-x: auto;
+    tr:last-child td {
+      border-bottom: none;
     }
 
-    .badge {
+    .title-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-cell strong {
+      color: #0f172a;
+      font-size: 15px;
+    }
+
+    .title-cell span {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .news-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .news-status.active {
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .news-status.inactive {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .badge-general,
+    .badge-urgent,
+    .badge-maintenance,
+    .badge-finance {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 6px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
@@ -221,126 +418,223 @@
       color: #7c3aed;
     }
 
+    .image-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .image-link:hover {
+      text-decoration: underline;
+    }
+
     .actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    .mode-box {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      background: #eff6ff;
-      color: #1d4ed8;
+    .empty-row {
+      text-align: center;
+      color: #64748b;
+      padding: 24px 12px;
     }
 
     .hidden {
       display: none !important;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .grid {
         grid-template-columns: 1fr;
+      }
+
+      .hero-card h2 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+
+      .hero-card {
+        padding: 22px;
+      }
+
+      .hero-card h2 {
+        font-size: 24px;
+      }
+
+      .brand-text h1 {
+        font-size: 18px;
+      }
+
+      .btn-row, .actions, .top-actions {
+        width: 100%;
+      }
+
+      .btn {
+        justify-content: center;
       }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="topbar">
-    <a href="dashboard.html" class="back-link">← กลับ Dashboard</a>
-  </div>
+  <nav class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand">
+          <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+          <div class="brand-text">
+            <h1>จัดการข่าว</h1>
+            <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+          </div>
+        </div>
 
-  <h2>📢 จัดการข่าว</h2>
-  <p class="page-note">เพิ่มข่าวใหม่, แก้ไขข่าว, ใช้ Google Drive เป็นรูปหน้าปก, เปิด/ปิดข่าว และลบข่าวได้จากหน้านี้</p>
-
-  <div class="card">
-    <div id="formModeLabel" class="mode-box">โหมด: เพิ่มข่าวใหม่</div>
-
-    <h3 id="formTitle">เพิ่มข่าว</h3>
-
-    <input type="hidden" id="editId">
-
-    <div class="grid">
-      <div class="full">
-        <input id="title" placeholder="หัวข้อข่าว">
-      </div>
-
-      <div class="full">
-        <input id="summary" placeholder="สรุปสั้น">
-      </div>
-
-      <div class="full">
-        <textarea id="content" placeholder="รายละเอียด"></textarea>
-      </div>
-
-      <div>
-        <select id="category">
-          <option value="ทั่วไป">ทั่วไป</option>
-          <option value="ด่วน">ด่วน</option>
-          <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
-          <option value="การเงิน">การเงิน</option>
-        </select>
-      </div>
-
-      <div>
-        <select id="priority">
-          <option value="low">low</option>
-          <option value="medium">medium</option>
-          <option value="high">high</option>
-        </select>
-      </div>
-
-      <div class="full">
-        <input id="driveInput" placeholder="วาง Google Drive File ID หรือวางลิงก์ Google Drive เต็ม">
-        <div class="hint">ตัวอย่าง File ID: 1ABCxyz123... หรือวางลิงก์แบบ drive.google.com/file/d/... ได้เลย</div>
-      </div>
-
-      <div class="full">
-        <input id="image" placeholder="cover_image_url (ระบบจะสร้างให้อัตโนมัติ)">
-        <div class="btn-row">
-          <button type="button" class="btn-secondary" onclick="convertDriveToImageUrl()">แปลงลิงก์รูป</button>
-          <button type="button" class="btn-secondary" onclick="previewImage()">แสดงตัวอย่างรูป</button>
-          <button type="button" class="btn-secondary" onclick="resetForm()">ล้างฟอร์ม</button>
+        <div class="top-actions">
+          <a href="dashboard.html" class="btn btn-secondary">
+            <i class='bx bx-left-arrow-alt'></i>
+            กลับ Dashboard
+          </a>
         </div>
       </div>
+    </div>
+  </nav>
 
-      <div class="full preview-wrap">
-        <img id="imagePreview" alt="preview">
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <h2>จัดการประกาศและข่าวสาร</h2>
+          <p>เพิ่มข่าวใหม่ แก้ไขข่าวเดิม จัดการรูปหน้าปก และควบคุมสถานะการแสดงผลบนหน้าหลักจากหน้านี้ได้ทันที</p>
+
+          <div class="badge-row">
+            <div class="badge">รองรับ Google Drive thumbnail</div>
+            <div class="badge">เพิ่ม / แก้ไข / เปิด-ปิด / ลบ</div>
+            <div class="badge">ใช้งานได้สำหรับ admin และ super_admin</div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="btn-row">
-      <button id="saveBtn" class="btn-primary" type="button" onclick="saveNews()">เพิ่มข่าว</button>
-      <button id="cancelEditBtn" class="btn-secondary hidden" type="button" onclick="cancelEdit()">ยกเลิกแก้ไข</button>
-    </div>
+    <section class="section">
+      <div class="container">
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h3 id="formTitle">เพิ่มข่าว</h3>
+              <p>กรอกข้อมูลข่าวสารและรูปหน้าปกให้ครบ จากนั้นบันทึกเข้าสู่ระบบประกาศของอาคาร</p>
+            </div>
+            <div id="formModeLabel" class="mode-box">
+              <i class='bx bx-plus-circle'></i>
+              โหมด: เพิ่มข่าวใหม่
+            </div>
+          </div>
 
-    <div id="statusBox" class="status"></div>
-  </div>
+          <input type="hidden" id="editId">
 
-  <div class="card">
-    <h3>รายการข่าว</h3>
+          <div class="grid">
+            <div class="input-block full">
+              <label for="title">หัวข้อข่าว</label>
+              <input id="title" placeholder="หัวข้อข่าว">
+            </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="min-width:220px;">หัวข้อ</th>
-            <th>หมวด</th>
-            <th>สถานะ</th>
-            <th>รูป</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-        <tbody id="newsTable"></tbody>
-      </table>
-    </div>
-  </div>
+            <div class="input-block full">
+              <label for="summary">สรุปสั้น</label>
+              <input id="summary" placeholder="ข้อความสรุปสั้นสำหรับแสดงผลหน้าแรก">
+            </div>
+
+            <div class="input-block full">
+              <label for="content">รายละเอียดข่าว</label>
+              <textarea id="content" placeholder="รายละเอียดข่าว"></textarea>
+            </div>
+
+            <div class="input-block">
+              <label for="category">หมวดหมู่</label>
+              <select id="category">
+                <option value="ทั่วไป">ทั่วไป</option>
+                <option value="ด่วน">ด่วน</option>
+                <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
+                <option value="การเงิน">การเงิน</option>
+              </select>
+            </div>
+
+            <div class="input-block">
+              <label for="priority">ลำดับความสำคัญ</label>
+              <select id="priority">
+                <option value="low">low</option>
+                <option value="medium">medium</option>
+                <option value="high">high</option>
+              </select>
+            </div>
+
+            <div class="input-block full">
+              <label for="driveInput">Google Drive File ID หรือ Link</label>
+              <input id="driveInput" placeholder="วาง Google Drive File ID หรือวางลิงก์ Google Drive เต็ม">
+              <div class="hint">ตัวอย่าง File ID: 1ABCxyz123... หรือวางลิงก์แบบ drive.google.com/file/d/... ได้เลย</div>
+            </div>
+
+            <div class="input-block full">
+              <label for="image">Cover Image URL</label>
+              <input id="image" placeholder="cover_image_url (ระบบจะสร้างให้อัตโนมัติ)">
+              <div class="btn-row">
+                <button type="button" class="btn btn-secondary" onclick="convertDriveToImageUrl()">แปลงลิงก์รูป</button>
+                <button type="button" class="btn btn-secondary" onclick="previewImage()">แสดงตัวอย่างรูป</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">ล้างฟอร์ม</button>
+              </div>
+            </div>
+
+            <div class="full preview-wrap">
+              <label>ตัวอย่างรูปหน้าปก</label>
+              <div class="preview-box">
+                <img id="imagePreview" alt="preview">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button id="saveBtn" class="btn btn-primary" type="button" onclick="saveNews()">เพิ่มข่าว</button>
+            <button id="cancelEditBtn" class="btn btn-secondary hidden" type="button" onclick="cancelEdit()">ยกเลิกแก้ไข</button>
+          </div>
+
+          <div id="statusBox" class="status"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h3>รายการข่าวทั้งหมด</h3>
+              <p>ตรวจสอบข่าวที่มีอยู่ในระบบ พร้อมแก้ไข สลับสถานะ หรือ ลบออกได้จากตารางด้านล่าง</p>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="min-width: 280px;">หัวข้อ</th>
+                  <th>หมวด</th>
+                  <th>สถานะ</th>
+                  <th>รูป</th>
+                  <th style="min-width: 240px;">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="newsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
 <script>
 let currentUserProfile = null;
@@ -362,11 +656,11 @@ function clearStatus() {
 function getCategoryBadgeClass(category) {
   const value = String(category || '').toLowerCase();
 
-  if (value.includes('ด่วน')) return 'badge badge-urgent';
-  if (value.includes('ซ่อม')) return 'badge badge-maintenance';
-  if (value.includes('การเงิน')) return 'badge badge-finance';
+  if (value.includes('ด่วน')) return 'badge-urgent';
+  if (value.includes('ซ่อม')) return 'badge-maintenance';
+  if (value.includes('การเงิน')) return 'badge-finance';
 
-  return 'badge badge-general';
+  return 'badge-general';
 }
 
 function extractDriveFileId(input) {
@@ -454,12 +748,12 @@ function updateFormMode() {
   const cancelBtn = document.getElementById('cancelEditBtn');
 
   if (editingNewsId) {
-    label.textContent = 'โหมด: แก้ไขข่าว';
+    label.innerHTML = "<i class='bx bx-edit-alt'></i> โหมด: แก้ไขข่าว";
     title.textContent = 'แก้ไขข่าว';
     saveBtn.textContent = 'บันทึกการแก้ไข';
     cancelBtn.classList.remove('hidden');
   } else {
-    label.textContent = 'โหมด: เพิ่มข่าวใหม่';
+    label.innerHTML = "<i class='bx bx-plus-circle'></i> โหมด: เพิ่มข่าวใหม่";
     title.textContent = 'เพิ่มข่าว';
     saveBtn.textContent = 'เพิ่มข่าว';
     cancelBtn.classList.add('hidden');
@@ -545,204 +839,4 @@ function validateForm(data) {
   return true;
 }
 
-async function saveNews() {
-  clearStatus();
-
-  const formData = collectFormData();
-  if (!validateForm(formData)) return;
-
-  if (!formData.image && formData.driveInput) {
-    const fileId = extractDriveFileId(formData.driveInput);
-    if (fileId) {
-      formData.image = buildDriveThumbnailUrl(fileId);
-      document.getElementById('image').value = formData.image;
-    }
-  }
-
-  const payload = {
-    title: formData.title,
-    summary: formData.summary,
-    content: formData.content,
-    category: formData.category,
-    priority: formData.priority,
-    cover_image_url: formData.image || null
-  };
-
-  if (editingNewsId) {
-    const { error } = await supabaseClient
-      .from('announcements')
-      .update(payload)
-      .eq('id', editingNewsId);
-
-    if (error) {
-      console.error(error);
-      setStatus(`บันทึกการแก้ไขไม่สำเร็จ: ${error.message}`, 'error');
-      return;
-    }
-
-    setStatus('บันทึกการแก้ไขสำเร็จ', 'success');
-  } else {
-    payload.is_active = true;
-
-    const { error } = await supabaseClient
-      .from('announcements')
-      .insert([payload]);
-
-    if (error) {
-      console.error(error);
-      setStatus(`เพิ่มข่าวไม่สำเร็จ: ${error.message}`, 'error');
-      return;
-    }
-
-    setStatus('เพิ่มข่าวสำเร็จ', 'success');
-  }
-
-  resetForm();
-  await loadNews();
-}
-
-async function loadNews() {
-  const { data, error } = await supabaseClient
-    .from('announcements')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  const table = document.getElementById('newsTable');
-  table.innerHTML = '';
-
-  if (error) {
-    console.error(error);
-    table.innerHTML = `
-      <tr>
-        <td colspan="5" style="color:red;">โหลดข่าวไม่สำเร็จ</td>
-      </tr>
-    `;
-    return;
-  }
-
-  allNews = Array.isArray(data) ? data : [];
-
-  if (!allNews.length) {
-    table.innerHTML = `
-      <tr>
-        <td colspan="5">ยังไม่มีข่าว</td>
-      </tr>
-    `;
-    return;
-  }
-
-  allNews.forEach(item => {
-    const imageCell = item.cover_image_url
-      ? `<a href="${item.cover_image_url}" target="_blank" rel="noopener noreferrer">ดูรูป</a>`
-      : '-';
-
-    const row = `
-      <tr>
-        <td>${escapeHtml(item.title || '-')}</td>
-        <td><span class="${getCategoryBadgeClass(item.category)}">${escapeHtml(item.category || '-')}</span></td>
-        <td>${item.is_active ? '🟢 เปิด' : '🔴 ปิด'}</td>
-        <td>${imageCell}</td>
-        <td>
-          <div class="actions">
-            <button class="btn-edit" type="button" onclick="startEdit('${item.id}')">แก้ไข</button>
-            <button class="btn-toggle" type="button" onclick="toggleNews('${item.id}', ${item.is_active})">สลับ</button>
-            <button class="btn-danger" type="button" onclick="deleteNews('${item.id}')">ลบ</button>
-          </div>
-        </td>
-      </tr>
-    `;
-    table.innerHTML += row;
-  });
-}
-
-function startEdit(id) {
-  clearStatus();
-
-  const item = allNews.find(news => String(news.id) === String(id));
-  if (!item) {
-    setStatus('ไม่พบข้อมูลข่าวที่ต้องการแก้ไข', 'error');
-    return;
-  }
-
-  editingNewsId = item.id;
-  document.getElementById('editId').value = item.id;
-  document.getElementById('title').value = item.title || '';
-  document.getElementById('summary').value = item.summary || '';
-  document.getElementById('content').value = item.content || '';
-  document.getElementById('category').value = item.category || 'ทั่วไป';
-  document.getElementById('priority').value = item.priority || 'low';
-  document.getElementById('image').value = item.cover_image_url || '';
-  document.getElementById('driveInput').value = '';
-
-  updateFormMode();
-
-  if (item.cover_image_url) {
-    previewImage();
-  } else {
-    const preview = document.getElementById('imagePreview');
-    preview.style.display = 'none';
-    preview.removeAttribute('src');
-  }
-
-  setStatus('โหลดข้อมูลข่าวเข้าฟอร์มแล้ว', 'success');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-async function toggleNews(id, current) {
-  const { error } = await supabaseClient
-    .from('announcements')
-    .update({ is_active: !current })
-    .eq('id', id);
-
-  if (error) {
-    console.error('Toggle news error:', error);
-    alert('เปลี่ยนสถานะไม่สำเร็จ: ' + error.message);
-    return;
-  }
-
-  loadNews();
-}
-
-async function deleteNews(id) {
-  if (!confirm('ลบข่าวนี้?')) return;
-
-  const { error } = await supabaseClient
-    .from('announcements')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error(error);
-    alert('ลบข่าวไม่สำเร็จ');
-    return;
-  }
-
-  if (editingNewsId && String(editingNewsId) === String(id)) {
-    resetForm();
-  }
-
-  loadNews();
-}
-
-function escapeHtml(text) {
-  if (text === null || text === undefined) return '';
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-async function initPage() {
-  updateFormMode();
-  const ok = await checkAuth();
-  if (!ok) return;
-  await loadNews();
-}
-
-initPage();
-</script>
-
-</body>
-</html>
+async function saveNews()
