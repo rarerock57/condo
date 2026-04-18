@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resident Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .hero {
+      padding: 28px 0 10px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 22px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .summary-card .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .summary-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 6px;
+      color: #0f172a;
+    }
+
+    .summary-card .label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      margin: 0 0 6px;
+    }
+
+    .summary-card .desc {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .announcement-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .announcement-image {
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .announcement-body {
+      padding: 20px;
+    }
+
+    .announcement-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill-general {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .pill-urgent {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .pill-maintenance {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .pill-finance {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    .pill-priority-high {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .announcement-title {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.35;
+      color: #0f172a;
+    }
+
+    .announcement-summary {
+      margin: 0 0 16px;
+      color: #64748b;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .announcement-content {
+      color: #475569;
+      line-height: 1.8;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+
+    .empty-box {
+      text-align: center;
+      color: #64748b;
+      padding: 36px 20px;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card h2 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner {
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+
+      .hero-card {
+        padding: 22px;
+      }
+
+      .hero-card h2 {
+        font-size: 24px;
+      }
+
+      .brand-text h1 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p>กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="residentApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+            <div class="brand-text">
+              <h1>Resident Dashboard</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div class="top-actions">
+            <a href="../index.html" class="btn btn-secondary">
+              <i class='bx bx-home-alt'></i>
+              หน้าหลัก
+            </a>
+            <a href="change-password.html" class="btn btn-secondary">
+              <i class='bx bx-lock-alt'></i>
+              เปลี่ยนรหัสผ่าน
+            </a>
+            <button id="logoutBtn" class="btn btn-danger" type="button">
+              <i class='bx bx-log-out'></i>
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2 id="welcomeText">ยินดีต้อนรับ</h2>
+            <p id="welcomeSubtext">กำลังโหลดข้อมูลผู้ใช้งาน...</p>
+
+            <div class="badge-row">
+              <div class="badge" id="badgeRoom">Room: -</div>
+              <div class="badge" id="badgeRole">Role: -</div>
+              <div class="badge">ติดตามข่าวสารล่าสุดของอาคารได้จากหน้านี้</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="grid grid-3">
+            <div class="card summary-card">
+              <div class="icon">
+                <i class='bx bx-home-heart'></i>
+              </div>
+              <div class="value" id="summaryRoom">-</div>
+              <p class="label">เลขห้องของคุณ</p>
+              <p class="desc">ใช้เป็นข้อมูลอ้างอิงของบัญชีที่กำลังใช้งาน</p>
+            </div>
+
+            <div class="card summary-card">
+              <div class="icon">
+                <i class='bx bx-news'></i>
+              </div>
+              <div class="value" id="summaryActiveNews">-</div>
+              <p class="label">ข่าวที่เปิดใช้งาน</p>
+              <p class="desc">จำนวนข่าวประกาศที่เปิดให้ลูกบ้านอ่านได้ในขณะนี้</p>
+            </div>
+
+            <div class="card summary-card">
+              <div class="icon">
+                <i class='bx bx-bell'></i>
+              </div>
+              <div class="value" id="summaryHighPriority">-</div>
+              <p class="label">ข่าวสำคัญ</p>
+              <p class="desc">ข่าวที่ตั้งเป็น priority สูงสำหรับการติดตามเร่งด่วน</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>ข่าวสำคัญ</h3>
+              <p>ข่าวที่ตั้งเป็น priority สูงและควรได้รับการติดตามเป็นพิเศษ</p>
+            </div>
+          </div>
+
+          <div id="importantNewsGrid" class="grid grid-2">
+            <div class="card empty-box">กำลังโหลดข่าวสำคัญ...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top: 0;">
+        <div class="container">
+          <div class="section-title">
+            <div>
+              <h3>ข่าวล่าสุดทั้งหมด</h3>
+              <p>ข่าวประกาศที่เปิดใช้งานทั้งหมดสำหรับลูกบ้าน</p>
+            </div>
+          </div>
+
+          <div id="allNewsGrid" class="grid grid-2">
+            <div class="card empty-box">กำลังโหลดข่าวล่าสุด...</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let currentProfile = null;
+    let activeAnnouncements = [];
+
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('residentApp').classList.add('hidden');
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorScreen').classList.remove('hidden');
+    }
+
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('residentApp').classList.remove('hidden');
+    }
+
+    function normalizeDriveImage(url) {
+      if (!url) return '';
+
+      if (url.includes('drive.google.com/file/d/')) {
+        const match = url.match(/\/d\/([^/]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+        }
+      }
+
+      if (url.includes('drive.google.com/uc?export=view&id=')) {
+        const match = url.match(/id=([^&]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+        }
+      }
+
+      return url;
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getDisplayDate(item) {
+      return item?.published_at || item?.created_at || null;
+    }
+
+    function formatThaiDate(dateValue) {
+      if (!dateValue) return '-';
+      try {
+        return new Date(dateValue).toLocaleDateString('th-TH', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (error) {
+        return '-';
+      }
+    }
+
+    function getCategoryClass(category) {
+      const value = String(category || '').toLowerCase();
+
+      if (value.includes('ด่วน')) return 'pill pill-urgent';
+      if (value.includes('ซ่อม')) return 'pill pill-maintenance';
+      if (value.includes('การเงิน')) return 'pill pill-finance';
+      return 'pill pill-general';
+    }
+
+    function getPriorityWeight(priority) {
+      const value = String(priority || '').toLowerCase();
+      if (value === 'high') return 3;
+      if (value === 'medium') return 2;
+      return 1;
+    }
+
+    function createAnnouncementCard(item, showPriority = false) {
+      const imageUrl =
+        normalizeDriveImage(item.cover_image_url) ||
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+
+      const category = item.category || 'ทั่วไป';
+      const summary = item.summary || 'ยังไม่มีรายละเอียดเพิ่มเติม';
+      const content = item.content || summary;
+      const dateText = formatThaiDate(getDisplayDate(item));
+      const priorityBadge = showPriority && String(item.priority || '').toLowerCase() === 'high'
+        ? `<span class="pill pill-priority-high">high priority</span>`
+        : '';
+
+      return `
+        <div class="card announcement-card">
+          <img
+            class="announcement-image"
+            src="${imageUrl}"
+            alt="${escapeHtml(item.title || 'announcement')}"
+            onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'"
+          />
+          <div class="announcement-body">
+            <div class="announcement-meta">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <span class="${getCategoryClass(category)}">${escapeHtml(category)}</span>
+                ${priorityBadge}
+              </div>
+              <span style="font-size:12px; color:#94a3b8;">${dateText}</span>
+            </div>
+
+            <h4 class="announcement-title">${escapeHtml(item.title || '-')}</h4>
+            <p class="announcement-summary">${escapeHtml(summary)}</p>
+            <div class="announcement-content">${escapeHtml(content)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderImportantNews() {
+      const container = document.getElementById('importantNewsGrid');
+      if (!container) return;
+
+      const importantNews = [...activeAnnouncements]
+        .filter(item => String(item.priority || '').toLowerCase() === 'high')
+        .sort((a, b) => new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0));
+
+      if (!importantNews.length) {
+        container.innerHTML = `<div class="card empty-box">ยังไม่มีข่าวสำคัญในขณะนี้</div>`;
+        return;
+      }
+
+      container.innerHTML = importantNews.map(item => createAnnouncementCard(item, true)).join('');
+    }
+
+    function renderAllNews() {
+      const container = document.getElementById('allNewsGrid');
+      if (!container) return;
+
+      if (!activeAnnouncements.length) {
+        container.innerHTML = `<div class="card empty-box">ยังไม่มีข่าวประกาศในขณะนี้</div>`;
+        return;
+      }
+
+      const sorted = [...activeAnnouncements].sort((a, b) => {
+        const priorityDiff = getPriorityWeight(b.priority) - getPriorityWeight(a.priority);
+        if (priorityDiff !== 0) return priorityDiff;
+        return new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0);
+      });
+
+      container.innerHTML = sorted.map(item => createAnnouncementCard(item, true)).join('');
+    }
+
+    function fillProfile(profile) {
+      const role = profile.role || '-';
+      const fullName = profile.full_name || 'ลูกบ้าน';
+      const roomNumber = profile.room_number || '-';
+
+      document.getElementById('welcomeText').textContent = `ยินดีต้อนรับ ${fullName}`;
+      document.getElementById('welcomeSubtext').textContent = 'ติดตามข่าวประกาศ เอกสาร และข้อมูลสำคัญของอาคารจากหน้านี้ได้ทันที';
+      document.getElementById('badgeRoom').textContent = `Room: ${roomNumber}`;
+      document.getElementById('badgeRole').textContent = `Role: ${role}`;
+      document.getElementById('summaryRoom').textContent = roomNumber;
+    }
+
+    function fillSummary() {
+      const highPriorityCount = activeAnnouncements.filter(
+        item => String(item.priority || '').toLowerCase() === 'high'
+      ).length;
+
+      document.getElementById('summaryActiveNews').textContent = activeAnnouncements.length;
+      document.getElementById('summaryHighPriority').textContent = highPriorityCount;
+    }
+
+    async function loadAnnouncements() {
+      const { data, error } = await supabaseClient
+        .from('announcements')
+        .select('id,title,summary,content,category,priority,cover_image_url,is_active,published_at,created_at')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Announcements error:', error);
+        activeAnnouncements = [];
+        return;
+      }
+
+      activeAnnouncements = Array.isArray(data) ? data : [];
+    }
+
+    async function checkAuth() {
+      if (typeof supabaseClient === 'undefined') {
+        showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
+        return false;
+      }
+
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+      if (authError || !authData?.user) {
+        showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        return false;
+      }
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
+        return false;
+      }
+
+      if (profile.role !== 'resident') {
+        showError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานส่วนลูกบ้าน');
+        return false;
+      }
+
+      currentProfile = profile;
+      fillProfile(profile);
+      return true;
+    }
+
+    async function initPage() {
+      const ok = await checkAuth();
+      if (!ok) return;
+
+      await loadAnnouncements();
+      fillSummary();
+      renderImportantNews();
+      renderAllNews();
+      showApp();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
+  </script>
+</body>
+</html>
