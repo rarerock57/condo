@@ -69,12 +69,10 @@
     <span class="font-medium text-sm">กลับด้านบน</span>
   </button>
 
-  <!-- NAVBAR -->
   <nav class="bg-white/95 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-3">
 
-        <!-- LOGO -->
         <div id="admin-entry" class="flex items-center logo-hover transition">
           <img
             src="https://img1.pic.in.th/images/-16daae7756d8872a5.png"
@@ -84,13 +82,11 @@
           >
         </div>
 
-        <!-- MENU -->
         <div class="hidden md:flex items-center space-x-8 font-medium">
           <a href="#news" class="text-slate-600 hover:text-blue-700 transition">ข่าวสาร</a>
           <a href="#documentsSection" class="text-slate-600 hover:text-blue-700 transition">เอกสารและข้อมูลสำคัญ</a>
         </div>
 
-        <!-- LOGIN -->
         <div class="flex items-center">
           <a href="auth/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
             <i class='bx bx-user-circle text-xl'></i>
@@ -126,7 +122,7 @@
               <div class="flex items-center gap-4 px-5 py-4">
                 <div class="flex items-center gap-2 shrink-0 font-bold">
                   <i class='bx bxs-bell-ring text-xl'></i>
-                  ประกาศด่วน
+                  ประกาศสำคัญ
                 </div>
 
                 <div class="marquee-wrap w-full">
@@ -645,34 +641,35 @@
     }
 
     function renderUrgentBar() {
-      const urgentBar = document.getElementById('urgentBar');
-      const defaultUrgentBar = document.getElementById('defaultUrgentBar');
-      const urgentTicker = document.getElementById('urgentTicker');
+  const urgentBar = document.getElementById('urgentBar');
+  const defaultUrgentBar = document.getElementById('defaultUrgentBar');
+  const urgentTicker = document.getElementById('urgentTicker');
 
-      if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
+  if (!urgentBar || !defaultUrgentBar || !urgentTicker) return;
 
-      const urgentItems = announcementsData.filter(item => categoryKey(item.category) === 'urgent');
+  const urgentItems = announcementsData
+    .filter(item => String(item.priority || '').toLowerCase() === 'high')
+    .sort((a, b) => new Date(getDisplayDate(b) || 0) - new Date(getDisplayDate(a) || 0));
 
-      if (!urgentItems.length) {
-        urgentBar.classList.add('hidden');
-        defaultUrgentBar.classList.remove('hidden');
-        return;
-      }
+  if (!urgentItems.length) {
+    urgentBar.classList.add('hidden');
+    defaultUrgentBar.classList.remove('hidden');
+    return;
+  }
 
-      defaultUrgentBar.classList.add('hidden');
-      urgentBar.classList.remove('hidden');
+  defaultUrgentBar.classList.add('hidden');
+  urgentBar.classList.remove('hidden');
 
-      const messages = urgentItems.map(item => {
-        const title = item.title || 'ประกาศด่วน';
-        const summary = item.summary || '';
-        return summary || title;
-      });
+  const messages = urgentItems.map(item => {
+    const title = item.title || 'ประกาศสำคัญ';
+    const summary = item.summary || '';
+    return summary || title;
+  });
 
-      urgentTicker.innerHTML = messages
-        .map(msg => `<span class="inline-block pr-16">${escapeHtml(msg)}</span>`)
-        .join('');
-    }
-
+  urgentTicker.innerHTML = messages
+    .map(msg => `<span class="inline-block pr-16">${escapeHtml(msg)}</span>`)
+    .join('');
+}
     function openAnnouncementModal(id) {
       const item = announcementsData.find(news => String(news.id) === String(id));
       if (!item) return;
