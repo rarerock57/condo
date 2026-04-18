@@ -213,10 +213,10 @@
       </div>
 
       <label class="input-label" for="room">เลขห้อง</label>
-      <input type="text" id="room" placeholder="เช่น 6301" autocomplete="off">
+      <input type="text" id="room" placeholder="เช่น 6301" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
 
       <label class="input-label" for="password">รหัสผ่าน</label>
-      <input type="password" id="password" placeholder="กรอกรหัสผ่าน">
+      <input type="password" id="password" placeholder="กรอกรหัสผ่าน" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
 
       <div class="btn-row">
         <button class="btn btn-primary" type="button" onclick="login()">เข้าสู่ระบบ</button>
