@@ -234,10 +234,18 @@ function goHome() {
 }
 
 function clearForm() {
-  document.getElementById("room").value = "";
-  document.getElementById("password").value = "";
+  const roomInput = document.getElementById("room");
+  const passwordInput = document.getElementById("password");
+  
+  roomInput.value = "";
+  passwordInput.value = "";
   document.getElementById("error").textContent = "";
-  document.getElementById("room").focus();
+  
+  // เพิ่มการตั้งค่า readonly กลับไปเมื่อล้างฟอร์ม
+  roomInput.setAttribute('readonly', 'readonly');
+  passwordInput.setAttribute('readonly', 'readonly');
+  
+  roomInput.focus();
 }
 
 document.addEventListener("keydown", function(e) {
