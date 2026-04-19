@@ -236,15 +236,14 @@ function goHome() {
 function clearForm() {
   const roomInput = document.getElementById("room");
   const passwordInput = document.getElementById("password");
-  
+
   roomInput.value = "";
   passwordInput.value = "";
   document.getElementById("error").textContent = "";
-  
-  // เพิ่มการตั้งค่า readonly กลับไปเมื่อล้างฟอร์ม
+
   roomInput.setAttribute('readonly', 'readonly');
   passwordInput.setAttribute('readonly', 'readonly');
-  
+
   roomInput.focus();
 }
 
@@ -330,6 +329,11 @@ async function redirectByRole() {
 
   if (role === "super_admin" || role === "admin") {
     window.location.href = "../admin/dashboard.html";
+    return;
+  }
+
+  if (role === "account") {
+    window.location.href = "../account/dashboard.html";
     return;
   }
 
