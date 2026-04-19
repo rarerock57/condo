@@ -324,6 +324,11 @@
       color: #7c3aed;
     }
 
+    .role-account {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
     .role-resident {
       background: #ecfeff;
       color: #0f766e;
@@ -601,6 +606,7 @@
           <option value="resident">resident</option>
           <option value="technician">technician</option>
           <option value="admin">admin</option>
+          <option value="account">account</option>
         </select>
       </div>
 
@@ -647,6 +653,7 @@
     function getRoleClass(role) {
       if (role === 'super_admin') return 'role-chip role-super';
       if (role === 'admin') return 'role-chip role-admin';
+      if (role === 'account') return 'role-chip role-account';
       if (role === 'technician') return 'role-chip role-technician';
       return 'role-chip role-resident';
     }
