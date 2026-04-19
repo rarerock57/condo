@@ -41,7 +41,7 @@
     .login-visual {
       background:
         linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 64, 175, 0.8)),
-        url('https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png?q=80&w=1600');
+        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600');
       background-size: cover;
       background-position: center;
       color: white;
@@ -189,16 +189,6 @@
         padding: 40px 24px;
       }
     }
-
-    /* สไตล์สำหรับช่องหลอกเพื่อไม่ให้มองเห็นและไม่รบกวน Layout */
-    .hidden-trap {
-      position: absolute;
-      opacity: 0;
-      height: 0;
-      width: 0;
-      z-index: -1;
-      overflow: hidden;
-    }
   </style>
 </head>
 
@@ -222,24 +212,11 @@
         <p>กรอกเลขห้องและรหัสผ่านเพื่อเข้าสู่ระบบของอาคาร</p>
       </div>
 
-      <div class="hidden-trap">
-        <input type="text" name="fake_user_name_prevent_autofill">
-        <input type="password" name="fake_password_prevent_autofill">
-      </div>
-
       <label class="input-label" for="room">เลขห้อง</label>
-      <input type="text" id="room" 
-             placeholder="เช่น 6301" 
-             autocomplete="off" 
-             readonly 
-             onfocus="this.removeAttribute('readonly');">
+      <input type="text" id="room" placeholder="เช่น 6301" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
 
       <label class="input-label" for="password">รหัสผ่าน</label>
-      <input type="password" id="password" 
-             placeholder="กรอกรหัสผ่าน" 
-             autocomplete="new-password" 
-             readonly 
-             onfocus="this.removeAttribute('readonly');">
+      <input type="password" id="password" placeholder="กรอกรหัสผ่าน" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');">
 
       <div class="btn-row">
         <button class="btn btn-primary" type="button" onclick="login()">เข้าสู่ระบบ</button>
@@ -350,19 +327,21 @@ async function redirectByRole() {
 
   const role = profile.role;
 
-  // การเปลี่ยนหน้าตาม Role ทำงานที่นี่
   if (role === "super_admin" || role === "admin") {
     window.location.href = "../admin/dashboard.html";
     return;
   }
+
   if (role === "account") {
     window.location.href = "../account/dashboard.html";
     return;
   }
+
   if (role === "resident") {
     window.location.href = "../resident/dashboard.html";
     return;
   }
+
   if (role === "technician") {
     window.location.href = "../technician/dashboard.html";
     return;
