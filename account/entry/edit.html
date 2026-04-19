@@ -160,29 +160,27 @@
       font-size: 13px;
     }
 
-    .content-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-      position: relative;
-    }
+  .content-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
 
-    .receipt-badge {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 16px;
-      text-align: right;
-      cursor: pointer;
-      transition: .2s ease;
-      box-shadow: 0 10px 20px rgba(37,99,235,0.18);
-      border: none;
-    }
+.receipt-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s ease;
+  box-shadow: 0 10px 20px rgba(37,99,235,0.18);
+  border: none;
+  margin-bottom: 20px;
+}
 
     .receipt-badge:hover {
       transform: translateY(-2px);
@@ -439,13 +437,15 @@
     </div>
   </div>
 
-  <div class="content-card">
+<div class="content-card">
+  <div class="d-flex justify-content-end mb-2">
     <div class="receipt-badge" onclick="location.href='../entry.html'" title="กลับหน้าบันทึกข้อมูล">
       <small>แก้ไขเลขที่</small><br>
       <span id="receiptNoDisplay">- รอรันเลข -</span>
     </div>
+  </div>
 
-    <div class="search-area">
+  <div class="search-area">
       <label class="form-label fw-bold mb-2">ค้นหาใบเสร็จจากเลขห้อง</label>
       <div class="input-group input-group-lg">
         <span class="input-group-text"><i class="bi bi-house"></i></span>
