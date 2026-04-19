@@ -618,7 +618,7 @@
   </div>
 
   <script>
-    const RESET_PASSWORD_ENDPOINT = 'PASTE_YOUR_RESET_PASSWORD_ENDPOINT_HERE';
+    const RESET_PASSWORD_ENDPOINT = 'https://fjvcqxqchluvmxnlvhwo.supabase.co/functions/v1/reset-password';
 
     let currentProfile = null;
     let allUsers = [];
@@ -906,16 +906,20 @@
       const confirmed = window.confirm(`ต้องการรีเซ็ตรหัสของ "${fullName}" ห้อง ${roomNumber} เป็น Abc@1234 ใช่หรือไม่?`);
       if (!confirmed) return;
 
-      if (!RESET_PASSWORD_ENDPOINT || RESET_PASSWORD_ENDPOINT === 'PASTE_YOUR_RESET_PASSWORD_ENDPOINT_HERE') {
-        setStatus('ยังไม่ได้ตั้งค่า RESET_PASSWORD_ENDPOINT ในไฟล์ users.html', 'status-error');
-        return;
-      }
-
       try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+
+        if (!accessToken) {
+          setStatus('ไม่พบ session กรุณา login ใหม่', 'status-error');
+          return;
+        }
+
         const response = await fetch(RESET_PASSWORD_ENDPOINT, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`
           },
           body: JSON.stringify({
             target_user_id: userId,
