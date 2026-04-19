@@ -1,407 +1,940 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบแก้ไขข้อมูล - เจริญกรุง คอนโดมิเนียม 3</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แก้ไขข้อมูลใบเสร็จ</title>
 
-    <style>
-        :root {
-            --gold: #ffd700;
-            --gold-dark: #d4af37;
-            --gold-soft: rgba(255, 215, 0, 0.15);
-        }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        body {
-            font-family: 'Sarabun', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            background: radial-gradient(circle at top, #1c2029, #0a0c10 80%);
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-        }
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --hero-a: #0f172a;
+      --hero-b: #1e3a8a;
+    }
 
-        .container {
-            max-width: 1080px;
-            margin: 40px auto;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-radius: 30px;
-            padding: 45px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            flex: 1;
-            position: relative;
-        }
+    * {
+      box-sizing: border-box;
+      font-family: 'Prompt', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        h2 { font-weight: 700; background: linear-gradient(to bottom, #ffffff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    html, body {
+      overflow-x: hidden;
+    }
 
-        .receipt-badge { 
-            position: absolute; top: 40px; right: 45px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #000; padding: 12px 25px; border-radius: 14px; text-align: right; 
-            cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
-        }
-        .receipt-badge:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* 🔍 Search Area - พื้นหลังสีเทาเข้มตามสั่ง */
-        .search-area { 
-            background: #2c2f36; 
-            padding: 30px; 
-            border-radius: 22px; 
-            border: 1px solid rgba(255, 215, 0, 0.2); 
-            margin-bottom: 30px; 
-        }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
 
-        .recent-box { background: rgba(0, 0, 0, 0.2); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 30px; }
-        .table { background-color: transparent !important; --bs-table-bg: transparent !important; border-color: rgba(255,255,255,0.05) !important; }
-        .table thead th { background-color: rgba(255, 215, 0, 0.1) !important; color: var(--gold) !important; border-bottom: 2px solid var(--gold-dark) !important; padding: 15px; }
-        
-        .table tbody td { color: #ffffff !important; vertical-align: middle; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .text-receipt-no { color: var(--gold) !important; font-weight: 700; }
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
 
-        .btn-edit-sm { background: rgba(255, 215, 0, 0.1); color: #fff !important; border: 1px solid var(--gold-dark); border-radius: 10px; padding: 6px 16px; transition: 0.3s; }
-        .btn-edit-sm:hover { background: var(--gold); color: #000 !important; box-shadow: 0 0 10px var(--gold-soft); }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-        .section-title { background: rgba(255, 255, 255, 0.03); border-left: 4px solid var(--gold); padding: 10px 15px; margin: 35px 0 15px; font-weight: 700; color: var(--gold); }
-        .form-control, .form-select { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 12px; border-radius: 12px; }
-        .form-control:focus { background: rgba(255, 255, 255, 0.08); border-color: var(--gold); box-shadow: 0 0 12px var(--gold-soft); }
-        .readonly-field { background: rgba(0, 0, 0, 0.4) !important; color: var(--gold) !important; font-weight: 700; border-color: rgba(255, 215, 0, 0.1) !important; }
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
 
-        .pay-method-card { background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
-        .pay-label-gold { color: var(--gold); font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block; }
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
 
-        .btn-submit { padding: 18px; font-size: 1.3rem; font-weight: 800; border-radius: 16px; background: linear-gradient(135deg, var(--gold), #c9a400); border: none; color: #000; margin-top: 30px; box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2); transition: 0.4s; }
-        .btn-submit:hover { filter: brightness(1.1); transform: translateY(-3px); }
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-        .bg-inner-box { background: rgba(0, 0, 0, 0.15); border-radius: 18px; padding: 25px; border: 1px solid rgba(255,255,255,0.03); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-        .swal2-popup { background: rgba(40, 45, 55, 0.95) !important; backdrop-filter: blur(15px) !important; border: 2px solid var(--gold) !important; border-radius: 25px !important; color: #fff !important; }
-        .swal2-title { color: var(--gold) !important; font-family: 'Sarabun', sans-serif !important; font-weight: 700 !important; }
-        .swal2-confirm { background: linear-gradient(135deg, var(--gold), #c9a400) !important; color: #000 !important; font-weight: 700 !important; border-radius: 12px !important; }
-        .swal2-cancel { background: rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 12px !important; }
+    .nav-btn {
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font-weight: 500;
+      transition: .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      cursor: pointer;
+    }
 
-        .footer { text-align: center; color: #888; font-size: 0.85rem; padding: 30px 0; margin-top: auto; width: 100%; }
-    </style>
+    .nav-btn.secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .nav-btn.secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .page-wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 28px 20px 40px;
+      flex: 1;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+      margin-bottom: 22px;
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.7;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .content-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      position: relative;
+    }
+
+    .receipt-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 16px;
+      text-align: right;
+      cursor: pointer;
+      transition: .2s ease;
+      box-shadow: 0 10px 20px rgba(37,99,235,0.18);
+      border: none;
+    }
+
+    .receipt-badge:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    .receipt-badge small {
+      opacity: .85;
+      font-weight: 700;
+    }
+
+    .search-area,
+    .recent-box,
+    .bg-inner-box,
+    .pay-method-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .search-area {
+      margin-bottom: 28px;
+    }
+
+    .recent-box {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin: 32px 0 16px;
+      font-weight: 700;
+    }
+
+    .form-control,
+    .form-select {
+      background: #fff;
+      border: 1px solid #dbe3ee;
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      min-height: 48px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+      color: var(--text);
+    }
+
+    .form-control::placeholder {
+      color: #94a3b8;
+    }
+
+    .input-group-text {
+      background: #fff !important;
+      border: 1px solid #dbe3ee !important;
+      color: var(--muted) !important;
+      border-radius: 14px 0 0 14px !important;
+    }
+
+    .input-group .form-control {
+      border-left: 0;
+      border-radius: 0;
+    }
+
+    .input-group .btn {
+      border-radius: 0 14px 14px 0;
+    }
+
+    .readonly-field {
+      background: #f8fafc !important;
+      color: var(--primary-dark) !important;
+      font-weight: 700;
+      border-color: #dbeafe !important;
+    }
+
+    .table {
+      margin-bottom: 0;
+      --bs-table-bg: transparent;
+      color: var(--text);
+    }
+
+    .table thead th {
+      background: #f8fafc !important;
+      color: #334155 !important;
+      border-bottom: 1px solid var(--border) !important;
+      padding: 15px;
+      font-weight: 700;
+    }
+
+    .table tbody td {
+      color: var(--text) !important;
+      vertical-align: middle;
+      padding: 15px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .text-receipt-no {
+      color: var(--primary-dark) !important;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    .btn-edit-sm {
+      background: #eff6ff;
+      color: var(--primary-dark) !important;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 6px 16px;
+      transition: .2s ease;
+      font-weight: 700;
+    }
+
+    .btn-edit-sm:hover {
+      background: #dbeafe;
+      color: var(--primary-dark) !important;
+    }
+
+    .pay-label {
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      padding: 12px 18px;
+      border-radius: 14px;
+    }
+
+    .btn-primary-custom:hover {
+      filter: brightness(1.05);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #e2e8f0;
+      color: var(--text);
+      border: none;
+      font-weight: 600;
+      padding: 12px 14px;
+      border-radius: 14px;
+    }
+
+    .btn-soft:hover {
+      background: #cbd5e1;
+      color: var(--text);
+    }
+
+    .btn-submit {
+      padding: 18px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      color: #fff;
+      margin-top: 30px;
+      box-shadow: 0 15px 30px rgba(37,99,235,0.18);
+      transition: .2s ease;
+    }
+
+    .btn-submit:hover {
+      filter: brightness(1.05);
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: .85rem;
+      padding: 30px 0;
+      margin-top: auto;
+      width: 100%;
+    }
+
+    .swal2-popup {
+      border-radius: 24px !important;
+    }
+
+    .swal2-confirm {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+      color: #fff !important;
+      font-weight: 700 !important;
+      border-radius: 12px !important;
+    }
+
+    .swal2-cancel {
+      background: #e2e8f0 !important;
+      color: var(--text) !important;
+      border-radius: 12px !important;
+    }
+
+    @media (max-width: 768px) {
+      .receipt-badge {
+        position: static;
+        width: 100%;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .hero-card h2 {
+        font-size: 26px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="receipt-badge" onclick="location.href='https://chaichana-dev-io.github.io/receipt-entry-system/entry'" title="กลับหน้าบันทึกข้อมูล">
-        <small>แก้ไขเลขที่</small><br>
-        <span id="receiptNoDisplay">- รอรันเลข -</span>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="https://img1.pic.in.th/images/-16daae7756d8872a5.png" alt="logo">
+      <div>
+        <h1>แก้ไขข้อมูลใบเสร็จ</h1>
+        <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+      </div>
     </div>
 
-    <h2><i class="bi bi-pencil-square me-2" style="color:var(--gold)"></i>จัดการข้อมูลใบเสร็จ (Admin)</h2>
-    <hr style="border-color:rgba(255,255,255,0.1); margin-bottom: 30px;">
+    <div class="nav-actions">
+      <a href="../dashboard.html" class="nav-btn secondary">
+        <i class="bi bi-house-door-fill"></i> กลับหน้าหลัก
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="hero-card">
+    <h2>ระบบแก้ไขข้อมูลใบเสร็จ</h2>
+    <p>ค้นหารายการย้อนหลังตามเลขห้อง เลือกใบเสร็จที่ต้องการ แล้วแก้ไขข้อมูลก่อนนำไปใช้ต่อใน workflow เดิมของระบบ</p>
+
+    <div class="hero-badges">
+      <div class="hero-badge">ค้นหารายการล่าสุดได้</div>
+      <div class="hero-badge">แก้ไขข้อมูลได้สะดวก</div>
+      <div class="hero-badge">คง logic เดิมของระบบ</div>
+    </div>
+  </div>
+
+  <div class="content-card">
+    <div class="receipt-badge" onclick="location.href='../entry.html'" title="กลับหน้าบันทึกข้อมูล">
+      <small>แก้ไขเลขที่</small><br>
+      <span id="receiptNoDisplay">- รอรันเลข -</span>
+    </div>
 
     <div class="search-area">
-        <label class="form-label fw-bold text-light mb-2">ค้นหาใบเสร็จจากเลขห้อง</label>
-        <div class="input-group input-group-lg">
-            <span class="input-group-text bg-transparent border-secondary text-warning"><i class="bi bi-house"></i></span>
-            <input type="number" id="searchRoomNo" class="form-control border-secondary text-white" placeholder="ระบุเลขห้อง (เช่น 16)" oninput="fetchReceiptsByRoom()">
-            <button class="btn btn-warning fw-bold px-4" onclick="fetchReceiptsByRoom()">ค้นหา</button>
-        </div>
+      <label class="form-label fw-bold mb-2">ค้นหาใบเสร็จจากเลขห้อง</label>
+      <div class="input-group input-group-lg">
+        <span class="input-group-text"><i class="bi bi-house"></i></span>
+        <input type="number" id="searchRoomNo" class="form-control" placeholder="ระบุเลขห้อง (เช่น 16)" oninput="fetchReceiptsByRoom()">
+        <button class="btn btn-primary-custom" onclick="fetchReceiptsByRoom()">ค้นหา</button>
+      </div>
     </div>
 
     <div id="recentTableArea" class="recent-box">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0 text-white" id="tableTitle"><i class="bi bi-clock-history me-2 text-warning"></i>รายการล่าสุด 10 ลำดับ</h6>
-            <button class="btn btn-sm btn-outline-secondary text-white border-0" onclick="fetchRecentReceipts()"><i class="bi bi-arrow-clockwise"></i> รีเฟรช</button>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr><th>เลขที่ใบเสร็จ</th><th>ห้อง</th><th>ชื่อผู้เช่า/เจ้าของ</th><th class="text-center">เครื่องมือ</th></tr>
-                </thead>
-                <tbody id="recentListBody">
-                    <tr><td colspan="4" class="text-center py-4">กำลังโหลด...</td></tr>
-                </tbody>
-            </table>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h6 class="mb-0" id="tableTitle">
+          <i class="bi bi-clock-history me-2 text-primary"></i>รายการล่าสุด 10 ลำดับ
+        </h6>
+        <button class="btn btn-soft btn-sm" onclick="fetchRecentReceipts()">
+          <i class="bi bi-arrow-clockwise"></i> รีเฟรช
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>เลขที่ใบเสร็จ</th>
+              <th>ห้อง</th>
+              <th>ชื่อผู้เช่า/เจ้าของ</th>
+              <th class="text-center">เครื่องมือ</th>
+            </tr>
+          </thead>
+          <tbody id="recentListBody">
+            <tr><td colspan="4" class="text-center py-4">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    
+
     <form id="receiptForm" style="display:none;">
-        <input type="hidden" name="action" value="updateData">
-        <input type="hidden" name="receiptNo" id="receiptNo">
-        <input type="hidden" name="period" id="finalPeriod">
+      <input type="hidden" name="action" value="updateData">
+      <input type="hidden" name="receiptNo" id="receiptNo">
+      <input type="hidden" name="period" id="finalPeriod">
 
-        <div class="section-title">ข้อมูลพื้นฐาน</div>
-        <div class="row g-4">
-            <div class="col-md-3"><label class="form-label">เลขห้อง</label><input type="text" name="room" id="room" class="form-control readonly-field" readonly></div>
-            <div class="col-md-9"><label class="form-label">ชื่อเจ้าของ / ผู้เช่า</label><input type="text" name="name" id="name" class="form-control"></div>
+      <div class="section-title">ข้อมูลพื้นฐาน</div>
+      <div class="row g-4">
+        <div class="col-md-3">
+          <label class="form-label">เลขห้อง</label>
+          <input type="text" name="room" id="room" class="form-control readonly-field" readonly>
+        </div>
+        <div class="col-md-9">
+          <label class="form-label">ชื่อเจ้าของ / ผู้เช่า</label>
+          <input type="text" name="name" id="name" class="form-control">
+        </div>
+      </div>
+
+      <div class="section-title">1. ค่าส่วนกลาง</div>
+      <div class="row g-4">
+        <div class="col-md-3">
+          <label class="form-label">เริ่ม</label>
+          <select id="periodStart" class="form-select" onchange="calculate()">
+            <option value="">-</option>
+            <option value="มกราคม">มกราคม</option>
+            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+            <option value="มีนาคม">มีนาคม</option>
+            <option value="เมษายน">เมษายน</option>
+            <option value="พฤษภาคม">พฤษภาคม</option>
+            <option value="มิถุนายน">มิถุนายน</option>
+            <option value="กรกฎาคม">กรกฎาคม</option>
+            <option value="สิงหาคม">สิงหาคม</option>
+            <option value="กันยายน">กันยายน</option>
+            <option value="ตุลาคม">ตุลาคม</option>
+            <option value="พฤศจิกายน">พฤศจิกายน</option>
+            <option value="ธันวาคม">ธันวาคม</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">ถึง</label>
+          <select id="periodEnd" class="form-select" onchange="calculate()">
+            <option value="">-</option>
+            <option value="มกราคม">มกราคม</option>
+            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+            <option value="มีนาคม">มีนาคม</option>
+            <option value="เมษายน">เมษายน</option>
+            <option value="พฤษภาคม">พฤษภาคม</option>
+            <option value="มิถุนายน">มิถุนายน</option>
+            <option value="กรกฎาคม">กรกฎาคม</option>
+            <option value="สิงหาคม">สิงหาคม</option>
+            <option value="กันยายน">กันยายน</option>
+            <option value="ตุลาคม">ตุลาคม</option>
+            <option value="พฤศจิกายน">พฤศจิกายน</option>
+            <option value="ธันวาคม">ธันวาคม</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">พื้นที่ (ตรม.)</label>
+          <input type="number" step="0.01" name="sqm" id="sqm" class="form-control" oninput="calculate()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">รวมเงิน <span id="monthCountBadge" class="badge bg-secondary ms-1">0 ด.</span></label>
+          <input type="number" name="commonFee" id="commonFee" class="form-control readonly-field" readonly>
+        </div>
+      </div>
+
+      <div class="section-title">2. ค่าน้ำประปา</div>
+      <div class="bg-inner-box row g-3 mx-0">
+        <div class="col-md-3">
+          <label class="form-label">มิเตอร์เดิม</label>
+          <input type="number" name="prevMeter" id="prevMeter" class="form-control" oninput="calculate()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">ปัจจุบัน</label>
+          <input type="number" name="currMeter" id="currMeter" class="form-control" oninput="calculate()">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">เดือนค่าน้ำ</label>
+          <select name="waterMonth" id="waterMonth" class="form-select">
+            <option value="">-</option>
+            <option value="มกราคม">มกราคม</option>
+            <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+            <option value="มีนาคม">มีนาคม</option>
+            <option value="เมษายน">เมษายน</option>
+            <option value="พฤษภาคม">พฤษภาคม</option>
+            <option value="มิถุนายน">มิถุนายน</option>
+            <option value="กรกฎาคม">กรกฎาคม</option>
+            <option value="สิงหาคม">สิงหาคม</option>
+            <option value="กันยายน">กันยายน</option>
+            <option value="ตุลาคม">ตุลาคม</option>
+            <option value="พฤศจิกายน">พฤศจิกายน</option>
+            <option value="ธันวาคม">ธันวาคม</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">ปี (พ.ศ.)</label>
+          <input type="number" name="waterYear" id="waterYear" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">รวมเงินน้ำ</label>
+          <input type="number" name="waterFee" id="waterFee" class="readonly-field form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">หน่วยที่ใช้</label>
+          <input type="number" name="waterUnit" id="waterUnit" class="readonly-field form-control" readonly>
+        </div>
+      </div>
+
+      <div class="section-title">3. ค่าใช้จ่ายอื่นๆ และที่จอดรถ</div>
+      <div class="row g-3">
+        <input type="hidden" name="meter" id="meter" value="1">
+        <input type="hidden" name="total_input" id="total_input" value="50">
+        <div class="col-md-2">
+          <label class="form-label small">รถยนต์ (คัน)</label>
+          <input type="number" name="car" id="car" class="form-control" oninput="calculate()">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">เงินรถ</label>
+          <input type="number" id="sumCar" class="readonly-field form-control" readonly>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">MC (คัน)</label>
+          <input type="number" name="mc" id="mc" class="form-control" oninput="calculate()">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">เงิน MC</label>
+          <input type="number" id="sumMc" class="readonly-field form-control" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small">อื่นๆ (บาท)</label>
+          <input type="number" name="other" id="other" class="form-control" oninput="calculate()">
+        </div>
+      </div>
+
+      <div class="bg-inner-box text-center my-4">
+        <label class="form-label fw-bold" style="color:var(--primary)">ยอดชำระสุทธิ (คำนวณใหม่)</label>
+        <input type="number" name="grandTotal" id="grandTotal" class="form-control readonly-field text-center fs-2 mb-2" style="height:70px; border-color:#bfdbfe !important;" readonly>
+        <input type="text" name="bahtText" id="bahtText" class="form-control readonly-field text-center border-0 bg-transparent" readonly>
+        <div class="mt-3">
+          <label class="form-label small">เหตุผลการแก้ไข:</label>
+          <input type="text" name="reason" id="reason" class="form-control">
+        </div>
+      </div>
+
+      <div class="section-title">4. รูปแบบการชำระเงิน</div>
+      <div class="pay-method-card">
+        <div class="d-flex gap-5 justify-content-center mb-4 flex-wrap">
+          <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p1" value="เงินสด" onchange="togglePayFields()"><label class="form-check-label" for="p1"><i class="bi bi-cash"></i> เงินสด</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p2" value="เงินโอน" onchange="togglePayFields()"><label class="form-check-label" for="p2"><i class="bi bi-bank"></i> เงินโอน</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p3" value="เช็ค" onchange="togglePayFields()"><label class="form-check-label" for="p3"><i class="bi bi-card-list"></i> เช็ค</label></div>
         </div>
 
-        <div class="section-title">1. ค่าส่วนกลาง</div>
-        <div class="row g-4">
-            <div class="col-md-3"><label class="form-label">เริ่ม</label><select id="periodStart" class="form-select" onchange="calculate()"><option value="">-</option><option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option></select></div>
-            <div class="col-md-3"><label class="form-label">ถึง</label><select id="periodEnd" class="form-select" onchange="calculate()"><option value="">-</option><option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option></select></div>
-            <div class="col-md-3"><label class="form-label">พื้นที่ (ตรม.)</label><input type="number" step="0.01" name="sqm" id="sqm" class="form-control" oninput="calculate()"></div>
-            <div class="col-md-3"><label class="form-label" style="color:var(--gold)">รวมเงิน <span id="monthCountBadge" class="badge bg-secondary ms-1">0 ด.</span></label><input type="number" name="commonFee" id="commonFee" class="form-control readonly-field" readonly></div>
+        <div id="v_fields" style="display:none;" class="row justify-content-center">
+          <div class="col-md-4">
+            <label class="pay-label">วันที่โอน</label>
+            <input type="date" name="transferDate" id="transferDate" class="form-control">
+          </div>
         </div>
 
-        <div class="section-title">2. ค่าน้ำประปา</div>
-        <div class="bg-inner-box row g-3 mx-0">
-            <div class="col-md-3"><label class="form-label">มิเตอร์เดิม</label><input type="number" name="prevMeter" id="prevMeter" class="form-control" oninput="calculate()"></div>
-            <div class="col-md-3"><label class="form-label">ปัจจุบัน</label><input type="number" name="currMeter" id="currMeter" class="form-control" oninput="calculate()"></div>
-            <div class="col-md-3"><label class="form-label">เดือนค่าน้ำ</label><select name="waterMonth" id="waterMonth" class="form-select"><option value="">-</option><option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option></select></div>
-            <div class="col-md-3"><label class="form-label">ปี (พ.ศ.)</label><input type="number" name="waterYear" id="waterYear" class="form-control"></div>
-            <div class="col-md-6"><label class="form-label text-info">รวมเงินน้ำ</label><input type="number" name="waterFee" id="waterFee" class="readonly-field form-control" readonly></div>
-            <div class="col-md-6"><label class="form-label">หน่วยที่ใช้</label><input type="number" name="waterUnit" id="waterUnit" class="readonly-field form-control" readonly></div>
+        <div id="w_fields" style="display:none;" class="row g-3">
+          <div class="col-md-3">
+            <label class="pay-label">ธนาคาร</label>
+            <input type="text" name="bankName" id="bankName" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="pay-label">สาขา</label>
+            <input type="text" name="bankBranch" id="bankBranch" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="pay-label">เลขเช็ค</label>
+            <input type="text" name="chequeNo" id="chequeNo" class="form-control">
+          </div>
+          <div class="col-md-3">
+            <label class="pay-label">วันที่เช็ค</label>
+            <input type="date" name="chequeDate" id="chequeDate" class="form-control">
+          </div>
         </div>
+      </div>
 
-        <div class="section-title">3. ค่าใช้จ่ายอื่นๆ และที่จอดรถ</div>
-        <div class="row g-3">
-            <input type="hidden" name="meter" id="meter" value="1"><input type="hidden" name="total_input" id="total_input" value="50">
-            <div class="col-md-2"><label class="form-label small">รถยนต์ (คัน)</label><input type="number" name="car" id="car" class="form-control" oninput="calculate()"></div>
-            <div class="col-md-2"><label class="form-label small">เงินรถ</label><input type="number" id="sumCar" class="readonly-field form-control" readonly></div>
-            <div class="col-md-2"><label class="form-label small">MC (คัน)</label><input type="number" name="mc" id="mc" class="form-control" oninput="calculate()"></div>
-            <div class="col-md-2"><label class="form-label small">เงิน MC</label><input type="number" id="sumMc" class="readonly-field form-control" readonly></div>
-            <div class="col-md-4"><label class="form-label small">อื่นๆ (บาท)</label><input type="number" name="other" id="other" class="form-control" oninput="calculate()"></div>
+      <div class="section-title">5. รายการค้างชำระ (ถ้ามี)</div>
+      <div class="row g-3 bg-inner-box mx-0">
+        <div class="col-md-4">
+          <label class="form-label small">ส่วนกลางค้าง</label>
+          <input type="number" name="unpaidCommon" id="unpaidCommon" class="form-control">
         </div>
-
-        <div class="bg-inner-box text-center my-4">
-            <label class="form-label fw-bold" style="color:var(--gold)">ยอดชำระสุทธิ (คำนวณใหม่)</label>
-            <input type="number" name="grandTotal" id="grandTotal" class="form-control readonly-field text-center fs-2 mb-2" style="height:70px; border-color:var(--gold) !important;" readonly>
-            <input type="text" name="bahtText" id="bahtText" class="form-control readonly-field text-center border-0 bg-transparent" readonly>
-            <div class="mt-3"><label class="form-label text-danger small">เหตุผลการแก้ไข:</label><input type="text" name="reason" id="reason" class="form-control"></div>
+        <div class="col-md-4">
+          <label class="form-label small">เดือนที่ค้าง</label>
+          <input type="text" name="unpaidMonth" id="unpaidMonth" class="form-control">
         </div>
-
-        <div class="section-title">4. รูปแบบการชำระเงิน</div>
-        <div class="pay-method-card">
-            <div class="d-flex gap-5 justify-content-center mb-4">
-                <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p1" value="เงินสด" onchange="togglePayFields()"><label class="form-check-label" for="p1"><i class="bi bi-cash"></i> เงินสด</label></div>
-                <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p2" value="เงินโอน" onchange="togglePayFields()"><label class="form-check-label" for="p2"><i class="bi bi-bank"></i> เงินโอน</label></div>
-                <div class="form-check"><input class="form-check-input" type="radio" name="payType" id="p3" value="เช็ค" onchange="togglePayFields()"><label class="form-check-label" for="p3"><i class="bi bi-card-list"></i> เช็ค</label></div>
-            </div>
-            <div id="v_fields" style="display:none;" class="row justify-content-center"><div class="col-md-4"><label class="pay-label-gold">วันที่โอน</label><input type="date" name="transferDate" id="transferDate" class="form-control"></div></div>
-            <div id="w_fields" style="display:none;" class="row g-3">
-                <div class="col-md-3"><label class="pay-label-gold">ธนาคาร</label><input type="text" name="bankName" id="bankName" class="form-control"></div>
-                <div class="col-md-3"><label class="pay-label-gold">สาขา</label><input type="text" name="bankBranch" id="bankBranch" class="form-control"></div>
-                <div class="col-md-3"><label class="pay-label-gold">เลขเช็ค</label><input type="text" name="chequeNo" id="chequeNo" class="form-control"></div>
-                <div class="col-md-3"><label class="pay-label-gold">วันที่เช็ค</label><input type="date" name="chequeDate" id="chequeDate" class="form-control"></div>
-            </div>
+        <div class="col-md-4">
+          <label class="form-label small">ปีที่ค้าง</label>
+          <input type="number" name="unpaidYear" id="unpaidYear" class="form-control">
         </div>
-
-        <div class="section-title text-muted-gold">5. รายการค้างชำระ (ถ้ามี)</div>
-        <div class="row g-3 bg-inner-box mx-0">
-            <div class="col-md-4"><label class="form-label small">ส่วนกลางค้าง</label><input type="number" name="unpaidCommon" id="unpaidCommon" class="form-control"></div>
-            <div class="col-md-4"><label class="form-label small">เดือนที่ค้าง</label><input type="text" name="unpaidMonth" id="unpaidMonth" class="form-control"></div>
-            <div class="col-md-4"><label class="form-label small">ปีที่ค้าง</label><input type="number" name="unpaidYear" id="unpaidYear" class="form-control"></div>
-            <div class="col-md-4"><label class="form-label small">ค่าน้ำค้าง</label><input type="number" name="unpaidWater" id="unpaidWater" class="form-control"></div>
-            <div class="col-md-4"><label class="form-label small">ค่าน้ำเดือนที่ค้าง</label><input type="text" name="unpaidWaterMonth" id="unpaidWaterMonth" class="form-control"></div>
-            <div class="col-md-4"><label class="form-label small">ค่าน้ำปีที่ค้าง</label><input type="number" name="unpaidWaterYear" id="unpaidWaterYear" class="form-control"></div>
+        <div class="col-md-4">
+          <label class="form-label small">ค่าน้ำค้าง</label>
+          <input type="number" name="unpaidWater" id="unpaidWater" class="form-control">
         </div>
+        <div class="col-md-4">
+          <label class="form-label small">ค่าน้ำเดือนที่ค้าง</label>
+          <input type="text" name="unpaidWaterMonth" id="unpaidWaterMonth" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small">ค่าน้ำปีที่ค้าง</label>
+          <input type="number" name="unpaidWaterYear" id="unpaidWaterYear" class="form-control">
+        </div>
+      </div>
 
-        <button type="submit" id="submitBtn" class="btn btn-warning w-100 btn-submit"><i class="bi bi-save2-fill me-2"></i> บันทึกการแก้ไขข้อมูล</button>
+      <button type="submit" id="submitBtn" class="btn btn-primary w-100 btn-submit">
+        <i class="bi bi-save2-fill me-2"></i> บันทึกการแก้ไขข้อมูล
+      </button>
     </form>
+  </div>
 </div>
 
 <footer class="footer">© 2026 Charoen Krung Condominium 3 | บริหารจัดการโดยนิติบุคคล</footer>
 
 <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjcA4Cc88COnMDbTmQgl1dBK9ZU2NsSPsLBnAzTmY0h7T6jUZLMg5znjcPSrAmJ62mDg/exec";
-    const THAI_MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwjcA4Cc88COnMDbTmQgl1dBK9ZU2NsSPsLBnAzTmY0h7T6jUZLMg5znjcPSrAmJ62mDg/exec";
+  const THAI_MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-    window.onload = fetchRecentReceipts;
+  window.onload = fetchRecentReceipts;
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Enter" && document.activeElement.id === "searchRoomNo") fetchReceiptsByRoom();
-        if (e.key === "Escape") clearForm();
+  document.addEventListener('keydown', (e) => {
+    if (e.key === "Enter" && document.activeElement.id === "searchRoomNo") fetchReceiptsByRoom();
+    if (e.key === "Escape") clearForm();
+  });
+
+  const parseDate = (s) => {
+    if(!s || s === "-" || s === "") return "";
+    const parts = s.split('/');
+    if (parts.length === 3) {
+      let d = parts[0].padStart(2, '0');
+      let m = parts[1].padStart(2, '0');
+      let y = parseInt(parts[2]);
+      if (y > 2400) y -= 543;
+      return `${y}-${m}-${d}`;
+    }
+    return "";
+  };
+
+  function togglePayFields() {
+    const type = document.querySelector('input[name="payType"]:checked')?.value;
+    document.getElementById('v_fields').style.display = (type === 'เงินโอน') ? 'flex' : 'none';
+    document.getElementById('w_fields').style.display = (type === 'เช็ค') ? 'flex' : 'none';
+  }
+
+  async function fetchRecentReceipts() {
+    const tbody = document.getElementById('recentListBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">กำลังดึงข้อมูลล่าสุด...</td></tr>';
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=search`);
+      const data = await res.json();
+      renderTable(data.reverse().slice(0, 10));
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error Loading</td></tr>';
+    }
+  }
+
+  async function fetchReceiptsByRoom() {
+    const room = document.getElementById('searchRoomNo').value.trim();
+    const tbody = document.getElementById('recentListBody');
+    if (!room) {
+      fetchRecentReceipts();
+      return;
+    }
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div> ค้นหา...</td></tr>';
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=search&room=${room}`);
+      const data = await res.json();
+      renderTable(data);
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">ไม่พบข้อมูล</td></tr>';
+    }
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById('recentListBody');
+    tbody.innerHTML = list.length === 0 ? '<tr><td colspan="4" class="text-center">ไม่พบข้อมูล</td></tr>' : '';
+    list.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-receipt-no">${item['เลขที่ใบเสร็จ']}</td>
+        <td>${item['ห้อง']}</td>
+        <td>${item['ชื่อเจ้าของ / ผู้เช่า']}</td>
+        <td class="text-center"><button class="btn btn-edit-sm" onclick="loadFullData('${item['เลขที่ใบเสร็จ']}')">แก้ไข</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function loadFullData(receiptNo) {
+    Swal.fire({
+      title: 'กำลังดึงข้อมูล...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
     });
 
-    // 🚩 ปรับปรุงฟังก์ชันแปลงวันที่ให้แม่นยำ (แก้ปัญหา พ.ศ. และวันเดือนสลับ)
-    const parseDate = (s) => { 
-        if(!s || s === "-" || s === "") return ""; 
-        const parts = s.split('/'); 
-        if (parts.length === 3) {
-            let d = parts[0].padStart(2, '0');
-            let m = parts[1].padStart(2, '0');
-            let y = parseInt(parts[2]);
-            if (y > 2400) y -= 543; // แปลง พ.ศ. เป็น ค.ศ.
-            return `${y}-${m}-${d}`;
+    try {
+      const res = await fetch(`${WEB_APP_URL}?action=getReceiptData&receiptNo=${receiptNo}`);
+      const d = await res.json();
+      if (!d) throw new Error();
+
+      document.getElementById('receiptNo').value = d['เลขที่ใบเสร็จ'];
+      document.getElementById('receiptNoDisplay').innerText = d['เลขที่ใบเสร็จ'];
+      document.getElementById('room').value = d['ห้อง'];
+      document.getElementById('name').value = d['ชื่อเจ้าของ / ผู้เช่า'];
+      document.getElementById('sqm').value = d['ตารางเมตร'];
+      document.getElementById('prevMeter').value = d['มิเตอร์ครั้งก่อน'];
+      document.getElementById('currMeter').value = d['มิเตอร์ปัจจุบัน'];
+      document.getElementById('waterMonth').value = d['เดือนค่าน้ำ'];
+      document.getElementById('waterYear').value = d['ปีค่าน้ำ'];
+      document.getElementById('car').value = d['CAR'];
+      document.getElementById('mc').value = d['MC'];
+      document.getElementById('reason').value = d['เหตุผล'];
+      document.getElementById('other').value = d['อื่นๆ'];
+      document.getElementById('unpaidCommon').value = d['ส่วนกลางค้าง'];
+      document.getElementById('unpaidMonth').value = d['เดือนค้าง'];
+      document.getElementById('unpaidYear').value = d['ปีค้าง'];
+      document.getElementById('unpaidWater').value = d['ค่าน้ำค้าง'];
+      document.getElementById('unpaidWaterMonth').value = d['ค้างค่าน้ำเดือน'];
+      document.getElementById('unpaidWaterYear').value = d['ค้างค่าน้ำปี'];
+
+      document.getElementById('transferDate').value = parseDate(d['โอนวันที่']);
+      document.getElementById('bankName').value = d['ธนาคาร'];
+      document.getElementById('bankBranch').value = d['สาขา'];
+      document.getElementById('chequeNo').value = d['เลขที่เช็ค'];
+      document.getElementById('chequeDate').value = parseDate(d['ลงวันที่']);
+
+      if (d['U'] === "☑") document.getElementById('p1').checked = true;
+      else if (d['V'] === "☑") document.getElementById('p2').checked = true;
+      else if (d['W'] === "☑") document.getElementById('p3').checked = true;
+
+      const pStr = d['ส่วนกลางเดือน'] || "";
+      if (pStr.includes(" - ")) {
+        const parts = pStr.split(" - ");
+        document.getElementById('periodStart').value = parts[0].trim();
+        document.getElementById('periodEnd').value = parts[1].trim();
+      } else {
+        document.getElementById('periodStart').value = pStr;
+        document.getElementById('periodEnd').value = "";
+      }
+
+      togglePayFields();
+      calculate();
+      document.getElementById('receiptForm').style.display = 'block';
+      document.getElementById('recentTableArea').style.display = 'none';
+      Swal.close();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      Swal.fire({ title: 'Error', text: 'ดึงข้อมูลไม่สำเร็จ', icon: 'error' });
+    }
+  }
+
+  function calculate() {
+    const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+    const startM = document.getElementById('periodStart').value;
+    const endM = document.getElementById('periodEnd').value;
+    let monthCount = (startM) ? 1 : 0;
+
+    if (startM && endM && startM !== endM) {
+      const s = THAI_MONTHS.indexOf(startM);
+      const e = THAI_MONTHS.indexOf(endM);
+      monthCount = e >= s ? (e - s) + 1 : (12 - s + e) + 1;
+    }
+
+    document.getElementById('monthCountBadge').innerText = monthCount + " ด.";
+    const commonFee = getVal('sqm') * 25 * monthCount;
+    document.getElementById('commonFee').value = commonFee.toFixed(2);
+
+    const unit = Math.max(0, getVal('currMeter') - getVal('prevMeter'));
+    document.getElementById('waterUnit').value = unit;
+    document.getElementById('waterFee').value = (unit * 18).toFixed(2);
+    document.getElementById('sumCar').value = (getVal('car') * 500).toFixed(2);
+    document.getElementById('sumMc').value = (getVal('mc') * 100).toFixed(2);
+
+    const total = commonFee + (unit * 18) + (getVal('car') * 500) + (getVal('mc') * 100) + 50 + getVal('other');
+    document.getElementById('grandTotal').value = total.toFixed(2);
+    document.getElementById('bahtText').value = ThaiBahtText(total);
+  }
+
+  function ThaiBahtText(num) {
+    if (!num || num === 0) return "";
+    num = num.toFixed(2).split('.');
+    let t1 = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+    let t2 = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+    let res = "";
+
+    function read(n) {
+      let s = "";
+      for (let i = 0; i < n.length; i++) {
+        let d = parseInt(n[i]);
+        let p = n.length - i - 1;
+        if (d !== 0) {
+          if (p % 6 === 1 && d === 1) s += "เอ็ด";
+          else if (p % 6 === 1 && d === 2) s += "ยี่";
+          else if (p % 6 === 0 && d === 1 && i > 0 && n.length > 1) s += "เอ็ด";
+          else s += t1[d];
+          s += t2[p % 6];
+          if (p >= 6 && p % 6 === 0) s += "ล้าน";
         }
-        return ""; 
-    };
-
-    function togglePayFields() {
-        const type = document.querySelector('input[name="payType"]:checked')?.value;
-        document.getElementById('v_fields').style.display = (type === 'เงินโอน') ? 'flex' : 'none';
-        document.getElementById('w_fields').style.display = (type === 'เช็ค') ? 'flex' : 'none';
+      }
+      return s;
     }
 
-    async function fetchRecentReceipts() {
-        const tbody = document.getElementById('recentListBody');
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">กำลังดึงข้อมูลล่าสุด...</td></tr>';
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=search`);
-            const data = await res.json();
-            renderTable(data.reverse().slice(0, 10));
-        } catch (e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error Loading</td></tr>'; }
-    }
+    res = (num[0] === "0") ? "ศูนย์บาท" : read(num[0]) + "บาท";
+    res += (num[1] === "00") ? "ถ้วน" : read(num[1]) + "สตางค์";
+    return res.replace("หนึ่งสิบ", "สิบ");
+  }
 
-    async function fetchReceiptsByRoom() {
-        const room = document.getElementById('searchRoomNo').value.trim();
-        const tbody = document.getElementById('recentListBody');
-        if (!room) { fetchRecentReceipts(); return; }
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-warning spinner-border-sm"></div> ค้นหา...</td></tr>';
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=search&room=${room}`);
-            const data = await res.json();
-            renderTable(data);
-        } catch (e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center">ไม่พบข้อมูล</td></tr>'; }
-    }
+  function clearForm() {
+    document.getElementById('receiptForm').reset();
+    document.getElementById('receiptForm').style.display = 'none';
+    document.getElementById('recentTableArea').style.display = 'block';
+    document.getElementById('searchRoomNo').value = "";
+    document.getElementById('receiptNoDisplay').innerText = "- รอรันเลข -";
+    fetchRecentReceipts();
+  }
 
-    function renderTable(list) {
-        const tbody = document.getElementById('recentListBody');
-        tbody.innerHTML = list.length === 0 ? '<tr><td colspan="4" class="text-center">ไม่พบข้อมูล</td></tr>' : '';
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="text-receipt-no">${item['เลขที่ใบเสร็จ']}</td>
-                <td>${item['ห้อง']}</td>
-                <td>${item['ชื่อเจ้าของ / ผู้เช่า']}</td>
-                <td class="text-center"><button class="btn btn-edit-sm" onclick="loadFullData('${item['เลขที่ใบเสร็จ']}')">แก้ไข</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+  document.getElementById('receiptForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    async function loadFullData(receiptNo) {
-        Swal.fire({ title: 'กำลังดึงข้อมูล...', background: 'rgba(40, 45, 55, 0.95)', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=getReceiptData&receiptNo=${receiptNo}`);
-            const d = await res.json();
-            if (!d) throw new Error();
-
-            document.getElementById('receiptNo').value = d['เลขที่ใบเสร็จ'];
-            document.getElementById('receiptNoDisplay').innerText = d['เลขที่ใบเสร็จ'];
-            document.getElementById('room').value = d['ห้อง'];
-            document.getElementById('name').value = d['ชื่อเจ้าของ / ผู้เช่า'];
-            document.getElementById('sqm').value = d['ตารางเมตร'];
-            document.getElementById('prevMeter').value = d['มิเตอร์ครั้งก่อน'];
-            document.getElementById('currMeter').value = d['มิเตอร์ปัจจุบัน'];
-            document.getElementById('waterMonth').value = d['เดือนค่าน้ำ'];
-            document.getElementById('waterYear').value = d['ปีค่าน้ำ'];
-            document.getElementById('car').value = d['CAR'];
-            document.getElementById('mc').value = d['MC'];
-            document.getElementById('reason').value = d['เหตุผล'];
-            document.getElementById('other').value = d['อื่นๆ'];
-            document.getElementById('unpaidCommon').value = d['ส่วนกลางค้าง'];
-            document.getElementById('unpaidMonth').value = d['เดือนค้าง'];
-            document.getElementById('unpaidYear').value = d['ปีค้าง'];
-            document.getElementById('unpaidWater').value = d['ค่าน้ำค้าง'];
-            document.getElementById('unpaidWaterMonth').value = d['ค้างค่าน้ำเดือน'];
-            document.getElementById('unpaidWaterYear').value = d['ค้างค่าน้ำปี'];
-
-            // 🚩 ใช้งาน parseDate ใหม่ที่อัปเดตแล้ว
-            document.getElementById('transferDate').value = parseDate(d['โอนวันที่']);
-            document.getElementById('bankName').value = d['ธนาคาร'];
-            document.getElementById('bankBranch').value = d['สาขา'];
-            document.getElementById('chequeNo').value = d['เลขที่เช็ค'];
-            document.getElementById('chequeDate').value = parseDate(d['ลงวันที่']);
-            
-            if(d['U'] === "☑") document.getElementById('p1').checked = true;
-            else if(d['V'] === "☑") document.getElementById('p2').checked = true;
-            else if(d['W'] === "☑") document.getElementById('p3').checked = true;
-
-            const pStr = d['ส่วนกลางเดือน'] || "";
-            if (pStr.includes(" - ")) {
-                const parts = pStr.split(" - ");
-                document.getElementById('periodStart').value = parts[0].trim();
-                document.getElementById('periodEnd').value = parts[1].trim();
-            } else {
-                document.getElementById('periodStart').value = pStr;
-                document.getElementById('periodEnd').value = "";
-            }
-
-            togglePayFields(); calculate();
-            document.getElementById('receiptForm').style.display = 'block';
-            document.getElementById('recentTableArea').style.display = 'none';
-            Swal.close();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } catch (e) { Swal.fire({ title: 'Error', text: 'ดึงข้อมูลไม่สำเร็จ', icon: 'error' }); }
-    }
-
-    function calculate() {
-        const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-        const startM = document.getElementById('periodStart').value;
-        const endM = document.getElementById('periodEnd').value;
-        let monthCount = (startM) ? 1 : 0;
-        if (startM && endM && startM !== endM) {
-            const s = THAI_MONTHS.indexOf(startM);
-            const e = THAI_MONTHS.indexOf(endM);
-            monthCount = e >= s ? (e - s) + 1 : (12 - s + e) + 1;
-        }
-        document.getElementById('monthCountBadge').innerText = monthCount + " ด.";
-        const commonFee = getVal('sqm') * 25 * monthCount;
-        document.getElementById('commonFee').value = commonFee.toFixed(2);
-        const unit = Math.max(0, getVal('currMeter') - getVal('prevMeter'));
-        document.getElementById('waterUnit').value = unit;
-        document.getElementById('waterFee').value = (unit * 18).toFixed(2);
-        document.getElementById('sumCar').value = (getVal('car') * 500).toFixed(2);
-        document.getElementById('sumMc').value = (getVal('mc') * 100).toFixed(2);
-        const total = commonFee + (unit * 18) + (getVal('car') * 500) + (getVal('mc') * 100) + 50 + getVal('other');
-        document.getElementById('grandTotal').value = total.toFixed(2);
-        document.getElementById('bahtText').value = ThaiBahtText(total);
-    }
-
-    function ThaiBahtText(num) {
-        if (!num || num === 0) return "";
-        num = num.toFixed(2).split('.');
-        let t1 = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
-        let t2 = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
-        let res = "";
-        function read(n) {
-            let s = "";
-            for (let i = 0; i < n.length; i++) {
-                let d = parseInt(n[i]); let p = n.length - i - 1;
-                if (d !== 0) {
-                    if (p % 6 === 1 && d === 1) s += "เอ็ด"; 
-                    else if (p % 6 === 1 && d === 2) s += "ยี่";
-                    else if (p % 6 === 0 && d === 1 && i > 0 && n.length > 1) s += "เอ็ด";
-                    else s += t1[d];
-                    s += t2[p % 6];
-                    if (p >= 6 && p % 6 === 0) s += "ล้าน";
-                }
-            }
-            return s;
-        }
-        res = (num[0] === "0") ? "ศูนย์บาท" : read(num[0]) + "บาท";
-        res += (num[1] === "00") ? "ถ้วน" : read(num[1]) + "สตางค์";
-        return res.replace("หนึ่งสิบ", "สิบ");
-    }
-
-    function clearForm() {
-        document.getElementById('receiptForm').reset();
-        document.getElementById('receiptForm').style.display = 'none';
-        document.getElementById('recentTableArea').style.display = 'block';
-        document.getElementById('searchRoomNo').value = "";
-        document.getElementById('receiptNoDisplay').innerText = "- รอรันเลข -";
-        fetchRecentReceipts();
-    }
-
-    document.getElementById('receiptForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const { isConfirmed } = await Swal.fire({ title: 'ยืนยันอัปเดต?', text: 'ข้อมูลจะถูกเขียนทับ', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d4af37' });
-        if (!isConfirmed) return;
-        const startM = document.getElementById('periodStart').value;
-        const endM = document.getElementById('periodEnd').value;
-        document.getElementById('finalPeriod').value = (startM && endM) ? `${startM} - ${endM}` : startM;
-        document.getElementById('submitBtn').disabled = true;
-        try {
-            const resp = await fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(e.target).entries())) });
-            const res = await resp.json();
-            if (res.result === "success") { Swal.fire({ title: 'สำเร็จ!', icon: 'success', timer: 1500 }); clearForm(); }
-        } catch (error) { Swal.fire('สำเร็จ', 'บันทึกเรียบร้อย', 'success'); clearForm(); }
-        finally { document.getElementById('submitBtn').disabled = false; }
+    const { isConfirmed } = await Swal.fire({
+      title: 'ยืนยันอัปเดต?',
+      text: 'ข้อมูลจะถูกเขียนทับ',
+      icon: 'warning',
+      showCancelButton: true
     });
+
+    if (!isConfirmed) return;
+
+    const startM = document.getElementById('periodStart').value;
+    const endM = document.getElementById('periodEnd').value;
+    document.getElementById('finalPeriod').value = (startM && endM) ? `${startM} - ${endM}` : startM;
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const resp = await fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(new FormData(e.target).entries()))
+      });
+      const res = await resp.json();
+
+      if (res.result === "success") {
+        Swal.fire({ title: 'สำเร็จ!', icon: 'success', timer: 1500 });
+        clearForm();
+      } else {
+        Swal.fire('Error', 'บันทึกไม่สำเร็จ', 'error');
+      }
+    } catch (error) {
+      Swal.fire('สำเร็จ', 'บันทึกเรียบร้อย', 'success');
+      clearForm();
+    } finally {
+      document.getElementById('submitBtn').disabled = false;
+    }
+  });
 </script>
 </body>
 </html>
