@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Account Dashboard</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-client.js"></script>
-<script src="../assets/js/role-routes.js"></script>
-<script src="../assets/js/auth-guard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+  <script src="../assets/js/auth-guard.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
@@ -320,7 +320,7 @@
     <nav class="topbar">
       <div class="topbar-inner">
         <div class="brand">
-          <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
+          <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png.png" alt="logo">
           <div>
             <h1>Account Dashboard</h1>
             <p>CHAROEN KRUNG CONDOMINIUM 3</p>
@@ -408,102 +408,24 @@
       }
     }
 
-    function showError(message) {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('accountApp').classList.add('hidden');
-      document.getElementById('errorText').textContent = message;
-      document.getElementById('errorScreen').classList.remove('hidden');
-    }
+    document.getElementById('logoutBtn').addEventListener('click', logout);
 
-    function showApp() {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('errorScreen').classList.add('hidden');
-      document.getElementById('accountApp').classList.remove('hidden');
-    }
-
-    async function loadAccountDashboard() {
-      try {
-        if (typeof supabaseClient === 'undefined') {
-          showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
-          return;
-        }
-
-        const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-
-        if (authError || !authData?.user) {
-          showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
-          return;
-        }
-
-        const userId = authData.user.id;
-
-        const { data: profile, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('role, full_name')
-          .eq('id', userId)
-          .single();
-
-        if (profileError || !profile) {
-          showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
-          return;
-        }
-
-        if (!['account', 'super_admin'].includes(profile.role)) {
-          showError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานส่วนงานบัญชี');
-          return;
-        }
-
+    initRoleGuard({
+      appId: 'accountApp',
+      allowedRoles: ['account', 'super_admin'],
+      onReady: (profile) => {
         document.getElementById('badgeRole').textContent = `Role: ${profile.role}`;
         document.getElementById('welcomeTitle').textContent = `ยินดีต้อนรับ ${profile.full_name || ''}`.trim();
 
         if (profile.role === 'super_admin') {
-          document.getElementById('adminDashBtn').classList.remove('hidden');
+          document.getElementById('adminDashBtn')?.classList.remove('hidden');
         }
 
         if (profile.role === 'account') {
-          document.getElementById('accountChangePasswordBtn').classList.remove('hidden');
+          document.getElementById('accountChangePasswordBtn')?.classList.remove('hidden');
         }
-
-        showApp();
-      } catch (err) {
-        console.error('loadAccountDashboard error:', err);
-        showError('เกิดข้อผิดพลาดในการโหลดหน้า dashboard');
       }
-    }
-
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-
-document.getElementById('logoutBtn').addEventListener('click', logout);
-
-function showError(message) {
-  document.getElementById('loadingScreen').classList.add('hidden');
-  document.getElementById('accountApp').classList.add('hidden');
-  document.getElementById('errorText').textContent = message;
-  document.getElementById('errorScreen').classList.remove('hidden');
-}
-
-function showApp() {
-  document.getElementById('loadingScreen').classList.add('hidden');
-  document.getElementById('errorScreen').classList.add('hidden');
-  document.getElementById('accountApp').classList.remove('hidden');
-}
-
-initRoleGuard({
-  appId: 'accountApp',
-  allowedRoles: ['account', 'super_admin'],
-  onReady: (profile) => {
-    document.getElementById('badgeRole').textContent = `Role: ${profile.role}`;
-    document.getElementById('welcomeTitle').textContent = `ยินดีต้อนรับ ${profile.full_name || ''}`.trim();
-
-    if (profile.role === 'super_admin') {
-      document.getElementById('adminDashBtn')?.classList.remove('hidden');
-    }
-
-    if (profile.role === 'account') {
-      document.getElementById('accountChangePasswordBtn')?.classList.remove('hidden');
-    }
-  }
-});
+    });
   </script>
 </body>
 </html>
