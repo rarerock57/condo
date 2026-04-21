@@ -12,22 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* 🔥 เหมือนเดิมทั้งหมด ไม่แก้ UI */
-    * { box-sizing: border-box; }<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>เข้าสู่ระบบ | CHAROEN KRUNG CONDOMINIUM 3</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-client.js"></script>
-  <script src="../assets/js/role-routes.js"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-  <style>
-    /* 🔥 เหมือนเดิมทั้งหมด ไม่แก้ UI */
+    /* ส่วนของ CSS ที่ใช้ในการจัดหน้าตา */
     * { box-sizing: border-box; }
 
     body {
@@ -203,12 +188,10 @@
 </div>
 
 <script>
-// ฟังก์ชันนำทางกลับหน้าหลัก
 function goHome(){
   window.location.href = "../index.html";
 }
 
-// ฟังก์ชันล้างค่าที่กรอก (เรียกใช้เมื่อกด Esc)
 function clearForm(){
   document.getElementById("room").value = "";
   document.getElementById("password").value = "";
@@ -216,13 +199,10 @@ function clearForm(){
   document.getElementById("room").focus();
 }
 
-// ตรวจจับการกดปุ่ม Enter และ Escape ทั่วทั้งหน้า
+// ตรวจจับปุ่ม Enter และ Escape
 document.addEventListener("keydown", function(e){
-  if(e.key === "Enter") {
-    login();
-  } else if(e.key === "Escape") {
-    clearForm();
-  }
+  if(e.key === "Enter") login();
+  if(e.key === "Escape") clearForm();
 });
 
 async function login(){
@@ -277,259 +257,6 @@ async function redirectByRole(){
   window.location.href = target;
 }
 
-// 🔥 auto redirect
-async function checkSession(){
-  const { data } = await supabaseClient.auth.getUser();
-  if(!data?.user) return;
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", data.user.id)
-    .single();
-
-  if(profile){
-    const target = window.ROLE_HOME?.[profile.role];
-    if(target) window.location.href = target;
-  }
-}
-
-checkSession();
-</script>
-
-</body>
-</html>
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: 'Prompt', sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.10), transparent 35%),
-        linear-gradient(135deg, #eef4ff 0%, #f8fafc 45%, #eef2f7 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .login-shell {
-      width: 100%;
-      max-width: 1100px;
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(20px);
-      border-radius: 32px;
-      overflow: hidden;
-      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
-    }
-
-    .login-visual {
-      background:
-        linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 64, 175, 0.8)),
-        url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600');
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 50px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .visual-title {
-      font-size: 40px;
-      font-weight: 700;
-      line-height: 1.3;
-    }
-
-    .login-panel {
-      padding: 60px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #ffffff;
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .logo-wrap {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .logo-wrap img {
-      height: 70px;
-    }
-
-    .login-heading {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .login-heading h1 {
-      margin: 0;
-      font-size: 32px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .login-heading p {
-      margin-top: 8px;
-      color: #64748b;
-      font-size: 15px;
-    }
-
-    .input-label {
-      display: block;
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 8px;
-      color: #334155;
-      text-align: left;
-    }
-
-    input {
-      width: 100%;
-      padding: 16px 20px;
-      margin-bottom: 20px;
-      border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      font-size: 16px;
-      outline: none;
-    }
-
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .btn {
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #f1f5f9;
-    }
-
-    .error-box {
-      color: #ef4444;
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="login-shell">
-  <section class="login-visual">
-    <h2 class="visual-title">ยินดีต้อนรับสู่ ระบบสมาชิก<br>เจริญกรุงคอนโดมิเนียม อาคาร 3</h2>
-  </section>
-
-  <section class="login-panel">
-    <div class="login-card">
-
-      <div class="logo-wrap">
-        <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
-      </div>
-
-      <div class="login-heading">
-        <h1>เข้าสู่ระบบ</h1>
-        <p>กรอกเลขห้องและรหัสผ่านเพื่อเข้าสู่ระบบ</p>
-      </div>
-
-      <label class="input-label">เลขห้อง</label>
-      <input type="text" id="room" placeholder="6301">
-
-      <label class="input-label">รหัสผ่าน</label>
-      <input type="password" id="password">
-
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="login()">เข้าสู่ระบบ</button>
-        <button class="btn btn-secondary" onclick="goHome()">กลับ</button>
-      </div>
-
-      <div id="error" class="error-box"></div>
-
-    </div>
-  </section>
-</div>
-
-<script>
-function goHome(){
-  window.location.href = "../index.html";
-}
-
-async function login(){
-  const room = document.getElementById("room").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const errorBox = document.getElementById("error");
-
-  errorBox.textContent = "";
-
-  if(!room || !password){
-    errorBox.textContent = "กรุณากรอกข้อมูลให้ครบ";
-    return;
-  }
-
-  const email = room + "@condo.local";
-
-  try {
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if(error){
-      errorBox.textContent = "เลขห้องหรือรหัสผ่านไม่ถูกต้อง";
-      return;
-    }
-
-    await redirectByRole();
-
-  } catch(err){
-    console.error(err);
-    errorBox.textContent = "เกิดข้อผิดพลาด";
-  }
-}
-
-async function redirectByRole(){
-  const { data } = await supabaseClient.auth.getUser();
-  if(!data?.user) return;
-
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", data.user.id)
-    .single();
-
-  if(!profile){
-    await supabaseClient.auth.signOut();
-    return;
-  }
-
-  const target = window.ROLE_HOME?.[profile.role] || "../auth/login.html";
-  window.location.href = target;
-}
-
-// 🔥 auto redirect
 async function checkSession(){
   const { data } = await supabaseClient.auth.getUser();
   if(!data?.user) return;
