@@ -7,6 +7,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+  <script src="../assets/js/auth-guard.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
@@ -625,19 +627,6 @@
     let filteredUsers = [];
     let pendingRoleChangeUser = null;
 
-    function showError(message) {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('usersApp').classList.add('hidden');
-      document.getElementById('errorText').textContent = message;
-      document.getElementById('errorScreen').classList.remove('hidden');
-    }
-
-    function showApp() {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('errorScreen').classList.add('hidden');
-      document.getElementById('usersApp').classList.remove('hidden');
-    }
-
     function setStatus(message, type = '') {
       const el = document.getElementById('statusMessage');
       el.textContent = message;
@@ -674,40 +663,6 @@
 
     function fillHeader(profile) {
       document.getElementById('currentRoleBadge').textContent = `Role: ${profile.role || '-'}`;
-    }
-
-    async function checkAuth() {
-      if (typeof supabaseClient === 'undefined') {
-        showError('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
-        return false;
-      }
-
-      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
-
-      if (authError || !authData?.user) {
-        showError('กรุณาเข้าสู่ระบบก่อนใช้งาน');
-        return false;
-      }
-
-      const { data: profile, error: profileError } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError || !profile) {
-        showError('ไม่พบข้อมูลผู้ใช้ในระบบ');
-        return false;
-      }
-
-      if (profile.role !== 'admin' && profile.role !== 'super_admin') {
-        showError('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งานหน้าจัดการผู้ใช้');
-        return false;
-      }
-
-      currentProfile = profile;
-      fillHeader(profile);
-      return true;
     }
 
     async function loadUsers() {
@@ -940,14 +895,6 @@
       }
     }
 
-    async function initPage() {
-      const ok = await checkAuth();
-      if (!ok) return;
-
-      showApp();
-      await loadUsers();
-    }
-
     document.addEventListener('click', (event) => {
       const modal = document.getElementById('roleModal');
       if (event.target === modal) {
@@ -955,11 +902,15 @@
       }
     });
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initPage);
-    } else {
-      initPage();
-    }
+    initRoleGuard({
+      appId: 'usersApp',
+      allowedRoles: ['super_admin'],
+      onReady: async (profile) => {
+        currentProfile = profile;
+        fillHeader(profile);
+        await loadUsers();
+      }
+    });
   </script>
 </body>
 </html>
