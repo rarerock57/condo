@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบ</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+    }
+
+    .card {
+      background: white;
+      padding: 28px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    img {
+      height: 70px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 10px 0 6px;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .error {
+      color: #dc2626;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .loading {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
+
+    <h2>เข้าสู่ระบบ</h2>
+    <p>Charoen Krung Condominium 3</p>
+
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <button onclick="login()">เข้าสู่ระบบ</button>
+
+    <div id="loadingText" class="loading hidden">กำลังเข้าสู่ระบบ...</div>
+    <div id="errorText" class="error"></div>
+  </div>
+
+  <script>
+    function setLoading(isLoading) {
+      document.getElementById('loadingText').style.display = isLoading ? 'block' : 'none';
+    }
+
+    function setError(message) {
+      document.getElementById('errorText').textContent = message || '';
+    }
+
+    async function login() {
+      setError('');
+      setLoading(true);
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        setError('กรุณากรอก email และ password');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // 🔐 login
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        const user = data.user;
+
+        // 📦 ดึง role
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError || !profile) {
+          throw new Error('ไม่พบข้อมูลผู้ใช้');
+        }
+
+        const role = profile.role;
+
+        // 🚀 redirect จากไฟล์กลาง
+        const target = window.ROLE_HOME?.[role] || window.DEFAULT_HOME || '../auth/login.html';
+
+        window.location.href = target;
+
+      } catch (err) {
+        console.error(err);
+        setError(err.message || 'เข้าสู่ระบบไม่สำเร็จ');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // 🔥 auto redirect ถ้ามี session อยู่แล้ว
+    async function checkSession() {
+      const { data } = await supabaseClient.auth.getUser();
+      if (!data?.user) return;
+
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (!profile) return;
+
+      const target = window.ROLE_HOME?.[profile.role] || window.DEFAULT_HOME;
+      window.location.href = target;
+    }
+
+    checkSession();
+  </script>
+
+</body>
+</html>
