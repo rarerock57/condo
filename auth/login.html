@@ -12,7 +12,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ส่วนของ CSS ที่ใช้ในการจัดหน้าตา */
     * { box-sizing: border-box; }
 
     body {
@@ -147,6 +146,7 @@
       text-align: center;
       margin-top: 20px;
       font-size: 14px;
+      min-height: 20px;
     }
   </style>
 </head>
@@ -188,6 +188,18 @@
 </div>
 
 <script>
+function hasAcceptedCookies() {
+  return localStorage.getItem("cookie_consent") === "accepted";
+}
+
+function enforcePdpaConsent() {
+  if (!hasAcceptedCookies()) {
+    window.location.href = "../index.html";
+    return false;
+  }
+  return true;
+}
+
 function goHome(){
   window.location.href = "../index.html";
 }
@@ -199,7 +211,6 @@ function clearForm(){
   document.getElementById("room").focus();
 }
 
-// ตรวจจับปุ่ม Enter และ Escape
 document.addEventListener("keydown", function(e){
   if(e.key === "Enter") login();
   if(e.key === "Escape") clearForm();
@@ -211,6 +222,8 @@ async function login(){
   const errorBox = document.getElementById("error");
 
   errorBox.textContent = "";
+
+  if (!enforcePdpaConsent()) return;
 
   if(!room || !password){
     errorBox.textContent = "กรุณากรอกข้อมูลให้ครบ";
@@ -239,6 +252,8 @@ async function login(){
 }
 
 async function redirectByRole(){
+  if (!enforcePdpaConsent()) return;
+
   const { data } = await supabaseClient.auth.getUser();
   if(!data?.user) return;
 
@@ -258,6 +273,8 @@ async function redirectByRole(){
 }
 
 async function checkSession(){
+  if (!enforcePdpaConsent()) return;
+
   const { data } = await supabaseClient.auth.getUser();
   if(!data?.user) return;
 
