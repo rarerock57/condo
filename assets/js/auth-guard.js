@@ -1,3 +1,7 @@
+function hasAcceptedPdpaConsent() {
+  return localStorage.getItem("cookie_consent") === "accepted";
+}
+
 window.initRoleGuard = async function ({
   appId = 'app',
   allowedRoles = [],
@@ -5,6 +9,11 @@ window.initRoleGuard = async function ({
   onReady = null
 } = {}) {
   try {
+    if (!hasAcceptedPdpaConsent()) {
+      window.location.href = "../index.html";
+      return;
+    }
+
     if (typeof supabaseClient === 'undefined') {
       throw new Error('ระบบเชื่อมต่อฐานข้อมูลไม่สำเร็จ');
     }
@@ -34,7 +43,11 @@ window.initRoleGuard = async function ({
 
     if (allowedRoles.length && !allowedRoles.includes(profile.role)) {
       if (redirectIfNotAllowed) {
-        const target = window.ROLE_HOME?.[profile.role] || window.DEFAULT_HOME || '../auth/login.html';
+        const target =
+          window.ROLE_HOME?.[profile.role] ||
+          window.DEFAULT_HOME ||
+          '../auth/login.html';
+
         window.location.href = target;
         return;
       }
