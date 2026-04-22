@@ -88,10 +88,14 @@
         </div>
 
         <div class="flex items-center">
-          <a href="auth/login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold">
-            <i class='bx bx-user-circle text-xl'></i>
-            ระบบลูกบ้าน
-          </a>
+<a
+  href="auth/login.html"
+  onclick="return checkConsentBeforeLogin(event)"
+  class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl shadow-md transition flex items-center gap-2 font-semibold"
+>
+  <i class='bx bx-user-circle text-xl'></i>
+  ระบบลูกบ้าน
+</a>
         </div>
 
       </div>
@@ -853,8 +857,8 @@ z-index: 999;
     </div>
 
     <div>
-      <button onclick="acceptCookies()" style="margin-right:10px;">ยอมรับ</button>
-      <button onclick="declineCookies()">ปฏิเสธ</button>
+<button onclick="acceptCookies()" style="margin-right:10px;">ยอมรับ</button>
+<button onclick="goToPrivacyPolicy()">อ่านนโยบาย</button>
     </div>
 
   </div>
@@ -866,13 +870,26 @@ function acceptCookies() {
   document.getElementById("cookieBanner").style.display = "none";
 }
 
-function declineCookies() {
-  localStorage.setItem("cookie_consent", "declined");
-  document.getElementById("cookieBanner").style.display = "none";
+function goToPrivacyPolicy() {
+  window.location.href = "privacy-policy.html";
 }
 
-// check
-if (!localStorage.getItem("cookie_consent")) {
+function hasAcceptedCookies() {
+  return localStorage.getItem("cookie_consent") === "accepted";
+}
+
+function checkConsentBeforeLogin(event) {
+  if (hasAcceptedCookies()) {
+    return true;
+  }
+
+  event.preventDefault();
+  alert("กรุณายอมรับนโยบายความเป็นส่วนตัวก่อนใช้งาน");
+  document.getElementById("cookieBanner").style.display = "block";
+  return false;
+}
+
+if (!hasAcceptedCookies()) {
   document.getElementById("cookieBanner").style.display = "block";
 }
 </script>
