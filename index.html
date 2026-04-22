@@ -831,5 +831,50 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
+  <div id="cookieBanner" style="
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+background: #0f766e;
+color: white;
+padding: 16px;
+display: none;
+z-index: 999;
+">
+
+  <div style="max-width: 1200px; margin:auto; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+
+    <div>
+      เว็บไซต์นี้ใช้คุกกี้เพื่อปรับปรุงการใช้งานของคุณ 
+      <a href="/privacy-policy.html" style="color:#fff;text-decoration:underline;">
+        อ่านนโยบาย
+      </a>
+    </div>
+
+    <div>
+      <button onclick="acceptCookies()" style="margin-right:10px;">ยอมรับ</button>
+      <button onclick="declineCookies()">ปฏิเสธ</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookie_consent", "accepted");
+  document.getElementById("cookieBanner").style.display = "none";
+}
+
+function declineCookies() {
+  localStorage.setItem("cookie_consent", "declined");
+  document.getElementById("cookieBanner").style.display = "none";
+}
+
+// check
+if (!localStorage.getItem("cookie_consent")) {
+  document.getElementById("cookieBanner").style.display = "block";
+}
+</script>
 </body>
 </html>
