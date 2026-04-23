@@ -539,152 +539,161 @@
     </main>
   </div>
 
-  <script>
-    const BILLING_GAS_URL = 'https://script.google.com/macros/s/AKfycbxXHFCy49ZICNq4WgOkO3PL6mYFJQurJ6dJlrAlFdacZjNviOhG_XtIsnCogAwhCQNM/exec';
+<script>
+  const BILLING_GAS_URL = 'https://script.google.com/macros/s/AKfycbxXHFCy49ZICNq4WgOkO3PL6mYFJQurJ6dJlrAlFdacZjNviOhG_XtIsnCogAwhCQNM/exec';
 
-    let currentProfile = null;
+  let currentProfile = null;
 
-    async function logout() {
-      try {
-        await supabaseClient.auth.signOut();
-      } catch (error) {
-        console.error('Logout error:', error);
-      } finally {
-        window.location.href = '../auth/login.html';
-      }
+  // ✅ เพิ่มฟังก์ชันนี้
+  function formatDisplayRoom(roomNumber) {
+    const raw = String(roomNumber || '').trim();
+
+    if (!raw) return '-';
+    if (raw.length < 4) return raw;
+
+    const prefix = raw.slice(0, 2) + '0';
+    const suffix = parseInt(raw.slice(-2), 10);
+
+    if (Number.isNaN(suffix)) return raw;
+
+    return `${prefix}/${suffix}`;
+  }
+
+  async function logout() {
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      window.location.href = '../auth/login.html';
     }
+  }
 
-    function showApp() {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('errorScreen').classList.add('hidden');
-      document.getElementById('residentApp').classList.remove('hidden');
-    }
+  function showApp() {
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('errorScreen').classList.add('hidden');
+    document.getElementById('residentApp').classList.remove('hidden');
+  }
 
-    function formatMoney(value) {
-      const number = Number(value || 0);
-      return `${number.toLocaleString('th-TH')} บาท`;
-    }
+  function formatMoney(value) {
+    const number = Number(value || 0);
+    return `${number.toLocaleString('th-TH')} บาท`;
+  }
 
-    function fillProfile(profile) {
-      const role = profile.role || '-';
-      const fullName = profile.full_name || 'ลูกบ้าน';
-      const roomNumber = profile.room_number || '-';
+  // ✅ แก้ตรงนี้
+  function fillProfile(profile) {
+    const role = profile.role || '-';
+    const fullName = profile.full_name || 'ลูกบ้าน';
+    const roomNumber = profile.room_number || '-';
+    const displayRoom = formatDisplayRoom(roomNumber);
 
-      document.getElementById('welcomeText').textContent = `ยินดีต้อนรับ ${fullName}`;
-      document.getElementById('welcomeSubtext').textContent = 'ตรวจสอบค่าน้ำ ค่าจอดรถ และสถานะใบเสร็จล่าสุดของห้องคุณได้จากหน้านี้';
-      document.getElementById('badgeRoom').textContent = `Room: ${roomNumber}`;
-      document.getElementById('badgeRole').textContent = `Role: ${role}`;
-      document.getElementById('summaryRoom').textContent = roomNumber;
-    }
+    document.getElementById('welcomeText').textContent = `ยินดีต้อนรับ ${fullName}`;
+    document.getElementById('welcomeSubtext').textContent =
+      'ตรวจสอบค่าน้ำ ค่าจอดรถ และสถานะใบเสร็จล่าสุดของห้องคุณได้จากหน้านี้';
 
-    function setBillingLoadingState() {
-      document.getElementById('summaryWaterFee').textContent = '...';
-      document.getElementById('summaryParkingFee').textContent = '...';
-      document.getElementById('paymentStatusText').textContent = 'กำลังโหลด';
-      document.getElementById('paymentStatusPill').textContent = 'กำลังโหลด';
+    document.getElementById('badgeRoom').textContent = `Room: ${displayRoom}`;
+    document.getElementById('badgeRole').textContent = `Role: ${role}`;
+    document.getElementById('summaryRoom').textContent = displayRoom;
+  }
+
+  function setBillingLoadingState() {
+    document.getElementById('summaryWaterFee').textContent = '...';
+    document.getElementById('summaryParkingFee').textContent = '...';
+    document.getElementById('paymentStatusText').textContent = 'กำลังโหลด';
+    document.getElementById('paymentStatusPill').textContent = 'กำลังโหลด';
+    document.getElementById('paymentStatusPill').className = 'pill pill-unpaid';
+    document.getElementById('receiptStatusText').textContent = 'กำลังตรวจสอบ';
+    document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: กำลังโหลด';
+    document.getElementById('billingHelperText').textContent = 'กำลังโหลดข้อมูลค่าน้ำ ค่าจอดรถ และใบเสร็จ...';
+    document.getElementById('receiptLinkBtn').classList.add('hidden');
+  }
+
+  function setBillingErrorState(message) {
+    document.getElementById('summaryWaterFee').textContent = '-';
+    document.getElementById('summaryParkingFee').textContent = '-';
+    document.getElementById('paymentStatusText').textContent = 'ไม่พบข้อมูล';
+    document.getElementById('paymentStatusPill').textContent = 'ไม่พบข้อมูล';
+    document.getElementById('paymentStatusPill').className = 'pill pill-unpaid';
+    document.getElementById('receiptStatusText').textContent = 'ไม่มีใบเสร็จ';
+    document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ไม่พบข้อมูล';
+    document.getElementById('billingHelperText').textContent = message || 'ไม่สามารถโหลดข้อมูลบิลได้';
+    document.getElementById('receiptLinkBtn').classList.add('hidden');
+  }
+
+  // ✅ แก้ตรงนี้ด้วย
+  function fillBillingData(data) {
+    const waterFee = Number(data?.water_fee || 0);
+    const parkingFee = Number(data?.parking_fee_total || 0);
+    const paid = Boolean(data?.paid);
+    const receiptUrl = String(data?.receipt_url || '').trim();
+
+    document.getElementById('summaryWaterFee').textContent = formatMoney(waterFee);
+    document.getElementById('summaryParkingFee').textContent = formatMoney(parkingFee);
+
+    if (paid) {
+      document.getElementById('paymentStatusText').textContent = 'ชำระแล้ว';
+      document.getElementById('paymentStatusPill').textContent = 'ชำระแล้ว';
+      document.getElementById('paymentStatusPill').className = 'pill pill-paid';
+      document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ชำระแล้ว';
+    } else {
+      document.getElementById('paymentStatusText').textContent = 'ยังไม่ชำระ';
+      document.getElementById('paymentStatusPill').textContent = 'ยังไม่ชำระ';
       document.getElementById('paymentStatusPill').className = 'pill pill-unpaid';
-      document.getElementById('receiptStatusText').textContent = 'กำลังตรวจสอบ';
-      document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: กำลังโหลด';
-      document.getElementById('billingHelperText').textContent = 'กำลังโหลดข้อมูลค่าน้ำ ค่าจอดรถ และใบเสร็จ...';
-      document.getElementById('receiptLinkBtn').classList.add('hidden');
-      document.getElementById('receiptLinkBtn').removeAttribute('href');
+      document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ยังไม่ชำระ';
     }
 
-    function setBillingErrorState(message) {
-      document.getElementById('summaryWaterFee').textContent = '-';
-      document.getElementById('summaryParkingFee').textContent = '-';
-      document.getElementById('paymentStatusText').textContent = 'ไม่พบข้อมูล';
-      document.getElementById('paymentStatusPill').textContent = 'ไม่พบข้อมูล';
-      document.getElementById('paymentStatusPill').className = 'pill pill-unpaid';
-      document.getElementById('receiptStatusText').textContent = 'ไม่มีใบเสร็จ';
-      document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ไม่พบข้อมูล';
-      document.getElementById('billingHelperText').textContent = message || 'ไม่สามารถโหลดข้อมูลบิลได้';
-      document.getElementById('receiptLinkBtn').classList.add('hidden');
-      document.getElementById('receiptLinkBtn').removeAttribute('href');
+    if (receiptUrl) {
+      document.getElementById('receiptStatusText').textContent = 'พบลิงก์ใบเสร็จแล้ว';
+      const btn = document.getElementById('receiptLinkBtn');
+      btn.href = receiptUrl;
+      btn.classList.remove('hidden');
     }
 
-    function fillBillingData(data) {
-      const waterFee = Number(data?.water_fee || 0);
-      const parkingFee = Number(data?.parking_fee_total || 0);
-      const paid = Boolean(data?.paid);
-      const receiptUrl = String(data?.receipt_url || '').trim();
+    const roomNumber = currentProfile?.room_number || '-';
+    const displayRoom = formatDisplayRoom(roomNumber);
 
-      document.getElementById('summaryWaterFee').textContent = formatMoney(waterFee);
-      document.getElementById('summaryParkingFee').textContent = formatMoney(parkingFee);
+    document.getElementById('billingHelperText').textContent =
+      `โหลดข้อมูลล่าสุดของห้อง ${displayRoom} เรียบร้อยแล้ว`;
+  }
 
-      if (paid) {
-        document.getElementById('paymentStatusText').textContent = 'ชำระแล้ว';
-        document.getElementById('paymentStatusPill').textContent = 'ชำระแล้ว';
-        document.getElementById('paymentStatusPill').className = 'pill pill-paid';
-        document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ชำระแล้ว';
-      } else {
-        document.getElementById('paymentStatusText').textContent = 'ยังไม่ชำระ';
-        document.getElementById('paymentStatusPill').textContent = 'ยังไม่ชำระ';
-        document.getElementById('paymentStatusPill').className = 'pill pill-unpaid';
-        document.getElementById('badgePaymentStatus').textContent = 'สถานะบิล: ยังไม่ชำระ';
-      }
-
-      if (receiptUrl) {
-        document.getElementById('receiptStatusText').textContent = 'พบลิงก์ใบเสร็จแล้ว';
-        const receiptBtn = document.getElementById('receiptLinkBtn');
-        receiptBtn.href = receiptUrl;
-        receiptBtn.classList.remove('hidden');
-      } else {
-        document.getElementById('receiptStatusText').textContent = 'ยังไม่มีลิงก์ใบเสร็จ';
-        document.getElementById('receiptLinkBtn').classList.add('hidden');
-        document.getElementById('receiptLinkBtn').removeAttribute('href');
-      }
-
-      const roomNumber = currentProfile?.room_number || '-';
-      document.getElementById('billingHelperText').textContent =
-        `โหลดข้อมูลล่าสุดของห้อง ${roomNumber} เรียบร้อยแล้ว`;
+  async function loadBillingData() {
+    if (!currentProfile?.room_number) {
+      setBillingErrorState('ไม่พบเลขห้องของผู้ใช้งานในระบบ');
+      return;
     }
 
-    async function loadBillingData() {
-      if (!currentProfile?.room_number) {
-        setBillingErrorState('ไม่พบเลขห้องของผู้ใช้งานในระบบ');
-        return;
-      }
+    setBillingLoadingState();
 
-      setBillingLoadingState();
+    try {
+      const url = `${BILLING_GAS_URL}?room=${encodeURIComponent(currentProfile.room_number)}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-      try {
-        const url = `${BILLING_GAS_URL}?room=${encodeURIComponent(currentProfile.room_number)}`;
-        const response = await fetch(url);
+      if (!data.success) throw new Error(data.error);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (!data?.success) {
-          throw new Error(data?.error || 'ไม่พบข้อมูลบิล');
-        }
-
-        fillBillingData(data);
-      } catch (error) {
-        console.error('Billing load error:', error);
-        setBillingErrorState(`โหลดข้อมูลบิลไม่สำเร็จ: ${error.message}`);
-      }
+      fillBillingData(data);
+    } catch (err) {
+      console.error(err);
+      setBillingErrorState(err.message);
     }
+  }
 
-    async function reloadBillingData() {
+  async function reloadBillingData() {
+    await loadBillingData();
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  window.initRoleGuard({
+    appId: 'residentApp',
+    allowedRoles: ['resident'],
+    onReady: async (profile) => {
+      currentProfile = profile;
+      fillProfile(profile);
       await loadBillingData();
+      showApp();
     }
-
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-
-    window.initRoleGuard({
-      appId: 'residentApp',
-      allowedRoles: ['resident'],
-      onReady: async (profile) => {
-        currentProfile = profile;
-        fillProfile(profile);
-        await loadBillingData();
-        showApp();
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
