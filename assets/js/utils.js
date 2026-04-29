@@ -13,3 +13,23 @@ window.formatDisplayRoom = function (roomNumber) {
 
   return `${prefix}/${suffix}`;
 };
+
+window.formatMoney = function (value) {
+  const num = Number(value || 0);
+  if (Number.isNaN(num)) return '0 บาท';
+
+  return num.toLocaleString('th-TH') + ' บาท';
+};
+
+window.formatThaiDate = function (date) {
+  if (!date) return '-';
+
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return '-';
+
+  return parsedDate.toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
