@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ประวัติแจ้งซ่อม | Resident</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+  <script src="../assets/js/auth-guard.js"></script>
+  <script src="../assets/js/utils.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .hidden { display: none !important; }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: .2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover { background: #b91c1c; }
+
+    .hero {
+      padding: 28px 0 18px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15,23,42,.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.25;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .section {
+      padding: 8px 0 32px;
+    }
+
+    .toolbar {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      margin-bottom: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    select, input {
+      border: 1px solid #dbe3ee;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font: inherit;
+      outline: none;
+      background: white;
+      min-height: 46px;
+    }
+
+    select:focus, input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    .list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .request-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+    }
+
+    .request-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .request-title {
+      margin: 0;
+      font-size: 20px;
+      color: #0f172a;
+    }
+
+    .request-meta {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 4px;
+    }
+
+    .request-desc {
+      color: #334155;
+      line-height: 1.75;
+      margin: 12px 0 0;
+      white-space: pre-line;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill-status-submitted { background: #eff6ff; color: #2563eb; }
+    .pill-status-accepted { background: #fef3c7; color: #92400e; }
+    .pill-status-in_progress { background: #ede9fe; color: #6d28d9; }
+    .pill-status-completed { background: #ecfdf5; color: #047857; }
+    .pill-status-cancelled { background: #fef2f2; color: #b91c1c; }
+
+    .pill-priority-low { background: #f1f5f9; color: #475569; }
+    .pill-priority-normal { background: #eff6ff; color: #2563eb; }
+    .pill-priority-high { background: #fff7ed; color: #c2410c; }
+    .pill-priority-urgent { background: #fef2f2; color: #dc2626; }
+
+    .image-link {
+      margin-top: 14px;
+    }
+
+    .image-link a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty {
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 24px;
+      padding: 34px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .empty i {
+      font-size: 42px;
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15,23,42,.08);
+    }
+
+    @media (max-width: 760px) {
+      .hero-card h2 {
+        font-size: 26px;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 0;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .toolbar-left,
+      .toolbar select,
+      .toolbar input,
+      .toolbar .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p style="color:#64748b;">กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText" style="color:#64748b;">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="historyApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
+            <div>
+              <h1>ประวัติแจ้งซ่อม</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a href="maintenance.html" class="btn btn-primary">
+              <i class='bx bx-plus-circle'></i>
+              แจ้งซ่อมใหม่
+            </a>
+
+            <a href="dashboard.html" class="btn btn-secondary">
+              <i class='bx bx-arrow-back'></i>
+              กลับ Dashboard
+            </a>
+
+            <button id="logoutBtn" class="btn btn-danger" type="button">
+              <i class='bx bx-log-out'></i>
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2>ติดตามสถานะแจ้งซ่อม</h2>
+            <p>ดูรายการแจ้งซ่อมทั้งหมดของห้องคุณ พร้อมสถานะล่าสุดและรายละเอียดที่ส่งไว้</p>
+
+            <div class="badge-row">
+              <div class="badge" id="roomBadge">Room: -</div>
+              <div class="badge" id="totalBadge">รายการทั้งหมด: -</div>
+              <div class="badge">อัปเดตจากระบบนิติบุคคล</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <select id="statusFilter" onchange="renderRequests()">
+                <option value="all">ทุกสถานะ</option>
+                <option value="submitted">ส่งเรื่องแล้ว</option>
+                <option value="accepted">รับเรื่องแล้ว</option>
+                <option value="in_progress">กำลังดำเนินการ</option>
+                <option value="completed">เสร็จสิ้น</option>
+                <option value="cancelled">ยกเลิก</option>
+              </select>
+
+              <input id="searchInput" type="text" placeholder="ค้นหาหัวข้อ / รายละเอียด" oninput="renderRequests()">
+            </div>
+
+            <button type="button" class="btn btn-secondary" onclick="loadRequests()">
+              <i class='bx bx-refresh'></i>
+              โหลดใหม่
+            </button>
+          </div>
+
+          <div id="requestList" class="list">
+            <div class="empty">
+              <i class='bx bx-loader-alt bx-spin'></i>
+              กำลังโหลดข้อมูล...
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let currentProfile = null;
+    let currentUser = null;
+    let maintenanceRequests = [];
+
+    function deriveRoomId(profile) {
+      if (profile.room_id) return Number(profile.room_id);
+
+      const roomNumber = String(profile.room_number || '').trim();
+      if (!roomNumber) return null;
+
+      if (/^\\d{3,}$/.test(roomNumber)) {
+        return parseInt(roomNumber.slice(-2), 10);
+      }
+
+      const parsed = parseInt(roomNumber, 10);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+
+    function displayRoom(profile) {
+      const roomNumber = profile.room_number || profile.room_id || '-';
+      return window.formatDisplayRoom ? window.formatDisplayRoom(roomNumber) : roomNumber;
+    }
+
+    function statusLabel(status) {
+      const map = {
+        submitted: 'ส่งเรื่องแล้ว',
+        accepted: 'รับเรื่องแล้ว',
+        in_progress: 'กำลังดำเนินการ',
+        completed: 'เสร็จสิ้น',
+        cancelled: 'ยกเลิก'
+      };
+
+      return map[status] || status || '-';
+    }
+
+    function priorityLabel(priority) {
+      const map = {
+        low: 'ทั่วไป',
+        normal: 'ปกติ',
+        high: 'เร่งด่วน',
+        urgent: 'ด่วนมาก'
+      };
+
+      return map[priority] || priority || '-';
+    }
+
+    function categoryLabel(category) {
+      const map = {
+        plumbing: 'ระบบน้ำ / ประปา',
+        electrical: 'ระบบไฟฟ้า',
+        air_condition: 'แอร์ / ระบายอากาศ',
+        common_area: 'พื้นที่ส่วนกลาง',
+        security: 'ความปลอดภัย',
+        cleaning: 'ความสะอาด',
+        other: 'อื่นๆ'
+      };
+
+      return map[category] || category || '-';
+    }
+
+    function formatDateTime(dateValue) {
+      if (!dateValue) return '-';
+
+      const d = new Date(dateValue);
+      if (Number.isNaN(d.getTime())) return '-';
+
+      return d.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('historyApp').classList.remove('hidden');
+    }
+
+    function setEmpty(message) {
+      document.getElementById('requestList').innerHTML = `
+        <div class="empty">
+          <i class='bx bx-info-circle'></i>
+          ${escapeHtml(message)}
+        </div>
+      `;
+    }
+
+    async function loadRequests() {
+      const roomId = deriveRoomId(currentProfile);
+
+      if (!roomId) {
+        setEmpty('ไม่พบเลขห้องสำหรับค้นหารายการแจ้งซ่อม');
+        return;
+      }
+
+      document.getElementById('requestList').innerHTML = `
+        <div class="empty">
+          <i class='bx bx-loader-alt bx-spin'></i>
+          กำลังโหลดข้อมูล...
+        </div>
+      `;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('maintenance_requests')
+          .select('*')
+          .eq('room_id', roomId)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        maintenanceRequests = Array.isArray(data) ? data : [];
+        document.getElementById('totalBadge').textContent = `รายการทั้งหมด: ${maintenanceRequests.length}`;
+
+        renderRequests();
+      } catch (error) {
+        console.error('Load maintenance history error:', error);
+        setEmpty(error.message || 'โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function renderRequests() {
+      const status = document.getElementById('statusFilter').value;
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let list = maintenanceRequests.filter(item => {
+        const statusMatch = status === 'all' || item.status === status;
+        const text = [
+          item.title,
+          item.description,
+          item.category,
+          item.priority,
+          item.status
+        ].join(' ').toLowerCase();
+
+        const keywordMatch = !keyword || text.includes(keyword);
+
+        return statusMatch && keywordMatch;
+      });
+
+      if (!list.length) {
+        setEmpty('ยังไม่มีรายการแจ้งซ่อมที่ตรงกับเงื่อนไข');
+        return;
+      }
+
+      document.getElementById('requestList').innerHTML = list.map(item => {
+        const statusClass = `pill-status-${item.status || 'submitted'}`;
+        const priorityClass = `pill-priority-${item.priority || 'normal'}`;
+
+        const imageLink = item.image_url
+          ? `
+            <div class="image-link">
+              <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
+                <i class='bx bx-image'></i>
+                ดูรูปภาพประกอบ
+              </a>
+            </div>
+          `
+          : '';
+
+        const completedText = item.completed_at
+          ? `<div class="request-meta">เสร็จสิ้นเมื่อ: ${formatDateTime(item.completed_at)}</div>`
+          : '';
+
+        return `
+          <article class="request-card">
+            <div class="request-head">
+              <div>
+                <h3 class="request-title">${escapeHtml(item.title || '-')}</h3>
+                <div class="request-meta">
+                  แจ้งเมื่อ: ${formatDateTime(item.created_at)}<br>
+                  อัปเดตล่าสุด: ${formatDateTime(item.updated_at)}
+                </div>
+                ${completedText}
+              </div>
+
+              <div>
+                <span class="pill ${statusClass}">
+                  <i class='bx bx-check-circle'></i>
+                  ${escapeHtml(statusLabel(item.status))}
+                </span>
+              </div>
+            </div>
+
+            <p class="request-desc">${escapeHtml(item.description || '-')}</p>
+
+            <div class="pill-row">
+              <span class="pill pill-priority-normal">
+                <i class='bx bx-category'></i>
+                ${escapeHtml(categoryLabel(item.category))}
+              </span>
+
+              <span class="pill ${priorityClass}">
+                <i class='bx bx-error-circle'></i>
+                ${escapeHtml(priorityLabel(item.priority))}
+              </span>
+
+              <span class="pill pill-priority-low">
+                ห้อง ${escapeHtml(displayRoom(currentProfile))}
+              </span>
+            </div>
+
+            ${imageLink}
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    window.initRoleGuard({
+      appId: 'historyApp',
+      allowedRoles: ['resident'],
+      onReady: async (profile, user) => {
+        currentProfile = profile;
+        currentUser = user;
+
+        document.getElementById('roomBadge').textContent = `Room: ${displayRoom(profile)}`;
+
+        showApp();
+        await loadRequests();
+      }
+    });
+  </script>
+</body>
+</html>
