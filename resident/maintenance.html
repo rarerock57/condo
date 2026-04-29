@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>แจ้งซ่อม | Resident</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+  <script src="../assets/js/auth-guard.js"></script>
+  <script src="../assets/js/utils.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .hidden { display: none !important; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand img {
+      height: 52px;
+      width: auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: .2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover { background: #b91c1c; }
+
+    .hero {
+      padding: 28px 0 18px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15,23,42,.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.25;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      line-height: 1.7;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      margin-bottom: 18px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .section-title p {
+      margin: 6px 0 0;
+      color: #64748b;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #dbe3ee;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+      background: #fff;
+      color: #0f172a;
+      transition: .2s ease;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    .helper {
+      color: #64748b;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    .readonly-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 16px;
+      color: #334155;
+      line-height: 1.7;
+    }
+
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15,23,42,.08);
+    }
+
+    .success-box {
+      border-radius: 18px;
+      padding: 16px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #047857;
+      margin-top: 18px;
+      display: none;
+    }
+
+    .error-message {
+      border-radius: 18px;
+      padding: 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      margin-top: 18px;
+      display: none;
+    }
+
+    @media (max-width: 760px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card h2 {
+        font-size: 26px;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p style="color:#64748b;">กรุณารอสักครู่...</p>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText" style="color:#64748b;">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="maintenanceApp" class="hidden">
+    <nav class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
+            <div>
+              <h1>แจ้งซ่อม</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="dashboard.html" class="btn btn-secondary">
+              <i class='bx bx-arrow-back'></i>
+              กลับ Dashboard
+            </a>
+            <button id="logoutBtn" class="btn btn-danger" type="button">
+              <i class='bx bx-log-out'></i>
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2>แจ้งซ่อม / แจ้งปัญหาภายในอาคาร</h2>
+            <p>
+              ส่งรายละเอียดปัญหาให้ฝ่ายนิติบุคคลตรวจสอบ ระบบจะบันทึกคำร้องพร้อมสถานะเริ่มต้นเป็น “ส่งเรื่องแล้ว”
+            </p>
+
+            <div class="badge-row">
+              <div class="badge" id="roomBadge">Room: -</div>
+              <div class="badge">สถานะเริ่มต้น: submitted</div>
+              <div class="badge">ฝ่ายนิติจะตรวจสอบและอัปเดตสถานะ</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container">
+        <div class="card">
+          <div class="section-title">
+            <h3>แบบฟอร์มแจ้งซ่อม</h3>
+            <p>กรุณากรอกข้อมูลให้ครบถ้วน เพื่อให้เจ้าหน้าที่ประเมินและดำเนินการได้รวดเร็ว</p>
+          </div>
+
+          <div class="readonly-box" id="profileBox">
+            กำลังโหลดข้อมูลผู้ใช้งาน...
+          </div>
+
+          <form id="maintenanceForm" style="margin-top:22px;">
+            <div class="form-grid">
+
+              <div class="field">
+                <label for="residentName">ชื่อผู้แจ้ง</label>
+                <input type="text" id="residentName" placeholder="ชื่อผู้แจ้ง">
+              </div>
+
+              <div class="field">
+                <label for="phone">เบอร์ติดต่อ</label>
+                <input type="tel" id="phone" placeholder="เช่น 0812345678">
+              </div>
+
+              <div class="field full">
+                <label for="title">หัวข้อปัญหา <span style="color:#dc2626;">*</span></label>
+                <input type="text" id="title" required placeholder="เช่น น้ำรั่วในห้องน้ำ / ไฟทางเดินเสีย">
+              </div>
+
+              <div class="field">
+                <label for="category">หมวดหมู่ <span style="color:#dc2626;">*</span></label>
+                <select id="category" required>
+                  <option value="">- เลือกหมวดหมู่ -</option>
+                  <option value="plumbing">ระบบน้ำ / ประปา</option>
+                  <option value="electrical">ระบบไฟฟ้า</option>
+                  <option value="air_condition">แอร์ / ระบายอากาศ</option>
+                  <option value="common_area">พื้นที่ส่วนกลาง</option>
+                  <option value="security">ความปลอดภัย</option>
+                  <option value="cleaning">ความสะอาด</option>
+                  <option value="other">อื่นๆ</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="priority">ความเร่งด่วน <span style="color:#dc2626;">*</span></label>
+                <select id="priority" required>
+                  <option value="">- เลือกความเร่งด่วน -</option>
+                  <option value="low">ทั่วไป</option>
+                  <option value="normal">ปกติ</option>
+                  <option value="high">เร่งด่วน</option>
+                  <option value="urgent">ด่วนมาก</option>
+                </select>
+              </div>
+
+              <div class="field full">
+                <label for="description">รายละเอียดปัญหา <span style="color:#dc2626;">*</span></label>
+                <textarea id="description" required placeholder="อธิบายตำแหน่ง อาการที่พบ ช่วงเวลาที่เกิดปัญหา หรือข้อมูลเพิ่มเติม"></textarea>
+                <div class="helper">ตัวอย่าง: พบน้ำหยดใต้ซิงก์ห้องครัวตั้งแต่เมื่อคืน ยังไม่ได้ปิดวาล์ว</div>
+              </div>
+
+              <div class="field full">
+                <label for="imageUrl">ลิงก์รูปภาพประกอบ (ถ้ามี)</label>
+                <input type="url" id="imageUrl" placeholder="วางลิงก์รูปภาพ เช่น Google Drive / Supabase Storage">
+                <div class="helper">ตอนนี้รองรับการใส่ URL ก่อน รอบถัดไปค่อยเพิ่มระบบอัปโหลดรูปโดยตรง</div>
+              </div>
+
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="submitBtn" class="btn btn-primary">
+                <i class='bx bx-send'></i>
+                ส่งเรื่องแจ้งซ่อม
+              </button>
+
+              <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                <i class='bx bx-reset'></i>
+                ล้างฟอร์ม
+              </button>
+            </div>
+
+            <div id="successBox" class="success-box">
+              ส่งเรื่องแจ้งซ่อมเรียบร้อยแล้ว
+            </div>
+
+            <div id="errorBox" class="error-message">
+              ไม่สามารถส่งเรื่องได้
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let currentProfile = null;
+    let currentUser = null;
+
+    function deriveRoomId(profile) {
+      if (profile.room_id) return Number(profile.room_id);
+
+      const roomNumber = String(profile.room_number || '').trim();
+      if (!roomNumber) return null;
+
+      if (/^\\d{3,}$/.test(roomNumber)) {
+        return parseInt(roomNumber.slice(-2), 10);
+      }
+
+      const parsed = parseInt(roomNumber, 10);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+
+    function displayRoom(profile) {
+      const roomNumber = profile.room_number || profile.room_id || '-';
+      return window.formatDisplayRoom ? window.formatDisplayRoom(roomNumber) : roomNumber;
+    }
+
+    function fillProfile(profile) {
+      const roomText = displayRoom(profile);
+      const name = profile.full_name || '';
+      const phone = profile.phone || '';
+
+      document.getElementById('roomBadge').textContent = `Room: ${roomText}`;
+
+      document.getElementById('profileBox').innerHTML = `
+        <strong>ข้อมูลผู้แจ้ง</strong><br>
+        ห้อง: ${roomText}<br>
+        ชื่อ: ${name || '-'}<br>
+        เบอร์: ${phone || '-'}
+      `;
+
+      document.getElementById('residentName').value = name;
+      document.getElementById('phone').value = phone;
+    }
+
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('maintenanceApp').classList.remove('hidden');
+    }
+
+    function clearForm() {
+      document.getElementById('maintenanceForm').reset();
+
+      if (currentProfile) {
+        document.getElementById('residentName').value = currentProfile.full_name || '';
+        document.getElementById('phone').value = currentProfile.phone || '';
+      }
+
+      document.getElementById('successBox').style.display = 'none';
+      document.getElementById('errorBox').style.display = 'none';
+    }
+
+    function setSubmitting(isSubmitting) {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = isSubmitting;
+      btn.innerHTML = isSubmitting
+        ? "<i class='bx bx-loader-alt bx-spin'></i> กำลังส่งเรื่อง..."
+        : "<i class='bx bx-send'></i> ส่งเรื่องแจ้งซ่อม";
+    }
+
+    async function submitMaintenanceRequest(event) {
+      event.preventDefault();
+
+      document.getElementById('successBox').style.display = 'none';
+      document.getElementById('errorBox').style.display = 'none';
+
+      if (!currentProfile) {
+        alert('ไม่พบข้อมูลผู้ใช้งาน');
+        return;
+      }
+
+      const roomId = deriveRoomId(currentProfile);
+
+      if (!roomId) {
+        alert('ไม่พบเลขห้องสำหรับบันทึกคำร้อง');
+        return;
+      }
+
+      const residentName = document.getElementById('residentName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const category = document.getElementById('category').value;
+      const priority = document.getElementById('priority').value;
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+
+      if (!title || !description || !category || !priority) {
+        alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบ');
+        return;
+      }
+
+      setSubmitting(true);
+
+      try {
+        const payload = {
+          room_id: roomId,
+          resident_name: residentName || currentProfile.full_name || null,
+          phone: phone || currentProfile.phone || null,
+          title,
+          description,
+          category,
+          priority,
+          status: 'submitted',
+          image_url: imageUrl || null,
+          drive_file_id: null
+        };
+
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .insert(payload);
+
+        if (error) {
+          throw error;
+        }
+
+        document.getElementById('successBox').style.display = 'block';
+        clearForm();
+        document.getElementById('successBox').style.display = 'block';
+
+      } catch (error) {
+        console.error('Maintenance insert error:', error);
+        const errorBox = document.getElementById('errorBox');
+        errorBox.textContent = error.message || 'ไม่สามารถส่งเรื่องได้';
+        errorBox.style.display = 'block';
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    document.getElementById('maintenanceForm').addEventListener('submit', submitMaintenanceRequest);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    window.initRoleGuard({
+      appId: 'maintenanceApp',
+      allowedRoles: ['resident'],
+      onReady: async (profile, user) => {
+        currentProfile = profile;
+        currentUser = user;
+
+        fillProfile(profile);
+        showApp();
+      }
+    });
+  </script>
+</body>
+</html>
