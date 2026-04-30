@@ -1,504 +1,843 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>จัดการแจ้งซ่อม</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดการแจ้งซ่อม | Admin</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-client.js"></script>
-<script src="../assets/js/role-routes.js"></script>
-<script src="../assets/js/auth-guard.js"></script>
-<script src="../assets/js/utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <script src="../assets/js/role-routes.js"></script>
+  <script src="../assets/js/auth-guard.js"></script>
+  <script src="../assets/js/utils.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:'Prompt',sans-serif;background:#f8fafc;color:#0f172a}
-.hidden{display:none!important}
-.container{max-width:1180px;margin:0 auto;padding:0 20px}
+  <style>
+    * { box-sizing: border-box; }
 
-.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid #e2e8f0}
-.topbar-inner{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:14px}
-.brand img{height:52px;width:auto}
-.brand h1{margin:0;font-size:20px}
-.brand p{margin:2px 0 0;color:#64748b;font-size:13px}
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.btn{border:none;border-radius:14px;padding:11px 16px;font:inherit;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
-.btn-primary{background:#2563eb;color:white}
-.btn-primary:hover{background:#1d4ed8}
-.btn-secondary{background:#e2e8f0;color:#0f172a}
-.btn-secondary:hover{background:#cbd5e1}
-.btn-danger{background:#dc2626;color:white}
-.btn-danger:hover{background:#b91c1c}
-.btn-success{background:#059669;color:white}
-.btn-success:hover{background:#047857}
-.btn-warning{background:#f59e0b;color:white}
-.btn-warning:hover{background:#d97706}
-.btn-muted{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+    .hidden { display: none !important; }
 
-.hero{padding:28px 0 18px}
-.hero-card{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:white;border-radius:28px;padding:28px;box-shadow:0 20px 45px rgba(15,23,42,.18)}
-.hero-card h2{margin:0 0 8px;font-size:32px}
-.hero-card p{margin:0;color:rgba(255,255,255,.82);line-height:1.7}
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:22px 0}
-.stat-card{background:white;border:1px solid #e2e8f0;border-radius:20px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-.stat-card .num{font-size:28px;font-weight:700}
-.stat-card .label{font-size:13px;color:#64748b}
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
 
-.toolbar{background:white;border:1px solid #e2e8f0;border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:18px}
-.toolbar-left{display:flex;gap:10px;flex-wrap:wrap}
-select,input{border:1px solid #dbe3ee;border-radius:14px;padding:11px 14px;font:inherit;outline:none;background:white;min-height:46px}
-select:focus,input:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.08)}
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
 
-.list{display:grid;gap:16px;padding-bottom:40px}
-.card{background:white;border:1px solid #e2e8f0;border-radius:24px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-.card-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.title{margin:0;font-size:20px;font-weight:700}
-.meta{color:#64748b;font-size:13px;line-height:1.7;margin-top:4px}
-.desc{color:#334155;line-height:1.75;white-space:pre-line;margin:12px 0 0}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700}
-.submitted{background:#eff6ff;color:#2563eb}
-.accepted{background:#fef3c7;color:#92400e}
-.in_progress{background:#ede9fe;color:#6d28d9}
-.completed{background:#ecfdf5;color:#047857}
-.cancelled{background:#fef2f2;color:#b91c1c}
+    .brand img {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+    }
 
-.low{background:#f1f5f9;color:#475569}
-.normal{background:#eff6ff;color:#2563eb}
-.high{background:#fff7ed;color:#c2410c}
-.urgent{background:#fef2f2;color:#dc2626}
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
 
-.flow-actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;padding-top:16px;border-top:1px solid #e2e8f0}
-.image-link{margin-top:14px}
-.image-link a{color:#2563eb;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+    .brand p {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
 
-.empty{background:white;border:1px dashed #cbd5e1;border-radius:24px;padding:34px 20px;text-align:center;color:#64748b}
-.empty i{font-size:42px;color:#94a3b8;display:block;margin-bottom:10px}
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-.loading-screen,.error-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.loading-box,.error-box{background:white;border:1px solid #e2e8f0;border-radius:24px;padding:28px;max-width:460px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: .2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
 
-@media(max-width:980px){.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:760px){
-.hero-card h2{font-size:26px}
-.stats{grid-template-columns:1fr}
-.topbar-inner{align-items:flex-start;flex-direction:column;padding:14px 0}
-.toolbar,.toolbar-left,.toolbar select,.toolbar input,.toolbar .btn{width:100%}
-}
-</style>
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-secondary { background: #e2e8f0; color: #0f172a; }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    .btn-success { background: #059669; color: white; }
+    .btn-success:hover { background: #047857; }
+
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
+
+    .btn-muted {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-muted:hover { background: #e2e8f0; }
+
+    .hero {
+      padding: 28px 0 18px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 20px 45px rgba(15,23,42,.18);
+    }
+
+    .hero-card h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.25;
+    }
+
+    .hero-card p {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      line-height: 1.7;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin: 22px 0;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+    }
+
+    .stat-card .num {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+
+    .stat-card .label {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .toolbar {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      margin-bottom: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    select, input {
+      border: 1px solid #dbe3ee;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font: inherit;
+      outline: none;
+      background: white;
+      min-height: 46px;
+    }
+
+    select:focus, input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    .list {
+      display: grid;
+      gap: 16px;
+      padding-bottom: 40px;
+    }
+
+    .request-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+    }
+
+    .request-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .request-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .request-meta {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.7;
+      margin-top: 4px;
+    }
+
+    .request-desc {
+      color: #334155;
+      line-height: 1.75;
+      margin: 12px 0 0;
+      white-space: pre-line;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill-status-submitted { background: #eff6ff; color: #2563eb; }
+    .pill-status-accepted { background: #fef3c7; color: #92400e; }
+    .pill-status-in_progress { background: #ede9fe; color: #6d28d9; }
+    .pill-status-completed { background: #ecfdf5; color: #047857; }
+    .pill-status-cancelled { background: #fef2f2; color: #b91c1c; }
+
+    .pill-priority-low { background: #f1f5f9; color: #475569; }
+    .pill-priority-normal { background: #eff6ff; color: #2563eb; }
+    .pill-priority-high { background: #fff7ed; color: #c2410c; }
+    .pill-priority-urgent { background: #fef2f2; color: #dc2626; }
+
+    .flow-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .image-link {
+      margin-top: 14px;
+    }
+
+    .image-link a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty {
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 24px;
+      padding: 34px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .empty i {
+      font-size: 42px;
+      color: #94a3b8;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .loading-screen,
+    .error-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-box,
+    .error-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(15,23,42,.08);
+    }
+
+    @media(max-width: 980px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media(max-width: 760px) {
+      .hero-card h2 {
+        font-size: 26px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 0;
+      }
+
+      .toolbar,
+      .toolbar-left,
+      .toolbar select,
+      .toolbar input,
+      .toolbar .btn {
+        width: 100%;
+      }
+
+      .request-head {
+        flex-direction: column;
+      }
+
+      .flow-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="loadingScreen" class="loading-screen">
-  <div class="loading-box">
-    <h2>กำลังตรวจสอบสิทธิ์</h2>
-    <p style="color:#64748b;">กรุณารอสักครู่...</p>
-  </div>
-</div>
-
-<div id="errorScreen" class="error-screen hidden">
-  <div class="error-box">
-    <h2>ไม่สามารถเข้าใช้งานได้</h2>
-    <p id="errorText" style="color:#64748b;">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
-    <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
-      <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>กำลังตรวจสอบสิทธิ์</h2>
+      <p style="color:#64748b;">กรุณารอสักครู่...</p>
     </div>
   </div>
-</div>
 
-<div id="adminMaintenanceApp" class="hidden">
-  <nav class="topbar">
-    <div class="container">
-      <div class="topbar-inner">
-        <div class="brand">
-          <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
-          <div>
-            <h1>จัดการแจ้งซ่อม</h1>
-            <p>CHAROEN KRUNG CONDOMINIUM 3</p>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <a href="dashboard.html" class="btn btn-secondary">
-            <i class='bx bx-arrow-back'></i>
-            กลับ Dashboard
-          </a>
-          <button id="logoutBtn" class="btn btn-danger" type="button">
-            <i class='bx bx-log-out'></i>
-            ออกจากระบบ
-          </button>
-        </div>
+  <div id="errorScreen" class="error-screen hidden">
+    <div class="error-box">
+      <h2>ไม่สามารถเข้าใช้งานได้</h2>
+      <p id="errorText" style="color:#64748b;">เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์</p>
+      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a class="btn btn-secondary" href="../index.html">กลับหน้าหลัก</a>
+        <a class="btn btn-primary" href="../auth/login.html">ไปหน้าเข้าสู่ระบบ</a>
       </div>
     </div>
-  </nav>
+  </div>
 
-  <main>
-    <section class="hero">
+  <div id="adminMaintenanceApp" class="hidden">
+    <nav class="topbar">
       <div class="container">
-        <div class="hero-card">
-          <h2>ศูนย์จัดการงานแจ้งซ่อม</h2>
-          <p>
-            แอดมินสามารถมองเห็นงานทั้งหมด รับเรื่อง เปลี่ยนสถานะ รับงานเอง และปิดงานได้เหมือน technician
-          </p>
-        </div>
-
-        <div class="stats">
-          <div class="stat-card"><div class="num" id="countAll">0</div><div class="label">ทั้งหมด</div></div>
-          <div class="stat-card"><div class="num" id="countSubmitted">0</div><div class="label">ส่งเรื่องแล้ว</div></div>
-          <div class="stat-card"><div class="num" id="countAccepted">0</div><div class="label">รับเรื่องแล้ว</div></div>
-          <div class="stat-card"><div class="num" id="countProgress">0</div><div class="label">กำลังดำเนินการ</div></div>
-          <div class="stat-card"><div class="num" id="countCompleted">0</div><div class="label">เสร็จสิ้น</div></div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="container">
-        <div class="toolbar">
-          <div class="toolbar-left">
-            <select id="statusFilter" onchange="renderRequests()">
-              <option value="all">ทุกสถานะ</option>
-              <option value="submitted">ส่งเรื่องแล้ว</option>
-              <option value="accepted">รับเรื่องแล้ว</option>
-              <option value="in_progress">กำลังดำเนินการ</option>
-              <option value="completed">เสร็จสิ้น</option>
-              <option value="cancelled">ยกเลิก</option>
-            </select>
-
-            <input id="searchInput" type="text" placeholder="ค้นหาห้อง / หัวข้อ / รายละเอียด" oninput="renderRequests()">
-          </div>
-
-          <button type="button" class="btn btn-secondary" onclick="loadRequests()">
-            <i class='bx bx-refresh'></i>
-            โหลดใหม่
-          </button>
-        </div>
-
-        <div id="requestList" class="list">
-          <div class="empty">
-            <i class='bx bx-loader-alt bx-spin'></i>
-            กำลังโหลดข้อมูล...
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<script>
-let currentProfile = null;
-let currentUser = null;
-let requests = [];
-
-function statusLabel(status){
-  const map = {
-    submitted: 'ส่งเรื่องแล้ว',
-    accepted: 'รับเรื่องแล้ว',
-    in_progress: 'กำลังดำเนินการ',
-    completed: 'เสร็จสิ้น',
-    cancelled: 'ยกเลิก'
-  };
-  return map[status] || status || '-';
-}
-
-function priorityLabel(priority){
-  const map = {
-    low: 'ทั่วไป',
-    normal: 'ปกติ',
-    high: 'เร่งด่วน',
-    urgent: 'ด่วนมาก'
-  };
-  return map[priority] || priority || '-';
-}
-
-function categoryLabel(category){
-  const map = {
-    plumbing: 'ระบบน้ำ / ประปา',
-    electrical: 'ระบบไฟฟ้า',
-    air_condition: 'แอร์ / ระบายอากาศ',
-    common_area: 'พื้นที่ส่วนกลาง',
-    security: 'ความปลอดภัย',
-    cleaning: 'ความสะอาด',
-    other: 'อื่นๆ'
-  };
-  return map[category] || category || '-';
-}
-
-function formatDateTime(value){
-  if(!value) return '-';
-  const d = new Date(value);
-  if(Number.isNaN(d.getTime())) return '-';
-  return d.toLocaleString('th-TH',{
-    year:'numeric',
-    month:'short',
-    day:'numeric',
-    hour:'2-digit',
-    minute:'2-digit'
-  });
-}
-
-function escapeHtml(text){
-  if(text === null || text === undefined) return '';
-  return String(text)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
-
-function roomDisplay(roomId){
-  return window.formatDisplayRoom ? window.formatDisplayRoom(String(roomId)) : roomId;
-}
-
-function showApp(){
-  document.getElementById('loadingScreen').classList.add('hidden');
-  document.getElementById('errorScreen').classList.add('hidden');
-  document.getElementById('adminMaintenanceApp').classList.remove('hidden');
-}
-
-function setEmpty(message){
-  document.getElementById('requestList').innerHTML = `
-    <div class="empty">
-      <i class='bx bx-info-circle'></i>
-      ${escapeHtml(message)}
-    </div>
-  `;
-}
-
-async function loadRequests(){
-  document.getElementById('requestList').innerHTML = `
-    <div class="empty">
-      <i class='bx bx-loader-alt bx-spin'></i>
-      กำลังโหลดข้อมูล...
-    </div>
-  `;
-
-  const { data, error } = await supabaseClient
-    .from('maintenance_requests')
-    .select('*')
-    .order('created_at', { ascending:false });
-
-  if(error){
-    console.error(error);
-    setEmpty(error.message || 'โหลดข้อมูลไม่สำเร็จ');
-    return;
-  }
-
-  requests = Array.isArray(data) ? data : [];
-  updateCounts();
-  renderRequests();
-}
-
-function updateCounts(){
-  document.getElementById('countAll').textContent = requests.length;
-  document.getElementById('countSubmitted').textContent = requests.filter(x => x.status === 'submitted').length;
-  document.getElementById('countAccepted').textContent = requests.filter(x => x.status === 'accepted').length;
-  document.getElementById('countProgress').textContent = requests.filter(x => x.status === 'in_progress').length;
-  document.getElementById('countCompleted').textContent = requests.filter(x => x.status === 'completed').length;
-}
-
-function renderRequests(){
-  const status = document.getElementById('statusFilter').value;
-  const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-
-  const filtered = requests.filter(item => {
-    const statusMatch = status === 'all' || item.status === status;
-    const text = [
-      item.room_id,
-      item.resident_name,
-      item.phone,
-      item.title,
-      item.description,
-      item.category,
-      item.priority,
-      item.status
-    ].join(' ').toLowerCase();
-
-    return statusMatch && (!keyword || text.includes(keyword));
-  });
-
-  if(!filtered.length){
-    setEmpty('ไม่พบรายการที่ตรงกับเงื่อนไข');
-    return;
-  }
-
-  document.getElementById('requestList').innerHTML = filtered.map(item => {
-    const imageLink = item.image_url ? `
-      <div class="image-link">
-        <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
-          <i class='bx bx-image'></i>
-          ดูรูปภาพประกอบ
-        </a>
-      </div>
-    ` : '';
-
-    const assignedText = item.assigned_to
-      ? `ผู้รับงาน: ${escapeHtml(item.assigned_to)}`
-      : 'ยังไม่มีผู้รับงาน';
-
-    return `
-      <article class="card">
-        <div class="card-head">
-          <div>
-            <h3 class="title">${escapeHtml(item.title || '-')}</h3>
-            <div class="meta">
-              ห้อง: ${escapeHtml(roomDisplay(item.room_id))} |
-              ผู้แจ้ง: ${escapeHtml(item.resident_name || '-')} |
-              โทร: ${escapeHtml(item.phone || '-')}<br>
-              แจ้งเมื่อ: ${formatDateTime(item.created_at)} |
-              อัปเดตล่าสุด: ${formatDateTime(item.updated_at)}<br>
-              ${assignedText}
+        <div class="topbar-inner">
+          <div class="brand">
+            <img src="https://fjvcqxqchluvmxnlvhwo.supabase.co/storage/v1/object/public/assets/logo.png" alt="logo">
+            <div>
+              <h1>จัดการแจ้งซ่อม</h1>
+              <p>CHAROEN KRUNG CONDOMINIUM 3</p>
             </div>
           </div>
 
-          <span class="pill ${item.status || 'submitted'}">
-            <i class='bx bx-check-circle'></i>
-            ${escapeHtml(statusLabel(item.status))}
-          </span>
+          <div class="actions">
+            <a href="dashboard.html" class="btn btn-secondary">
+              <i class='bx bx-arrow-back'></i>
+              กลับ Dashboard
+            </a>
+
+            <button id="logoutBtn" class="btn btn-danger" type="button">
+              <i class='bx bx-log-out'></i>
+              ออกจากระบบ
+            </button>
+          </div>
         </div>
+      </div>
+    </nav>
 
-        <p class="desc">${escapeHtml(item.description || '-')}</p>
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-card">
+            <h2>ศูนย์จัดการงานแจ้งซ่อม</h2>
+            <p>
+              แอดมินสามารถเห็นงานแจ้งซ่อมทั้งหมด รับเรื่อง รับงานเอง อัปเดตสถานะ และปิดงานได้ในหน้าเดียว
+            </p>
+          </div>
 
-        <div class="pill-row">
-          <span class="pill normal">
-            <i class='bx bx-category'></i>
-            ${escapeHtml(categoryLabel(item.category))}
-          </span>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="num" id="countAll">0</div>
+              <div class="label">ทั้งหมด</div>
+            </div>
 
-          <span class="pill ${item.priority || 'normal'}">
-            <i class='bx bx-error-circle'></i>
-            ${escapeHtml(priorityLabel(item.priority))}
-          </span>
+            <div class="stat-card">
+              <div class="num" id="countSubmitted">0</div>
+              <div class="label">ส่งเรื่องแล้ว</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="num" id="countAccepted">0</div>
+              <div class="label">รับเรื่องแล้ว</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="num" id="countProgress">0</div>
+              <div class="label">กำลังดำเนินการ</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="num" id="countCompleted">0</div>
+              <div class="label">เสร็จสิ้น</div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        ${imageLink}
+      <section>
+        <div class="container">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <select id="statusFilter" onchange="renderRequests()">
+                <option value="all">ทุกสถานะ</option>
+                <option value="submitted">ส่งเรื่องแล้ว</option>
+                <option value="accepted">รับเรื่องแล้ว</option>
+                <option value="in_progress">กำลังดำเนินการ</option>
+                <option value="completed">เสร็จสิ้น</option>
+                <option value="cancelled">ยกเลิก</option>
+              </select>
 
-        <div class="flow-actions">
-          <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'accepted')">
-            <i class='bx bx-check'></i>
-            รับเรื่อง
-          </button>
+              <input id="searchInput" type="text" placeholder="ค้นหาห้อง / ชื่อ / เบอร์ / หัวข้อ" oninput="renderRequests()">
+            </div>
 
-          <button class="btn btn-warning" onclick="takeJob(${item.id})">
-            <i class='bx bx-user-check'></i>
-            รับงานเอง
-          </button>
+            <button type="button" class="btn btn-secondary" onclick="loadRequests()">
+              <i class='bx bx-refresh'></i>
+              โหลดใหม่
+            </button>
+          </div>
 
-          <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'in_progress')">
-            <i class='bx bx-loader-circle'></i>
-            กำลังดำเนินการ
-          </button>
-
-          <button class="btn btn-success" onclick="completeJob(${item.id})">
-            <i class='bx bx-check-double'></i>
-            เสร็จสิ้น
-          </button>
-
-          <button class="btn btn-muted" onclick="updateStatus(${item.id}, 'cancelled')">
-            <i class='bx bx-x-circle'></i>
-            ยกเลิก
-          </button>
+          <div id="requestList" class="list">
+            <div class="empty">
+              <i class='bx bx-loader-alt bx-spin'></i>
+              กำลังโหลดข้อมูล...
+            </div>
+          </div>
         </div>
-      </article>
-    `;
-  }).join('');
-}
+      </section>
+    </main>
+  </div>
 
-async function updateStatus(id, status){
-  const payload = { status };
+  <script>
+    let currentProfile = null;
+    let currentUser = null;
+    let requests = [];
 
-  if(status === 'completed'){
-    payload.completed_at = new Date().toISOString();
-  }
+    function statusLabel(status) {
+      const map = {
+        submitted: 'ส่งเรื่องแล้ว',
+        accepted: 'รับเรื่องแล้ว',
+        in_progress: 'กำลังดำเนินการ',
+        completed: 'เสร็จสิ้น',
+        cancelled: 'ยกเลิก'
+      };
 
-  const { error } = await supabaseClient
-    .from('maintenance_requests')
-    .update(payload)
-    .eq('id', id);
+      return map[status] || status || '-';
+    }
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+    function priorityLabel(priority) {
+      const map = {
+        low: 'ทั่วไป',
+        normal: 'ปกติ',
+        high: 'เร่งด่วน',
+        urgent: 'ด่วนมาก'
+      };
 
-  await loadRequests();
-}
+      return map[priority] || priority || '-';
+    }
 
-async function takeJob(id){
-  if(!currentUser?.id){
-    alert('ไม่พบข้อมูลผู้ใช้งาน');
-    return;
-  }
+    function categoryLabel(category) {
+      const map = {
+        plumbing: 'ระบบน้ำ / ประปา',
+        electrical: 'ระบบไฟฟ้า',
+        air_condition: 'แอร์ / ระบายอากาศ',
+        common_area: 'พื้นที่ส่วนกลาง',
+        security: 'ความปลอดภัย',
+        cleaning: 'ความสะอาด',
+        other: 'อื่นๆ'
+      };
 
-  const { error } = await supabaseClient
-    .from('maintenance_requests')
-    .update({
-      assigned_to: currentUser.id,
-      status: 'in_progress'
-    })
-    .eq('id', id);
+      return map[category] || category || '-';
+    }
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+    function formatDateTime(value) {
+      if (!value) return '-';
 
-  await loadRequests();
-}
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '-';
 
-async function completeJob(id){
-  if(!confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้น?')) return;
+      return d.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
-  const { error } = await supabaseClient
-    .from('maintenance_requests')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString()
-    })
-    .eq('id', id);
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+      return String(text)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
 
-  await loadRequests();
-}
+    function roomDisplay(roomId) {
+      const raw = String(roomId || '').trim();
 
-async function logout(){
-  try{
-    await supabaseClient.auth.signOut();
-  }catch(error){
-    console.error(error);
-  }finally{
-    window.location.href = '../auth/login.html';
-  }
-}
+      if (window.formatDisplayRoom) {
+        return window.formatDisplayRoom(raw);
+      }
 
-document.getElementById('logoutBtn').addEventListener('click', logout);
+      return raw || '-';
+    }
 
-window.initRoleGuard({
-  appId: 'adminMaintenanceApp',
-  allowedRoles: ['admin', 'super_admin'],
-  onReady: async (profile, user) => {
-    currentProfile = profile;
-    currentUser = user;
+    function showApp() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorScreen').classList.add('hidden');
+      document.getElementById('adminMaintenanceApp').classList.remove('hidden');
+    }
 
-    showApp();
-    await loadRequests();
-  }
-});
-</script>
+    function setEmpty(message) {
+      document.getElementById('requestList').innerHTML = `
+        <div class="empty">
+          <i class='bx bx-info-circle'></i>
+          ${escapeHtml(message)}
+        </div>
+      `;
+    }
 
+    async function loadRequests() {
+      document.getElementById('requestList').innerHTML = `
+        <div class="empty">
+          <i class='bx bx-loader-alt bx-spin'></i>
+          กำลังโหลดข้อมูล...
+        </div>
+      `;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('maintenance_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        requests = Array.isArray(data) ? data : [];
+        updateCounts();
+        renderRequests();
+
+      } catch (error) {
+        console.error('Load maintenance requests error:', error);
+        setEmpty(error.message || 'โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function updateCounts() {
+      document.getElementById('countAll').textContent = requests.length;
+      document.getElementById('countSubmitted').textContent = requests.filter(x => x.status === 'submitted').length;
+      document.getElementById('countAccepted').textContent = requests.filter(x => x.status === 'accepted').length;
+      document.getElementById('countProgress').textContent = requests.filter(x => x.status === 'in_progress').length;
+      document.getElementById('countCompleted').textContent = requests.filter(x => x.status === 'completed').length;
+    }
+
+    function renderRequests() {
+      const status = document.getElementById('statusFilter').value;
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = requests.filter(item => {
+        const statusMatch = status === 'all' || item.status === status;
+
+        const text = [
+          item.room_id,
+          item.resident_name,
+          item.phone,
+          item.title,
+          item.description,
+          item.category,
+          item.priority,
+          item.status
+        ].join(' ').toLowerCase();
+
+        const keywordMatch = !keyword || text.includes(keyword);
+
+        return statusMatch && keywordMatch;
+      });
+
+      if (!filtered.length) {
+        setEmpty('ไม่พบรายการที่ตรงกับเงื่อนไข');
+        return;
+      }
+
+      document.getElementById('requestList').innerHTML = filtered.map(item => {
+        const status = item.status || 'submitted';
+        const priority = item.priority || 'normal';
+
+        const imageLink = item.image_url
+          ? `
+            <div class="image-link">
+              <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
+                <i class='bx bx-image'></i>
+                ดูรูปภาพประกอบ
+              </a>
+            </div>
+          `
+          : '';
+
+        const completedText = item.completed_at
+          ? `<br>เสร็จสิ้นเมื่อ: ${formatDateTime(item.completed_at)}`
+          : '';
+
+        const assignedText = item.assigned_to
+          ? `ผู้รับงาน: ${escapeHtml(item.assigned_to)}`
+          : 'ยังไม่มีผู้รับงาน';
+
+        return `
+          <article class="request-card">
+            <div class="request-head">
+              <div>
+                <h3 class="request-title">${escapeHtml(item.title || '-')}</h3>
+                <div class="request-meta">
+                  ห้อง: ${escapeHtml(roomDisplay(item.room_id))} |
+                  ผู้แจ้ง: ${escapeHtml(item.resident_name || '-')} |
+                  โทร: ${escapeHtml(item.phone || '-')}<br>
+                  แจ้งเมื่อ: ${formatDateTime(item.created_at)} |
+                  อัปเดตล่าสุด: ${formatDateTime(item.updated_at)}
+                  ${completedText}<br>
+                  ${assignedText}
+                </div>
+              </div>
+
+              <span class="pill pill-status-${status}">
+                <i class='bx bx-check-circle'></i>
+                ${escapeHtml(statusLabel(status))}
+              </span>
+            </div>
+
+            <p class="request-desc">${escapeHtml(item.description || '-')}</p>
+
+            <div class="pill-row">
+              <span class="pill pill-priority-normal">
+                <i class='bx bx-category'></i>
+                ${escapeHtml(categoryLabel(item.category))}
+              </span>
+
+              <span class="pill pill-priority-${priority}">
+                <i class='bx bx-error-circle'></i>
+                ${escapeHtml(priorityLabel(priority))}
+              </span>
+            </div>
+
+            ${imageLink}
+
+            <div class="flow-actions">
+              <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'accepted')">
+                <i class='bx bx-check'></i>
+                รับเรื่อง
+              </button>
+
+              <button class="btn btn-warning" onclick="takeJob(${item.id})">
+                <i class='bx bx-user-check'></i>
+                รับงานเอง
+              </button>
+
+              <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'in_progress')">
+                <i class='bx bx-loader-circle'></i>
+                กำลังดำเนินการ
+              </button>
+
+              <button class="btn btn-success" onclick="completeJob(${item.id})">
+                <i class='bx bx-check-double'></i>
+                เสร็จสิ้น
+              </button>
+
+              <button class="btn btn-muted" onclick="updateStatus(${item.id}, 'cancelled')">
+                <i class='bx bx-x-circle'></i>
+                ยกเลิก
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function updateStatus(id, status) {
+      const payload = { status };
+
+      if (status === 'completed') {
+        payload.completed_at = new Date().toISOString();
+      }
+
+      if (status !== 'completed') {
+        payload.completed_at = null;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update(payload)
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'อัปเดตสถานะไม่สำเร็จ');
+      }
+    }
+
+    async function takeJob(id) {
+      if (!currentUser?.id) {
+        alert('ไม่พบข้อมูลผู้ใช้งาน');
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update({
+            assigned_to: currentUser.id,
+            status: 'in_progress',
+            completed_at: null
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'รับงานไม่สำเร็จ');
+      }
+    }
+
+    async function completeJob(id) {
+      const confirmed = confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้น?');
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'ปิดงานไม่สำเร็จ');
+      }
+    }
+
+    async function logout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (error) {
+        console.error('Logout error:', error);
+      } finally {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    window.initRoleGuard({
+      appId: 'adminMaintenanceApp',
+      allowedRoles: ['admin', 'super_admin'],
+      onReady: async (profile, user) => {
+        currentProfile = profile;
+        currentUser = user;
+
+        showApp();
+        await loadRequests();
+      }
+    });
+  </script>
 </body>
 </html>
