@@ -473,17 +473,47 @@
     let currentUser = null;
 
     function deriveRoomId(profile) {
-      if (profile.room_id) return Number(profile.room_id);
+      if (!profile) return null;
 
-      const roomNumber = String(profile.room_number || '').trim();
-      if (!roomNumber) return null;
-
-      if (/^\d{3,}$/.test(roomNumber)) {
-        return parseInt(roomNumber.slice(-2), 10);
+      if (profile.room_id !== null && profile.room_id !== undefined && profile.room_id !== '') {
+        const directRoomId = Number(profile.room_id);
+        return Number.isNaN(directRoomId) ? null : directRoomId;
       }
 
-      const parsed = parseInt(roomNumber, 10);
-      return Number.isNaN(parsed) ? null : parsed;
+      const roomNumber = String(profile.room_number || '').trim();
+
+      if (!roomNumber) {
+        return null;
+      }
+
+      /*
+        สำคัญ:
+        เวอร์ชันเดิมเคยใช้ roomNumber.slice(-2) ทำให้ห้อง 6316 ถูกบันทึกเหลือ 16
+        จึงทำให้รายการแจ้งซ่อมใหม่ไม่แสดงในหน้าประวัติที่กรองด้วย room_id = 6316
+
+        มาตรฐานที่ใช้ในระบบนี้:
+        - room_id จริง เช่น 6316
+        - room ที่แสดงผล เช่น 630/16
+      */
+
+      if (roomNumber.includes('/')) {
+        const parts = roomNumber.split('/');
+        let left = String(parts[0] || '').replace(/\D/g, '');
+        const right = String(parts[1] || '').replace(/\D/g, '');
+
+        // แปลง 630/16 -> 6316 ให้ตรงกับ room_id ที่ระบบใช้
+        if (left.length > 2 && left.endsWith('0')) {
+          left = left.slice(0, -1);
+        }
+
+        const slashRoomId = Number(`${left}${right}`);
+        return Number.isNaN(slashRoomId) ? null : slashRoomId;
+      }
+
+      const normalizedRoomNumber = roomNumber.replace(/\D/g, '');
+      const parsedRoomId = Number(normalizedRoomNumber);
+
+      return Number.isNaN(parsedRoomId) ? null : parsedRoomId;
     }
 
     function displayRoom(profile) {
@@ -493,6 +523,7 @@
 
     function fillProfile(profile) {
       const roomText = displayRoom(profile);
+      const roomId = deriveRoomId(profile);
       const name = profile.full_name || '';
       const phone = profile.phone || '';
 
@@ -501,6 +532,7 @@
       document.getElementById('profileBox').innerHTML = `
         <strong>ข้อมูลผู้แจ้ง</strong><br>
         ห้อง: ${roomText}<br>
+        Room ID สำหรับบันทึก: ${roomId || '-'}<br>
         ชื่อ: ${name || '-'}<br>
         เบอร์: ${phone || '-'}
       `;
@@ -654,6 +686,8 @@
           image_url: uploadedImage.image_url,
           drive_file_id: uploadedImage.drive_file_id
         };
+
+        console.log('Maintenance payload:', payload);
 
         const { error } = await supabaseClient
           .from('maintenance_requests')
