@@ -542,6 +542,89 @@
       font-size: 13px;
     }
 
+
+    .audit-log-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+
+    .audit-log-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .audit-log-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .audit-log-item {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .audit-log-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #dbeafe;
+      color: #2563eb;
+      font-size: 17px;
+    }
+
+    .audit-log-main {
+      min-width: 0;
+    }
+
+    .audit-log-action {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.45;
+    }
+
+    .audit-log-meta {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.55;
+    }
+
+    .audit-log-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .audit-log-empty {
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 10px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+    }
+
     .empty {
       background: white;
       border: 1px dashed #cbd5e1;
@@ -1010,6 +1093,158 @@
       previewBox.style.display = 'block';
     }
 
+
+    let auditLogsByRequest = {};
+
+    function getActorName() {
+      return currentProfile?.full_name || currentProfile?.username || currentProfile?.name || 'ผู้ใช้งาน';
+    }
+
+    function getActorRole() {
+      return currentProfile?.role || 'unknown';
+    }
+
+    function actionLabel(action, oldStatus, newStatus) {
+      const map = {
+        created: 'ส่งเรื่องแจ้งซ่อม',
+        accepted: 'รับเรื่อง',
+        assigned: 'รับงาน',
+        status_changed: 'เปลี่ยนสถานะ',
+        completed: 'ปิดงานเสร็จสิ้น',
+        cancelled: 'ยกเลิกงาน',
+        note_added: 'เพิ่มบันทึก',
+        image_uploaded: 'อัปโหลดรูป'
+      };
+
+      if (action === 'status_changed' && newStatus) {
+        return `เปลี่ยนสถานะเป็น ${statusLabel(newStatus)}`;
+      }
+
+      return map[action] || action || '-';
+    }
+
+    function auditIcon(action, newStatus) {
+      if (action === 'completed' || newStatus === 'completed') return 'bx-check-double';
+      if (action === 'cancelled' || newStatus === 'cancelled') return 'bx-x-circle';
+      if (action === 'assigned' || newStatus === 'in_progress') return 'bx-user-check';
+      if (action === 'accepted' || newStatus === 'accepted') return 'bx-check';
+      if (action === 'created' || newStatus === 'submitted') return 'bx-send';
+      return 'bx-history';
+    }
+
+    async function addAuditLog({
+      requestId,
+      action,
+      oldStatus = null,
+      newStatus = null,
+      note = null,
+      metadata = {}
+    }) {
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_audit_logs')
+          .insert({
+            request_id: requestId,
+            action,
+            old_status: oldStatus,
+            new_status: newStatus,
+            actor_id: currentUser?.id || null,
+            actor_name: getActorName(),
+            actor_role: getActorRole(),
+            note,
+            metadata: metadata || {}
+          });
+
+        if (error) {
+          console.warn('Audit log insert error:', error);
+        }
+      } catch (error) {
+        console.warn('Audit log insert exception:', error);
+      }
+    }
+
+    async function loadAuditLogs(requestIds) {
+      auditLogsByRequest = {};
+
+      if (!Array.isArray(requestIds) || !requestIds.length) {
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('maintenance_audit_logs')
+          .select('*')
+          .in('request_id', requestIds)
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.warn('Load audit logs error:', error);
+          return;
+        }
+
+        (data || []).forEach(log => {
+          const key = String(log.request_id);
+          if (!auditLogsByRequest[key]) auditLogsByRequest[key] = [];
+          auditLogsByRequest[key].push(log);
+        });
+      } catch (error) {
+        console.warn('Load audit logs exception:', error);
+      }
+    }
+
+    function buildAuditLogBox(requestId) {
+      const logs = auditLogsByRequest[String(requestId)] || [];
+
+      if (!logs.length) {
+        return `
+          <div class="audit-log-box">
+            <div class="audit-log-title">
+              <i class='bx bx-history'></i>
+              ประวัติการดำเนินการจริง
+            </div>
+            <div class="audit-log-empty">
+              ยังไม่มี Audit Log สำหรับรายการนี้ ระบบจะเริ่มบันทึกเมื่อมีการรับเรื่อง รับงาน ปิดงาน หรือยกเลิกงานหลังจากอัปเดตไฟล์นี้
+            </div>
+          </div>
+        `;
+      }
+
+      const rows = logs.map(log => `
+        <div class="audit-log-item">
+          <div class="audit-log-icon">
+            <i class='bx ${auditIcon(log.action, log.new_status)}'></i>
+          </div>
+          <div class="audit-log-main">
+            <div class="audit-log-action">${escapeHtml(actionLabel(log.action, log.old_status, log.new_status))}</div>
+            <div class="audit-log-meta">
+              ${formatDateTime(log.created_at)} |
+              โดย: ${escapeHtml(log.actor_name || '-')}
+              ${log.actor_role ? `(${escapeHtml(log.actor_role)})` : ''}
+              ${log.old_status || log.new_status ? `<br>สถานะ: ${escapeHtml(statusLabel(log.old_status))} → ${escapeHtml(statusLabel(log.new_status))}` : ''}
+            </div>
+            ${log.note ? `<div class="audit-log-note">${escapeHtml(log.note)}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <div class="audit-log-box">
+          <div class="audit-log-title">
+            <i class='bx bx-history'></i>
+            ประวัติการดำเนินการจริง
+          </div>
+          <div class="audit-log-list">
+            ${rows}
+          </div>
+        </div>
+      `;
+    }
+
+    function getRequestById(id) {
+      return requests.find(x => Number(x.id) === Number(id)) || null;
+    }
+
+
     async function loadRequests() {
       document.getElementById('requestList').innerHTML = `
         <div class="empty">
@@ -1027,6 +1262,7 @@
         if (error) throw error;
 
         requests = Array.isArray(data) ? data : [];
+        await loadAuditLogs(requests.map(item => item.id));
         updateCounts();
         renderRequests();
 
@@ -1225,6 +1461,8 @@
 
             ${buildStatusTimeline(item.status)}
 
+            ${buildAuditLogBox(item.id)}
+
             <div class="photo-grid">
               ${requestPhoto}
               ${completionPhoto}
@@ -1297,6 +1535,8 @@
     }
 
     async function updateStatus(id, status) {
+      const item = getRequestById(id);
+      const oldStatus = item?.status || null;
       const payload = { status };
 
       if (status === 'completed') {
@@ -1315,6 +1555,14 @@
 
         if (error) throw error;
 
+        await addAuditLog({
+          requestId: id,
+          action: 'status_changed',
+          oldStatus,
+          newStatus: status,
+          note: `ช่างอัปเดตสถานะเป็น ${statusLabel(status)}`
+        });
+
         await loadRequests();
 
       } catch (error) {
@@ -1323,6 +1571,9 @@
     }
 
     async function takeJob(id) {
+      const item = getRequestById(id);
+      const oldStatus = item?.status || null;
+
       if (!currentUser?.id) {
         alert('ไม่พบข้อมูลผู้ใช้งาน');
         return;
@@ -1339,6 +1590,14 @@
           .eq('id', id);
 
         if (error) throw error;
+
+        await addAuditLog({
+          requestId: id,
+          action: 'assigned',
+          oldStatus,
+          newStatus: 'in_progress',
+          note: 'ช่างรับงานและเริ่มดำเนินการ'
+        });
 
         await loadRequests();
 
@@ -1393,6 +1652,18 @@
 
         if (error) throw error;
 
+        await addAuditLog({
+          requestId: id,
+          action: 'completed',
+          oldStatus: item.status || null,
+          newStatus: 'completed',
+          note: completionNote || 'ช่างปิดงานพร้อมแนบรูปหลังซ่อม',
+          metadata: {
+            completion_image_url: uploadedImage.image_url,
+            completion_drive_file_id: uploadedImage.drive_file_id
+          }
+        });
+
         await loadRequests();
 
       } catch (error) {
@@ -1407,6 +1678,8 @@
     }
 
     async function cancelJob(id) {
+      const item = getRequestById(id);
+      const oldStatus = item?.status || null;
       const confirmed = confirm('ยืนยันยกเลิกงานนี้?');
       if (!confirmed) return;
 
@@ -1420,6 +1693,14 @@
           .eq('id', id);
 
         if (error) throw error;
+
+        await addAuditLog({
+          requestId: id,
+          action: 'cancelled',
+          oldStatus,
+          newStatus: 'cancelled',
+          note: 'ช่างยกเลิกงานแจ้งซ่อม'
+        });
 
         await loadRequests();
 
