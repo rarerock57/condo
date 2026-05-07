@@ -616,10 +616,9 @@
 
       try {
         const { data, error } = await supabaseClient
-          .from('maintenance_requests')
-          .select('*')
-          .eq('assigned_to', currentUser.id)
-          .order('created_at', { ascending: false });
+  .from('maintenance_requests')
+  .select('*')
+  .order('created_at', { ascending: false });
 
         if (error) throw error;
 
