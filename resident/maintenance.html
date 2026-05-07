@@ -87,30 +87,16 @@
       white-space: nowrap;
     }
 
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-
+    .btn-primary { background: #2563eb; color: white; }
     .btn-primary:hover { background: #1d4ed8; }
 
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #0f172a;
-    }
-
+    .btn-secondary { background: #e2e8f0; color: #0f172a; }
     .btn-secondary:hover { background: #cbd5e1; }
 
-    .btn-danger {
-      background: #dc2626;
-      color: white;
-    }
-
+    .btn-danger { background: #dc2626; color: white; }
     .btn-danger:hover { background: #b91c1c; }
 
-    .hero {
-      padding: 28px 0 18px;
-    }
+    .hero { padding: 28px 0 18px; }
 
     .hero-card {
       background: linear-gradient(135deg, #0f172a, #1e3a8a);
@@ -157,9 +143,7 @@
       margin-bottom: 24px;
     }
 
-    .section-title {
-      margin-bottom: 18px;
-    }
+    .section-title { margin-bottom: 18px; }
 
     .section-title h3 {
       margin: 0;
@@ -179,9 +163,7 @@
       gap: 18px;
     }
 
-    .field.full {
-      grid-column: 1 / -1;
-    }
+    .field.full { grid-column: 1 / -1; }
 
     label {
       display: block;
@@ -230,11 +212,55 @@
       line-height: 1.7;
     }
 
+    .preview-box {
+      margin-top: 12px;
+      display: none;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .preview-box img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      display: block;
+      background: #f1f5f9;
+    }
+
+    .preview-info {
+      padding: 12px 14px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .actions {
       margin-top: 24px;
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .success-box {
+      border-radius: 18px;
+      padding: 16px;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #047857;
+      margin-top: 18px;
+      display: none;
+    }
+
+    .error-message {
+      border-radius: 18px;
+      padding: 16px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      margin-top: 18px;
+      display: none;
     }
 
     .loading-screen,
@@ -258,34 +284,10 @@
       box-shadow: 0 10px 30px rgba(15,23,42,.08);
     }
 
-    .success-box {
-      border-radius: 18px;
-      padding: 16px;
-      background: #ecfdf5;
-      border: 1px solid #bbf7d0;
-      color: #047857;
-      margin-top: 18px;
-      display: none;
-    }
-
-    .error-message {
-      border-radius: 18px;
-      padding: 16px;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #b91c1c;
-      margin-top: 18px;
-      display: none;
-    }
-
     @media (max-width: 760px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
+      .form-grid { grid-template-columns: 1fr; }
 
-      .hero-card h2 {
-        font-size: 26px;
-      }
+      .hero-card h2 { font-size: 26px; }
 
       .topbar-inner {
         align-items: flex-start;
@@ -329,10 +331,16 @@
           </div>
 
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="maintenance-history.html" class="btn btn-secondary">
+              <i class='bx bx-history'></i>
+              ประวัติแจ้งซ่อม
+            </a>
+
             <a href="dashboard.html" class="btn btn-secondary">
               <i class='bx bx-arrow-back'></i>
               กลับ Dashboard
             </a>
+
             <button id="logoutBtn" class="btn btn-danger" type="button">
               <i class='bx bx-log-out'></i>
               ออกจากระบบ
@@ -348,13 +356,13 @@
           <div class="hero-card">
             <h2>แจ้งซ่อม / แจ้งปัญหาภายในอาคาร</h2>
             <p>
-              ส่งรายละเอียดปัญหาให้ฝ่ายนิติบุคคลตรวจสอบ ระบบจะบันทึกคำร้องพร้อมสถานะเริ่มต้นเป็น “ส่งเรื่องแล้ว”
+              ส่งรายละเอียดปัญหาและรูปภาพประกอบให้ฝ่ายนิติบุคคลตรวจสอบ ระบบจะอัปโหลดรูปไปยัง Google Drive และบันทึกลิงก์ไว้ในรายการแจ้งซ่อม
             </p>
 
             <div class="badge-row">
               <div class="badge" id="roomBadge">Room: -</div>
               <div class="badge">สถานะเริ่มต้น: submitted</div>
-              <div class="badge">ฝ่ายนิติจะตรวจสอบและอัปเดตสถานะ</div>
+              <div class="badge">อัปโหลดรูปผ่าน Google Drive</div>
             </div>
           </div>
         </div>
@@ -364,7 +372,7 @@
         <div class="card">
           <div class="section-title">
             <h3>แบบฟอร์มแจ้งซ่อม</h3>
-            <p>กรุณากรอกข้อมูลให้ครบถ้วน เพื่อให้เจ้าหน้าที่ประเมินและดำเนินการได้รวดเร็ว</p>
+            <p>กรุณากรอกข้อมูลให้ครบถ้วน พร้อมแนบรูปประกอบถ้ามี เพื่อให้เจ้าหน้าที่ประเมินและดำเนินการได้รวดเร็ว</p>
           </div>
 
           <div class="readonly-box" id="profileBox">
@@ -421,9 +429,14 @@
               </div>
 
               <div class="field full">
-                <label for="imageUrl">ลิงก์รูปภาพประกอบ (ถ้ามี)</label>
-                <input type="url" id="imageUrl" placeholder="วางลิงก์รูปภาพ เช่น Google Drive / Supabase Storage">
-                <div class="helper">ตอนนี้รองรับการใส่ URL ก่อน รอบถัดไปค่อยเพิ่มระบบอัปโหลดรูปโดยตรง</div>
+                <label for="imageFile">รูปภาพประกอบ (ถ้ามี)</label>
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="helper">รองรับไฟล์รูปภาพ ขนาดแนะนำไม่เกิน 5 MB ระบบจะอัปโหลดไปยัง Google Drive อัตโนมัติ</div>
+
+                <div id="previewBox" class="preview-box">
+                  <img id="imagePreview" alt="preview">
+                  <div class="preview-info" id="previewInfo">-</div>
+                </div>
               </div>
 
             </div>
@@ -454,6 +467,8 @@
   </div>
 
   <script>
+    const MAINTENANCE_UPLOAD_GAS_URL = 'https://script.google.com/macros/s/AKfycbyOFj8NdtzUofL5YNAAYIqZuKOwba9dlfdkH22KJnh7BI7h5aKkwuDiQLdyo3jiIodA/exec';
+
     let currentProfile = null;
     let currentUser = null;
 
@@ -463,7 +478,7 @@
       const roomNumber = String(profile.room_number || '').trim();
       if (!roomNumber) return null;
 
-      if (/^\\d{3,}$/.test(roomNumber)) {
+      if (/^\d{3,}$/.test(roomNumber)) {
         return parseInt(roomNumber.slice(-2), 10);
       }
 
@@ -508,6 +523,10 @@
         document.getElementById('phone').value = currentProfile.phone || '';
       }
 
+      document.getElementById('previewBox').style.display = 'none';
+      document.getElementById('imagePreview').removeAttribute('src');
+      document.getElementById('previewInfo').textContent = '-';
+
       document.getElementById('successBox').style.display = 'none';
       document.getElementById('errorBox').style.display = 'none';
     }
@@ -518,6 +537,61 @@
       btn.innerHTML = isSubmitting
         ? "<i class='bx bx-loader-alt bx-spin'></i> กำลังส่งเรื่อง..."
         : "<i class='bx bx-send'></i> ส่งเรื่องแจ้งซ่อม";
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64);
+        };
+
+        reader.onerror = () => reject(new Error('อ่านไฟล์รูปภาพไม่สำเร็จ'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadImageToDrive(file, roomId) {
+      if (!file) {
+        return {
+          image_url: null,
+          drive_file_id: null
+        };
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        throw new Error('ไฟล์รูปภาพใหญ่เกิน 5 MB');
+      }
+
+      const fileBase64 = await fileToBase64(file);
+
+      const payload = {
+        file_base64: fileBase64,
+        file_name: file.name,
+        mime_type: file.type || 'image/jpeg',
+        room: roomId || 'room'
+      };
+
+      const res = await fetch(MAINTENANCE_UPLOAD_GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
+      }
+
+      return {
+        image_url: data.image_url || data.view_url || null,
+        drive_file_id: data.file_id || null
+      };
     }
 
     async function submitMaintenanceRequest(event) {
@@ -544,7 +618,7 @@
       const description = document.getElementById('description').value.trim();
       const category = document.getElementById('category').value;
       const priority = document.getElementById('priority').value;
-      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const imageFile = document.getElementById('imageFile').files[0] || null;
 
       if (!title || !description || !category || !priority) {
         alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบ');
@@ -554,6 +628,20 @@
       setSubmitting(true);
 
       try {
+        let uploadedImage = {
+          image_url: null,
+          drive_file_id: null
+        };
+
+        if (imageFile) {
+          document.getElementById('submitBtn').innerHTML =
+            "<i class='bx bx-loader-alt bx-spin'></i> กำลังอัปโหลดรูป...";
+          uploadedImage = await uploadImageToDrive(imageFile, roomId);
+        }
+
+        document.getElementById('submitBtn').innerHTML =
+          "<i class='bx bx-loader-alt bx-spin'></i> กำลังบันทึกข้อมูล...";
+
         const payload = {
           room_id: roomId,
           resident_name: residentName || currentProfile.full_name || null,
@@ -563,8 +651,8 @@
           category,
           priority,
           status: 'submitted',
-          image_url: imageUrl || null,
-          drive_file_id: null
+          image_url: uploadedImage.image_url,
+          drive_file_id: uploadedImage.drive_file_id
         };
 
         const { error } = await supabaseClient
@@ -580,7 +668,7 @@
         document.getElementById('successBox').style.display = 'block';
 
       } catch (error) {
-        console.error('Maintenance insert error:', error);
+        console.error('Maintenance insert/upload error:', error);
         const errorBox = document.getElementById('errorBox');
         errorBox.textContent = error.message || 'ไม่สามารถส่งเรื่องได้';
         errorBox.style.display = 'block';
@@ -598,6 +686,37 @@
         window.location.href = '../auth/login.html';
       }
     }
+
+    document.getElementById('imageFile').addEventListener('change', function () {
+      const file = this.files[0];
+      const previewBox = document.getElementById('previewBox');
+      const imagePreview = document.getElementById('imagePreview');
+      const previewInfo = document.getElementById('previewInfo');
+
+      if (!file) {
+        previewBox.style.display = 'none';
+        imagePreview.removeAttribute('src');
+        previewInfo.textContent = '-';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        alert('ไฟล์รูปภาพใหญ่เกิน 5 MB');
+        this.value = '';
+        previewBox.style.display = 'none';
+        imagePreview.removeAttribute('src');
+        previewInfo.textContent = '-';
+        return;
+      }
+
+      imagePreview.src = URL.createObjectURL(file);
+      previewInfo.textContent =
+        `${file.name} | ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+
+      previewBox.style.display = 'block';
+    });
 
     document.getElementById('maintenanceForm').addEventListener('submit', submitMaintenanceRequest);
     document.getElementById('logoutBtn').addEventListener('click', logout);
