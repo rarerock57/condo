@@ -278,7 +278,77 @@
       gap: 6px;
     }
 
-    .empty {
+    
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .photo-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .photo-card-header {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .photo-card-header a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: contain;
+      display: block;
+      background: #f1f5f9;
+    }
+
+    .photo-empty {
+      min-height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #94a3b8;
+      font-size: 13px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .completion-note {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #bbf7d0;
+      line-height: 1.7;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+
+.empty {
       background: white;
       border: 1px dashed #cbd5e1;
       border-radius: 24px;
@@ -335,6 +405,14 @@
       .toolbar input,
       .toolbar .btn {
         width: 100%;
+      }
+
+      .photo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .photo-card img {
+        height: 220px;
       }
     }
   </style>
@@ -447,17 +525,37 @@
     let maintenanceRequests = [];
 
     function deriveRoomId(profile) {
-      if (profile.room_id) return Number(profile.room_id);
+      if (!profile) return null;
 
-      const roomNumber = String(profile.room_number || '').trim();
-      if (!roomNumber) return null;
-
-      if (/^\\d{3,}$/.test(roomNumber)) {
-        return parseInt(roomNumber.slice(-2), 10);
+      if (profile.room_id !== null && profile.room_id !== undefined && profile.room_id !== '') {
+        const directRoomId = Number(profile.room_id);
+        return Number.isNaN(directRoomId) ? null : directRoomId;
       }
 
-      const parsed = parseInt(roomNumber, 10);
-      return Number.isNaN(parsed) ? null : parsed;
+      const roomNumber = String(profile.room_number || '').trim();
+
+      if (!roomNumber) {
+        return null;
+      }
+
+      if (roomNumber.includes('/')) {
+        const parts = roomNumber.split('/');
+
+        let left = String(parts[0] || '').replace(/\D/g, '');
+        const right = String(parts[1] || '').replace(/\D/g, '');
+
+        if (left.length > 2 && left.endsWith('0')) {
+          left = left.slice(0, -1);
+        }
+
+        const slashRoomId = Number(`${left}${right}`);
+        return Number.isNaN(slashRoomId) ? null : slashRoomId;
+      }
+
+      const normalizedRoomNumber = roomNumber.replace(/\D/g, '');
+      const parsedRoomId = Number(normalizedRoomNumber);
+
+      return Number.isNaN(parsedRoomId) ? null : parsedRoomId;
     }
 
     function displayRoom(profile) {
@@ -525,6 +623,80 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+
+    function extractGoogleDriveFileId(url) {
+      if (!url) return null;
+
+      const text = String(url);
+
+      let match = text.match(/[?&]id=([^&]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      match = text.match(/\/file\/d\/([^/]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      match = text.match(/\/d\/([^/]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      return null;
+    }
+
+    function toDisplayImageUrl(url) {
+      if (!url) return '';
+
+      const fileId = extractGoogleDriveFileId(url);
+
+      if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
+      }
+
+      return url;
+    }
+
+    function buildPhotoCard(title, url, emptyText) {
+      if (!url) {
+        return `
+          <div class="photo-card">
+            <div class="photo-card-header">
+              <span>${escapeHtml(title)}</span>
+            </div>
+            <div class="photo-empty">${escapeHtml(emptyText)}</div>
+          </div>
+        `;
+      }
+
+      const displayUrl = toDisplayImageUrl(url);
+
+      return `
+        <div class="photo-card">
+          <div class="photo-card-header">
+            <span>${escapeHtml(title)}</span>
+
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+              <i class='bx bx-link-external'></i>
+              เปิดรูป
+            </a>
+          </div>
+
+          <img
+            src="${escapeHtml(displayUrl)}"
+            alt="${escapeHtml(title)}"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            onerror="
+              const empty = this.parentElement.querySelector('.photo-empty');
+              if (empty) empty.classList.remove('hidden');
+              this.style.display='none';
+            "
+          >
+
+          <div class="photo-empty hidden">
+            ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป
+          </div>
+        </div>
+      `;
     }
 
     function showApp() {
@@ -604,13 +776,23 @@
         const statusClass = `pill-status-${item.status || 'submitted'}`;
         const priorityClass = `pill-priority-${item.priority || 'normal'}`;
 
-        const imageLink = item.image_url
+        const requestPhoto = buildPhotoCard(
+          'รูปแจ้งซ่อม',
+          item.image_url,
+          'ไม่มีรูปแจ้งซ่อม'
+        );
+
+        const completionPhoto = buildPhotoCard(
+          'รูปหลังซ่อมเสร็จ',
+          item.completion_image_url,
+          'ยังไม่มีรูปหลังซ่อม'
+        );
+
+        const completionNote = item.completion_note
           ? `
-            <div class="image-link">
-              <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
-                <i class='bx bx-image'></i>
-                ดูรูปภาพประกอบ
-              </a>
+            <div class="completion-note">
+              <strong>บันทึกหลังซ่อม:</strong><br>
+              ${escapeHtml(item.completion_note)}
             </div>
           `
           : '';
@@ -657,7 +839,12 @@
               </span>
             </div>
 
-            ${imageLink}
+            <div class="photo-grid">
+              ${requestPhoto}
+              ${completionPhoto}
+            </div>
+
+            ${completionNote}
           </article>
         `;
       }).join('');
