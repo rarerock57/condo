@@ -158,7 +158,7 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 14px;
       margin: 22px 0;
     }
@@ -288,6 +288,7 @@
       font-weight: 700;
     }
 
+    .pill-status-submitted { background: #eff6ff; color: #2563eb; }
     .pill-status-accepted { background: #fef3c7; color: #92400e; }
     .pill-status-in_progress { background: #ede9fe; color: #6d28d9; }
     .pill-status-completed { background: #ecfdf5; color: #047857; }
@@ -441,27 +442,27 @@
       <section class="hero">
         <div class="container">
           <div class="hero-card">
-            <h2 id="welcomeText">งานซ่อมที่ได้รับมอบหมาย</h2>
+            <h2 id="welcomeText">ศูนย์ปฏิบัติงานช่าง</h2>
             <p id="welcomeSubtext">
-              แสดงเฉพาะงานที่ถูก assign ให้คุณ สามารถเริ่มงานและปิดงานได้จากหน้านี้
+              ช่างสามารถเห็นงานแจ้งซ่อมทั้งหมด รับงานเอง อัปเดตสถานะ ปิดงาน หรือยกเลิกงานได้จากหน้านี้
             </p>
 
             <div class="badge-row">
               <div class="badge" id="badgeTechnician">Technician: -</div>
               <div class="badge">Role: technician</div>
-              <div class="badge">แสดงเฉพาะงานของคุณ</div>
+              <div class="badge">Operation Center</div>
             </div>
           </div>
 
           <div class="stats">
             <div class="stat-card">
               <div class="num" id="countAll">0</div>
-              <div class="label">งานของฉันทั้งหมด</div>
+              <div class="label">งานทั้งหมด</div>
             </div>
 
             <div class="stat-card">
-              <div class="num" id="countAccepted">0</div>
-              <div class="label">รับเรื่องแล้ว</div>
+              <div class="num" id="countSubmitted">0</div>
+              <div class="label">ส่งเรื่องแล้ว</div>
             </div>
 
             <div class="stat-card">
@@ -473,6 +474,11 @@
               <div class="num" id="countCompleted">0</div>
               <div class="label">เสร็จสิ้น</div>
             </div>
+
+            <div class="stat-card">
+              <div class="num" id="countCancelled">0</div>
+              <div class="label">ยกเลิก</div>
+            </div>
           </div>
         </div>
       </section>
@@ -483,6 +489,7 @@
             <div class="toolbar-left">
               <select id="statusFilter" onchange="renderRequests()">
                 <option value="all">ทุกสถานะ</option>
+                <option value="submitted">ส่งเรื่องแล้ว</option>
                 <option value="accepted">รับเรื่องแล้ว</option>
                 <option value="in_progress">กำลังดำเนินการ</option>
                 <option value="completed">เสร็จสิ้น</option>
@@ -516,6 +523,7 @@
 
     function statusLabel(status) {
       const map = {
+        submitted: 'ส่งเรื่องแล้ว',
         accepted: 'รับเรื่องแล้ว',
         in_progress: 'กำลังดำเนินการ',
         completed: 'เสร็จสิ้น',
@@ -602,11 +610,6 @@
     }
 
     async function loadRequests() {
-      if (!currentUser?.id) {
-        setEmpty('ไม่พบข้อมูลช่างผู้ใช้งาน');
-        return;
-      }
-
       document.getElementById('requestList').innerHTML = `
         <div class="empty">
           <i class='bx bx-loader-alt bx-spin'></i>
@@ -616,9 +619,9 @@
 
       try {
         const { data, error } = await supabaseClient
-  .from('maintenance_requests')
-  .select('*')
-  .order('created_at', { ascending: false });
+          .from('maintenance_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
 
@@ -636,14 +639,17 @@
       document.getElementById('countAll').textContent =
         requests.length;
 
-      document.getElementById('countAccepted').textContent =
-        requests.filter(x => x.status === 'accepted').length;
+      document.getElementById('countSubmitted').textContent =
+        requests.filter(x => x.status === 'submitted' || x.status === 'accepted').length;
 
       document.getElementById('countProgress').textContent =
         requests.filter(x => x.status === 'in_progress').length;
 
       document.getElementById('countCompleted').textContent =
         requests.filter(x => x.status === 'completed').length;
+
+      document.getElementById('countCancelled').textContent =
+        requests.filter(x => x.status === 'cancelled').length;
     }
 
     function renderRequests() {
@@ -651,7 +657,7 @@
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
       const filtered = requests.filter(item => {
-        const status = item.status || 'accepted';
+        const status = item.status || 'submitted';
         const statusMatch = statusFilter === 'all' || status === statusFilter;
 
         const text = [
@@ -676,7 +682,7 @@
       }
 
       document.getElementById('requestList').innerHTML = filtered.map(item => {
-        const status = item.status || 'accepted';
+        const status = item.status || 'submitted';
         const priority = item.priority || 'normal';
 
         const imageLink = item.image_url
@@ -694,6 +700,10 @@
           ? `<br>เสร็จสิ้นเมื่อ: ${formatDateTime(item.completed_at)}`
           : '';
 
+        const assignedText = item.assigned_to
+          ? 'มีผู้รับงานแล้ว'
+          : 'ยังไม่มีผู้รับงาน';
+
         return `
           <article class="request-card">
             <div class="request-head">
@@ -705,7 +715,8 @@
                   โทร: ${escapeHtml(item.phone || '-')}<br>
                   แจ้งเมื่อ: ${formatDateTime(item.created_at)} |
                   อัปเดตล่าสุด: ${formatDateTime(item.updated_at)}
-                  ${completedText}
+                  ${completedText}<br>
+                  ${assignedText}
                 </div>
               </div>
 
@@ -733,10 +744,17 @@
 
             <div class="flow-actions">
 
+              ${(status === 'submitted' || status === 'accepted') ? `
+                <button class="btn btn-warning" onclick="takeJob(${item.id})">
+                  <i class='bx bx-user-check'></i>
+                  รับงาน
+                </button>
+              ` : ''}
+
               ${status === 'accepted' ? `
-                <button class="btn btn-primary" onclick="startJob(${item.id})">
+                <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'in_progress')">
                   <i class='bx bx-loader-circle'></i>
-                  เริ่มดำเนินการ
+                  กำลังดำเนินการ
                 </button>
               ` : ''}
 
@@ -747,29 +765,67 @@
                 </button>
               ` : ''}
 
+              ${(status !== 'completed' && status !== 'cancelled') ? `
+                <button class="btn btn-muted" onclick="cancelJob(${item.id})">
+                  <i class='bx bx-x-circle'></i>
+                  ยกเลิก
+                </button>
+              ` : ''}
+
             </div>
           </article>
         `;
       }).join('');
     }
 
-    async function startJob(id) {
+    async function updateStatus(id, status) {
+      const payload = { status };
+
+      if (status === 'completed') {
+        payload.completed_at = new Date().toISOString();
+      }
+
+      if (status !== 'completed') {
+        payload.completed_at = null;
+      }
+
       try {
         const { error } = await supabaseClient
           .from('maintenance_requests')
-          .update({
-            status: 'in_progress',
-            completed_at: null
-          })
-          .eq('id', id)
-          .eq('assigned_to', currentUser.id);
+          .update(payload)
+          .eq('id', id);
 
         if (error) throw error;
 
         await loadRequests();
 
       } catch (error) {
-        alert(error.message || 'เริ่มงานไม่สำเร็จ');
+        alert(error.message || 'อัปเดตสถานะไม่สำเร็จ');
+      }
+    }
+
+    async function takeJob(id) {
+      if (!currentUser?.id) {
+        alert('ไม่พบข้อมูลผู้ใช้งาน');
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update({
+            assigned_to: currentUser.id,
+            status: 'in_progress',
+            completed_at: null
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'รับงานไม่สำเร็จ');
       }
     }
 
@@ -784,8 +840,7 @@
             status: 'completed',
             completed_at: new Date().toISOString()
           })
-          .eq('id', id)
-          .eq('assigned_to', currentUser.id);
+          .eq('id', id);
 
         if (error) throw error;
 
@@ -793,6 +848,28 @@
 
       } catch (error) {
         alert(error.message || 'ปิดงานไม่สำเร็จ');
+      }
+    }
+
+    async function cancelJob(id) {
+      const confirmed = confirm('ยืนยันยกเลิกงานนี้?');
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update({
+            status: 'cancelled',
+            completed_at: null
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'ยกเลิกงานไม่สำเร็จ');
       }
     }
 
