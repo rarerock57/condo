@@ -279,6 +279,110 @@
     }
 
     
+
+
+    .status-timeline {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+    }
+
+    .timeline-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .timeline-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      position: relative;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #94a3b8;
+      min-height: 82px;
+    }
+
+    .timeline-step.done {
+      border-color: #bbf7d0;
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .timeline-step.current {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    .timeline-step.cancelled {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .timeline-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e2e8f0;
+      color: #64748b;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .timeline-step.done .timeline-icon {
+      background: #10b981;
+      color: white;
+    }
+
+    .timeline-step.current .timeline-icon {
+      background: #2563eb;
+      color: white;
+    }
+
+    .timeline-step.cancelled .timeline-icon {
+      background: #dc2626;
+      color: white;
+    }
+
+    .timeline-label {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .timeline-sub {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .timeline-step.done .timeline-sub,
+    .timeline-step.current .timeline-sub,
+    .timeline-step.cancelled .timeline-sub {
+      color: currentColor;
+      opacity: .85;
+    }
+
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -405,6 +509,16 @@
       .toolbar input,
       .toolbar .btn {
         width: 100%;
+      }
+
+
+
+      .timeline-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-step {
+        min-height: auto;
       }
 
       .photo-grid {
@@ -748,6 +862,77 @@
       }
     }
 
+
+    function buildStatusTimeline(status) {
+      const currentStatus = status || 'submitted';
+      const isCancelled = currentStatus === 'cancelled';
+
+      const steps = [
+        { label: 'ส่งเรื่องแล้ว', sub: 'ระบบรับคำร้องจากลูกบ้าน', icon: 'bx-send' },
+        { label: 'รับเรื่อง', sub: 'แอดมิน/นิติบุคคลรับทราบ', icon: 'bx-check' },
+        { label: 'กำลังดำเนินการ', sub: 'ช่างรับงานและเข้าดำเนินการ', icon: 'bx-loader-circle' },
+        { label: 'เสร็จสิ้น', sub: 'ปิดงานพร้อมหลักฐานหลังซ่อม', icon: 'bx-check-double' }
+      ];
+
+      const order = {
+        submitted: 0,
+        accepted: 1,
+        in_progress: 2,
+        completed: 3,
+        cancelled: -1
+      };
+
+      const activeIndex = order[currentStatus] ?? 0;
+
+      if (isCancelled) {
+        return `
+          <div class="status-timeline">
+            <div class="timeline-title">
+              <i class='bx bx-git-branch'></i>
+              Timeline สถานะงาน
+            </div>
+            <div class="timeline-steps">
+              <div class="timeline-step cancelled">
+                <div class="timeline-icon"><i class='bx bx-x-circle'></i></div>
+                <div class="timeline-label">ยกเลิกงาน</div>
+                <div class="timeline-sub">รายการนี้ถูกยกเลิก ไม่ดำเนินการต่อ</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const stepHtml = steps.map((step, index) => {
+        const stateClass = index < activeIndex
+          ? 'done'
+          : index === activeIndex
+            ? 'current'
+            : '';
+
+        const icon = index < activeIndex ? 'bx-check' : step.icon;
+
+        return `
+          <div class="timeline-step ${stateClass}">
+            <div class="timeline-icon"><i class='bx ${icon}'></i></div>
+            <div class="timeline-label">${escapeHtml(step.label)}</div>
+            <div class="timeline-sub">${escapeHtml(step.sub)}</div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="status-timeline">
+          <div class="timeline-title">
+            <i class='bx bx-git-branch'></i>
+            Timeline สถานะงาน
+          </div>
+          <div class="timeline-steps">
+            ${stepHtml}
+          </div>
+        </div>
+      `;
+    }
+
     function renderRequests() {
       const status = document.getElementById('statusFilter').value;
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -838,6 +1023,8 @@
                 ห้อง ${escapeHtml(displayRoom(currentProfile))}
               </span>
             </div>
+
+            ${buildStatusTimeline(item.status)}
 
             <div class="photo-grid">
               ${requestPhoto}
