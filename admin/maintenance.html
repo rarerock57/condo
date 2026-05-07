@@ -118,9 +118,7 @@
 
     .btn-muted:hover { background: #e2e8f0; }
 
-    .hero {
-      padding: 28px 0 18px;
-    }
+    .hero { padding: 28px 0 18px; }
 
     .hero-card {
       background: linear-gradient(135deg, #0f172a, #1e3a8a);
@@ -144,7 +142,7 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 14px;
       margin: 22px 0;
     }
@@ -336,20 +334,16 @@
       box-shadow: 0 10px 30px rgba(15,23,42,.08);
     }
 
-    @media(max-width: 980px) {
+    @media(max-width: 1100px) {
       .stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
     @media(max-width: 760px) {
-      .hero-card h2 {
-        font-size: 26px;
-      }
+      .hero-card h2 { font-size: 26px; }
 
-      .stats {
-        grid-template-columns: 1fr;
-      }
+      .stats { grid-template-columns: 1fr; }
 
       .topbar-inner {
         align-items: flex-start;
@@ -365,13 +359,8 @@
         width: 100%;
       }
 
-      .request-head {
-        flex-direction: column;
-      }
-
-      .flow-actions .btn {
-        width: 100%;
-      }
+      .request-head { flex-direction: column; }
+      .flow-actions .btn { width: 100%; }
     }
   </style>
 </head>
@@ -457,6 +446,11 @@
             <div class="stat-card">
               <div class="num" id="countCompleted">0</div>
               <div class="label">เสร็จสิ้น</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="num" id="countCancelled">0</div>
+              <div class="label">ยกเลิก</div>
             </div>
           </div>
         </div>
@@ -615,19 +609,32 @@
     }
 
     function updateCounts() {
-      document.getElementById('countAll').textContent = requests.length;
-      document.getElementById('countSubmitted').textContent = requests.filter(x => x.status === 'submitted').length;
-      document.getElementById('countAccepted').textContent = requests.filter(x => x.status === 'accepted').length;
-      document.getElementById('countProgress').textContent = requests.filter(x => x.status === 'in_progress').length;
-      document.getElementById('countCompleted').textContent = requests.filter(x => x.status === 'completed').length;
+      document.getElementById('countAll').textContent =
+        requests.length;
+
+      document.getElementById('countSubmitted').textContent =
+        requests.filter(x => x.status === 'submitted').length;
+
+      document.getElementById('countAccepted').textContent =
+        requests.filter(x => x.status === 'accepted').length;
+
+      document.getElementById('countProgress').textContent =
+        requests.filter(x => x.status === 'in_progress').length;
+
+      document.getElementById('countCompleted').textContent =
+        requests.filter(x => x.status === 'completed').length;
+
+      document.getElementById('countCancelled').textContent =
+        requests.filter(x => x.status === 'cancelled').length;
     }
 
     function renderRequests() {
-      const status = document.getElementById('statusFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
       const filtered = requests.filter(item => {
-        const statusMatch = status === 'all' || item.status === status;
+        const status = item.status || 'submitted';
+        const statusMatch = statusFilter === 'all' || status === statusFilter;
 
         const text = [
           item.room_id,
@@ -670,7 +677,7 @@
           : '';
 
         const assignedText = item.assigned_to
-          ? `ผู้รับงาน: ${escapeHtml(item.assigned_to)}`
+          ? 'มีผู้รับงานแล้ว'
           : 'ยังไม่มีผู้รับงาน';
 
         return `
@@ -712,30 +719,42 @@
             ${imageLink}
 
             <div class="flow-actions">
-              <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'accepted')">
-                <i class='bx bx-check'></i>
-                รับเรื่อง
-              </button>
 
-              <button class="btn btn-warning" onclick="takeJob(${item.id})">
-                <i class='bx bx-user-check'></i>
-                รับงานเอง
-              </button>
+              ${status === 'submitted' ? `
+                <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'accepted')">
+                  <i class='bx bx-check'></i>
+                  รับเรื่อง
+                </button>
+              ` : ''}
 
-              <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'in_progress')">
-                <i class='bx bx-loader-circle'></i>
-                กำลังดำเนินการ
-              </button>
+              ${(status === 'submitted' || status === 'accepted') ? `
+                <button class="btn btn-warning" onclick="takeJob(${item.id})">
+                  <i class='bx bx-user-check'></i>
+                  รับงานเอง
+                </button>
+              ` : ''}
 
-              <button class="btn btn-success" onclick="completeJob(${item.id})">
-                <i class='bx bx-check-double'></i>
-                เสร็จสิ้น
-              </button>
+              ${status === 'accepted' ? `
+                <button class="btn btn-primary" onclick="updateStatus(${item.id}, 'in_progress')">
+                  <i class='bx bx-loader-circle'></i>
+                  กำลังดำเนินการ
+                </button>
+              ` : ''}
 
-              <button class="btn btn-muted" onclick="updateStatus(${item.id}, 'cancelled')">
-                <i class='bx bx-x-circle'></i>
-                ยกเลิก
-              </button>
+              ${status === 'in_progress' ? `
+                <button class="btn btn-success" onclick="completeJob(${item.id})">
+                  <i class='bx bx-check-double'></i>
+                  เสร็จสิ้น
+                </button>
+              ` : ''}
+
+              ${(status !== 'completed' && status !== 'cancelled') ? `
+                <button class="btn btn-muted" onclick="cancelJob(${item.id})">
+                  <i class='bx bx-x-circle'></i>
+                  ยกเลิก
+                </button>
+              ` : ''}
+
             </div>
           </article>
         `;
@@ -812,6 +831,28 @@
 
       } catch (error) {
         alert(error.message || 'ปิดงานไม่สำเร็จ');
+      }
+    }
+
+    async function cancelJob(id) {
+      const confirmed = confirm('ยืนยันยกเลิกงานนี้?');
+      if (!confirmed) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('maintenance_requests')
+          .update({
+            status: 'cancelled',
+            completed_at: null
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        await loadRequests();
+
+      } catch (error) {
+        alert(error.message || 'ยกเลิกงานไม่สำเร็จ');
       }
     }
 
