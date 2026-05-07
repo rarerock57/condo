@@ -95,6 +95,11 @@
       white-space: nowrap;
     }
 
+    .btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
     .btn-primary { background: #2563eb; color: white; }
     .btn-primary:hover { background: #1d4ed8; }
 
@@ -308,17 +313,129 @@
       border-top: 1px solid #e2e8f0;
     }
 
-    .image-link {
-      margin-top: 14px;
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
     }
 
-    .image-link a {
+    .photo-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .photo-card-header {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .photo-card-header a {
       color: #2563eb;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 230px;
+      object-fit: contain;
+      display: block;
+      background: #f1f5f9;
+    }
+
+    .photo-empty {
+      min-height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #94a3b8;
+      font-size: 13px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .completion-note {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #bbf7d0;
+      line-height: 1.7;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+
+    .complete-panel {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid #dbeafe;
+      background: #eff6ff;
+    }
+
+    .complete-panel.active {
+      display: block;
+    }
+
+    .complete-panel h4 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #1e3a8a;
+    }
+
+    .complete-panel label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .complete-panel input[type="file"] {
+      width: 100%;
+      background: #ffffff;
+    }
+
+    .preview-box {
+      display: none;
+      margin-top: 12px;
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .preview-box img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      display: block;
+      background: #f8fafc;
+    }
+
+    .preview-info {
+      padding: 10px 12px;
+      color: #64748b;
+      font-size: 13px;
     }
 
     .empty {
@@ -360,6 +477,7 @@
 
     @media(max-width: 980px) {
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .photo-grid { grid-template-columns: 1fr; }
     }
 
     @media(max-width: 760px) {
@@ -382,6 +500,7 @@
 
       .request-head { flex-direction: column; }
       .flow-actions .btn { width: 100%; }
+      .photo-card img { height: 210px; }
     }
   </style>
 </head>
@@ -444,13 +563,13 @@
           <div class="hero-card">
             <h2 id="welcomeText">ศูนย์ปฏิบัติงานช่าง</h2>
             <p id="welcomeSubtext">
-              ช่างสามารถเห็นงานแจ้งซ่อมทั้งหมด รับงานเอง อัปเดตสถานะ ปิดงาน หรือยกเลิกงานได้จากหน้านี้
+              ช่างสามารถเห็นงานแจ้งซ่อมทั้งหมด รับงาน อัปเดตสถานะ และปิดงานพร้อมแนบรูปหลังซ่อมเพื่อบันทึกหลักฐาน
             </p>
 
             <div class="badge-row">
               <div class="badge" id="badgeTechnician">Technician: -</div>
               <div class="badge">Role: technician</div>
-              <div class="badge">Operation Center</div>
+              <div class="badge">Completion Photo Upload</div>
             </div>
           </div>
 
@@ -517,6 +636,13 @@
   </div>
 
   <script>
+    /*
+      ใช้ GAS endpoint ตัวเดิมได้ แต่ใน Apps Script ต้องอ่าน upload_type === 'completion'
+      แล้วส่งเข้าโฟลเดอร์ช่าง ID: 1JlsXiVmNksIGH-smg9a6ENenw-8ik2sM
+    */
+    const MAINTENANCE_UPLOAD_GAS_URL = 'https://script.google.com/macros/s/AKfycbyOFj8NdtzUofL5YNAAYIqZuKOwba9dlfdkH22KJnh7BI7h5aKkwuDiQLdyo3jiIodA/exec';
+    const TECHNICIAN_COMPLETION_FOLDER_ID = '1JlsXiVmNksIGH-smg9a6ENenw-8ik2sM';
+
     let currentProfile = null;
     let currentUser = null;
     let requests = [];
@@ -609,6 +735,126 @@
       `;
     }
 
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64);
+        };
+
+        reader.onerror = () => reject(new Error('อ่านไฟล์รูปภาพไม่สำเร็จ'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadCompletionImageToDrive(file, requestId, roomId) {
+      if (!file) {
+        throw new Error('กรุณาแนบรูปหลังซ่อมก่อนปิดงาน');
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        throw new Error('ไฟล์รูปภาพใหญ่เกิน 5 MB');
+      }
+
+      const fileBase64 = await fileToBase64(file);
+
+      const payload = {
+        file_base64: fileBase64,
+        file_name: file.name,
+        mime_type: file.type || 'image/jpeg',
+        room: roomId || 'room',
+        request_id: requestId,
+        upload_type: 'completion',
+        folder_id: TECHNICIAN_COMPLETION_FOLDER_ID
+      };
+
+      const res = await fetch(MAINTENANCE_UPLOAD_GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'อัปโหลดรูปหลังซ่อมไม่สำเร็จ');
+      }
+
+      return {
+        image_url: data.image_url || data.view_url || null,
+        drive_file_id: data.file_id || null
+      };
+    }
+
+    function buildPhotoCard(title, url, emptyText) {
+      if (!url) {
+        return `
+          <div class="photo-card">
+            <div class="photo-card-header">
+              <span>${escapeHtml(title)}</span>
+            </div>
+            <div class="photo-empty">${escapeHtml(emptyText)}</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="photo-card">
+          <div class="photo-card-header">
+            <span>${escapeHtml(title)}</span>
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+              <i class='bx bx-link-external'></i>
+              เปิดรูป
+            </a>
+          </div>
+          <img src="${escapeHtml(url)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.parentElement.querySelector('.photo-empty')?.classList.remove('hidden'); this.style.display='none';">
+          <div class="photo-empty hidden">ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป</div>
+        </div>
+      `;
+    }
+
+    function toggleCompletePanel(id) {
+      const panel = document.getElementById(`completePanel-${id}`);
+      if (!panel) return;
+
+      panel.classList.toggle('active');
+    }
+
+    function previewCompletionImage(id) {
+      const input = document.getElementById(`completionImage-${id}`);
+      const previewBox = document.getElementById(`completionPreviewBox-${id}`);
+      const previewImage = document.getElementById(`completionPreviewImage-${id}`);
+      const previewInfo = document.getElementById(`completionPreviewInfo-${id}`);
+
+      const file = input?.files?.[0] || null;
+
+      if (!file) {
+        previewBox.style.display = 'none';
+        previewImage.removeAttribute('src');
+        previewInfo.textContent = '-';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        alert('ไฟล์รูปภาพใหญ่เกิน 5 MB');
+        input.value = '';
+        previewBox.style.display = 'none';
+        previewImage.removeAttribute('src');
+        previewInfo.textContent = '-';
+        return;
+      }
+
+      previewImage.src = URL.createObjectURL(file);
+      previewInfo.textContent = `${file.name} | ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+      previewBox.style.display = 'block';
+    }
+
     async function loadRequests() {
       document.getElementById('requestList').innerHTML = `
         <div class="empty">
@@ -668,7 +914,8 @@
           item.description,
           item.category,
           item.priority,
-          item.status
+          item.status,
+          item.completion_note
         ].join(' ').toLowerCase();
 
         const keywordMatch = !keyword || text.includes(keyword);
@@ -685,17 +932,6 @@
         const status = item.status || 'submitted';
         const priority = item.priority || 'normal';
 
-        const imageLink = item.image_url
-          ? `
-            <div class="image-link">
-              <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
-                <i class='bx bx-image'></i>
-                ดูรูปภาพประกอบ
-              </a>
-            </div>
-          `
-          : '';
-
         const completedText = item.completed_at
           ? `<br>เสร็จสิ้นเมื่อ: ${formatDateTime(item.completed_at)}`
           : '';
@@ -703,6 +939,27 @@
         const assignedText = item.assigned_to
           ? 'มีผู้รับงานแล้ว'
           : 'ยังไม่มีผู้รับงาน';
+
+        const requestPhoto = buildPhotoCard(
+          'รูปแจ้งซ่อมจากลูกบ้าน',
+          item.image_url,
+          'ไม่มีรูปแจ้งซ่อมแนบ'
+        );
+
+        const completionPhoto = buildPhotoCard(
+          'รูปหลังซ่อมเสร็จ',
+          item.completion_image_url,
+          'ยังไม่มีรูปหลังซ่อม'
+        );
+
+        const completionNote = item.completion_note
+          ? `
+            <div class="completion-note">
+              <strong>บันทึกหลังซ่อม:</strong><br>
+              ${escapeHtml(item.completion_note)}
+            </div>
+          `
+          : '';
 
         return `
           <article class="request-card">
@@ -740,7 +997,12 @@
               </span>
             </div>
 
-            ${imageLink}
+            <div class="photo-grid">
+              ${requestPhoto}
+              ${completionPhoto}
+            </div>
+
+            ${completionNote}
 
             <div class="flow-actions">
 
@@ -759,9 +1021,9 @@
               ` : ''}
 
               ${status === 'in_progress' ? `
-                <button class="btn btn-success" onclick="completeJob(${item.id})">
-                  <i class='bx bx-check-double'></i>
-                  เสร็จสิ้น
+                <button class="btn btn-success" onclick="toggleCompletePanel(${item.id})">
+                  <i class='bx bx-camera'></i>
+                  ปิดงานพร้อมแนบรูป
                 </button>
               ` : ''}
 
@@ -773,6 +1035,34 @@
               ` : ''}
 
             </div>
+
+            ${status === 'in_progress' ? `
+              <div class="complete-panel" id="completePanel-${item.id}">
+                <h4><i class='bx bx-check-shield'></i> ปิดงานซ่อมพร้อมรูปหลักฐาน</h4>
+
+                <label for="completionNote-${item.id}">บันทึกหลังซ่อม</label>
+                <textarea id="completionNote-${item.id}" placeholder="เช่น เปลี่ยนอะไหล่เรียบร้อย ทดสอบแล้วใช้งานได้ปกติ"></textarea>
+
+                <label for="completionImage-${item.id}">รูปหลังซ่อมเสร็จ <span style="color:#dc2626;">*</span></label>
+                <input type="file" id="completionImage-${item.id}" accept="image/*" onchange="previewCompletionImage(${item.id})">
+
+                <div class="preview-box" id="completionPreviewBox-${item.id}">
+                  <img id="completionPreviewImage-${item.id}" alt="preview">
+                  <div class="preview-info" id="completionPreviewInfo-${item.id}">-</div>
+                </div>
+
+                <div class="flow-actions">
+                  <button class="btn btn-success" id="confirmCompleteBtn-${item.id}" onclick="submitCompleteJob(${item.id})">
+                    <i class='bx bx-send'></i>
+                    ยืนยันปิดงาน
+                  </button>
+
+                  <button class="btn btn-secondary" onclick="toggleCompletePanel(${item.id})">
+                    ยกเลิก
+                  </button>
+                </div>
+              </div>
+            ` : ''}
           </article>
         `;
       }).join('');
@@ -829,17 +1119,48 @@
       }
     }
 
-    async function completeJob(id) {
-      const confirmed = confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้น?');
+    async function submitCompleteJob(id) {
+      const item = requests.find(x => Number(x.id) === Number(id));
+
+      if (!item) {
+        alert('ไม่พบข้อมูลงาน');
+        return;
+      }
+
+      const noteInput = document.getElementById(`completionNote-${id}`);
+      const fileInput = document.getElementById(`completionImage-${id}`);
+      const submitBtn = document.getElementById(`confirmCompleteBtn-${id}`);
+
+      const completionNote = noteInput ? noteInput.value.trim() : '';
+      const imageFile = fileInput?.files?.[0] || null;
+
+      if (!imageFile) {
+        alert('กรุณาแนบรูปหลังซ่อมก่อนปิดงาน');
+        return;
+      }
+
+      const confirmed = confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้นพร้อมบันทึกรูปหลังซ่อม?');
       if (!confirmed) return;
 
       try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> กำลังอัปโหลดรูป...";
+
+        const uploadedImage = await uploadCompletionImageToDrive(imageFile, id, item.room_id);
+
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> กำลังบันทึกข้อมูล...";
+
+        const updatePayload = {
+          status: 'completed',
+          completion_note: completionNote || null,
+          completion_image_url: uploadedImage.image_url,
+          completion_drive_file_id: uploadedImage.drive_file_id,
+          completed_at: new Date().toISOString()
+        };
+
         const { error } = await supabaseClient
           .from('maintenance_requests')
-          .update({
-            status: 'completed',
-            completed_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq('id', id);
 
         if (error) throw error;
@@ -847,7 +1168,13 @@
         await loadRequests();
 
       } catch (error) {
+        console.error('Complete job with image error:', error);
         alert(error.message || 'ปิดงานไม่สำเร็จ');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "<i class='bx bx-send'></i> ยืนยันปิดงาน";
+        }
       }
     }
 
