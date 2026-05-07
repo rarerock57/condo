@@ -284,17 +284,73 @@
       border-top: 1px solid #e2e8f0;
     }
 
-    .image-link {
-      margin-top: 14px;
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
     }
 
-    .image-link a {
+    .photo-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .photo-card-header {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .photo-card-header a {
       color: #2563eb;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 230px;
+      object-fit: contain;
+      display: block;
+      background: #f1f5f9;
+    }
+
+    .photo-empty {
+      min-height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #94a3b8;
+      font-size: 13px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .completion-note {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #bbf7d0;
+      line-height: 1.7;
+      font-size: 14px;
+      white-space: pre-line;
     }
 
     .empty {
@@ -340,6 +396,10 @@
       }
     }
 
+    @media(max-width: 900px) {
+      .photo-grid { grid-template-columns: 1fr; }
+    }
+
     @media(max-width: 760px) {
       .hero-card h2 { font-size: 26px; }
 
@@ -361,6 +421,7 @@
 
       .request-head { flex-direction: column; }
       .flow-actions .btn { width: 100%; }
+      .photo-card img { height: 210px; }
     }
   </style>
 </head>
@@ -418,7 +479,7 @@
           <div class="hero-card">
             <h2>ศูนย์จัดการงานแจ้งซ่อม</h2>
             <p>
-              แอดมินสามารถเห็นงานแจ้งซ่อมทั้งหมด รับเรื่อง รับงานเอง อัปเดตสถานะ และปิดงานได้ในหน้าเดียว
+              แอดมินสามารถเห็นงานแจ้งซ่อมทั้งหมด ตรวจสอบรูปแจ้งซ่อม รูปหลังซ่อม รับเรื่อง รับงานเอง และอัปเดตสถานะได้ในหน้าเดียว
             </p>
           </div>
 
@@ -582,6 +643,33 @@
       `;
     }
 
+    function buildPhotoCard(title, url, emptyText) {
+      if (!url) {
+        return `
+          <div class="photo-card">
+            <div class="photo-card-header">
+              <span>${escapeHtml(title)}</span>
+            </div>
+            <div class="photo-empty">${escapeHtml(emptyText)}</div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="photo-card">
+          <div class="photo-card-header">
+            <span>${escapeHtml(title)}</span>
+            <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+              <i class='bx bx-link-external'></i>
+              เปิดรูป
+            </a>
+          </div>
+          <img src="${escapeHtml(url)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.parentElement.querySelector('.photo-empty')?.classList.remove('hidden'); this.style.display='none';">
+          <div class="photo-empty hidden">ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป</div>
+        </div>
+      `;
+    }
+
     async function loadRequests() {
       document.getElementById('requestList').innerHTML = `
         <div class="empty">
@@ -644,7 +732,8 @@
           item.description,
           item.category,
           item.priority,
-          item.status
+          item.status,
+          item.completion_note
         ].join(' ').toLowerCase();
 
         const keywordMatch = !keyword || text.includes(keyword);
@@ -661,17 +750,6 @@
         const status = item.status || 'submitted';
         const priority = item.priority || 'normal';
 
-        const imageLink = item.image_url
-          ? `
-            <div class="image-link">
-              <a href="${escapeHtml(item.image_url)}" target="_blank" rel="noopener noreferrer">
-                <i class='bx bx-image'></i>
-                ดูรูปภาพประกอบ
-              </a>
-            </div>
-          `
-          : '';
-
         const completedText = item.completed_at
           ? `<br>เสร็จสิ้นเมื่อ: ${formatDateTime(item.completed_at)}`
           : '';
@@ -679,6 +757,27 @@
         const assignedText = item.assigned_to
           ? 'มีผู้รับงานแล้ว'
           : 'ยังไม่มีผู้รับงาน';
+
+        const requestPhoto = buildPhotoCard(
+          'รูปแจ้งซ่อมจากลูกบ้าน',
+          item.image_url,
+          'ไม่มีรูปแจ้งซ่อมแนบ'
+        );
+
+        const completionPhoto = buildPhotoCard(
+          'รูปหลังซ่อมเสร็จ',
+          item.completion_image_url,
+          'ยังไม่มีรูปหลังซ่อม'
+        );
+
+        const completionNote = item.completion_note
+          ? `
+            <div class="completion-note">
+              <strong>บันทึกหลังซ่อม:</strong><br>
+              ${escapeHtml(item.completion_note)}
+            </div>
+          `
+          : '';
 
         return `
           <article class="request-card">
@@ -716,7 +815,12 @@
               </span>
             </div>
 
-            ${imageLink}
+            <div class="photo-grid">
+              ${requestPhoto}
+              ${completionPhoto}
+            </div>
+
+            ${completionNote}
 
             <div class="flow-actions">
 
@@ -813,7 +917,7 @@
     }
 
     async function completeJob(id) {
-      const confirmed = confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้น?');
+      const confirmed = confirm('ยืนยันปิดงานนี้เป็นเสร็จสิ้น? หมายเหตุ: หากต้องการแนบรูปหลังซ่อม แนะนำให้ช่างปิดงานจากหน้า Technician');
       if (!confirmed) return;
 
       try {
