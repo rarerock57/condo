@@ -790,6 +790,35 @@
       };
     }
 
+    function extractGoogleDriveFileId(url) {
+      if (!url) return null;
+
+      const text = String(url);
+
+      let match = text.match(/[?&]id=([^&]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      match = text.match(/\/file\/d\/([^/]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      match = text.match(/\/d\/([^/]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+
+      return null;
+    }
+
+    function toDisplayImageUrl(url) {
+      if (!url) return '';
+
+      const fileId = extractGoogleDriveFileId(url);
+
+      if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
+      }
+
+      return url;
+    }
+
     function buildPhotoCard(title, url, emptyText) {
       if (!url) {
         return `
@@ -802,6 +831,8 @@
         `;
       }
 
+      const displayUrl = toDisplayImageUrl(url);
+
       return `
         <div class="photo-card">
           <div class="photo-card-header">
@@ -811,8 +842,18 @@
               เปิดรูป
             </a>
           </div>
-          <img src="${escapeHtml(url)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.parentElement.querySelector('.photo-empty')?.classList.remove('hidden'); this.style.display='none';">
-          <div class="photo-empty hidden">ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป</div>
+          <img
+            src="${escapeHtml(displayUrl)}"
+            alt="${escapeHtml(title)}"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            onerror="
+              const empty = this.parentElement.querySelector('.photo-empty');
+              if (empty) empty.classList.remove('hidden');
+              this.style.display='none';
+            "
+          >
+          <div class="photo-empty hidden">ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป หรือเช็กสิทธิ์ไฟล์ Google Drive เป็น Anyone with the link</div>
         </div>
       `;
     }
