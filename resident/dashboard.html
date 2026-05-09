@@ -175,55 +175,60 @@
 
 <body>
 
-<div class="container">
+<!-- เพิ่ม div id="residentDashboard" ครอบทั้งหมดเพื่อรองรับ Auth Guard -->
+<div id="residentDashboard">
 
-  <div class="hero">
-    <h1>Resident Dashboard</h1>
-    <p id="residentName">กำลังโหลดข้อมูล...</p>
+  <div class="container">
 
-    <div class="top-actions">
-      <a href="maintenance.html" class="btn btn-light">
-        <i class='bx bx-plus-circle'></i>
-        แจ้งซ่อม
-      </a>
+    <div class="hero">
+      <h1>Resident Dashboard</h1>
+      <p id="residentName">กำลังโหลดข้อมูล...</p>
 
-      <a href="history.html" class="btn btn-light">
-        <i class='bx bx-history'></i>
-        ประวัติแจ้งซ่อม
-      </a>
+      <div class="top-actions">
+        <a href="maintenance.html" class="btn btn-light">
+          <i class='bx bx-plus-circle'></i>
+          แจ้งซ่อม
+        </a>
 
-      <button class="btn btn-danger" onclick="logout()">
-        <i class='bx bx-log-out'></i>
-        ออกจากระบบ
-      </button>
+        <a href="history.html" class="btn btn-light">
+          <i class='bx bx-history'></i>
+          ประวัติแจ้งซ่อม
+        </a>
+
+        <button class="btn btn-danger" onclick="logout()">
+          <i class='bx bx-log-out'></i>
+          ออกจากระบบ
+        </button>
+      </div>
     </div>
+
+    <div class="bill-grid">
+
+      <div class="bill-card">
+        <h4>ค่าน้ำ</h4>
+        <div class="bill-amount" id="waterBill">0 ฿</div>
+      </div>
+
+      <div class="bill-card">
+        <h4>ค่าส่วนกลาง</h4>
+        <div class="bill-amount" id="commonBill">0 ฿</div>
+      </div>
+
+      <div class="bill-card">
+        <h4>ค่าจอดรถ</h4>
+        <div class="bill-amount" id="parkingBill">0 ฿</div>
+      </div>
+
+      <div class="bill-card total-card">
+        <h4>ยอดรวมค้างชำระ</h4>
+        <div class="bill-amount" id="totalBill">0 ฿</div>
+      </div>
+
+    </div>
+
   </div>
 
-  <div class="bill-grid">
-
-    <div class="bill-card">
-      <h4>ค่าน้ำ</h4>
-      <div class="bill-amount" id="waterBill">0 ฿</div>
-    </div>
-
-    <div class="bill-card">
-      <h4>ค่าส่วนกลาง</h4>
-      <div class="bill-amount" id="commonBill">0 ฿</div>
-    </div>
-
-    <div class="bill-card">
-      <h4>ค่าจอดรถ</h4>
-      <div class="bill-amount" id="parkingBill">0 ฿</div>
-    </div>
-
-    <div class="bill-card total-card">
-      <h4>ยอดรวมค้างชำระ</h4>
-      <div class="bill-amount" id="totalBill">0 ฿</div>
-    </div>
-
-  </div>
-
-</div>
+</div> <!-- ปิด div residentDashboard ตรงนี้ -->
 
 <script>
 
