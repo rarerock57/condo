@@ -370,8 +370,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    const SUPABASE_URL = 'https://fjvcqxqchluvmxnlvhwo.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
+    // ✅ อัปเดตลิงก์จุดเชื่อมต่อโปรเจกต์และคีย์ใหม่ตรงจุดนี้เรียบร้อยแล้วครับ 
+    const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
 
     let supabaseClient = null;
     let announcementsData = [];
@@ -451,6 +452,10 @@
       if (key === 'event') return 'bg-emerald-50 text-emerald-700';
 
       return 'bg-blue-50 text-blue-600';
+    }
+
+    function getDisplayDate(item) {
+      return item?.published_at || item?.created_at || null;
     }
 
     function getPriorityWeight(priority) {
