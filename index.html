@@ -370,7 +370,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // ✅ อัปเดตลิงก์จุดเชื่อมต่อโปรเจกต์และคีย์ใหม่ตรงจุดนี้เรียบร้อยแล้วครับ 
     const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
 
@@ -454,10 +453,6 @@
       return 'bg-blue-50 text-blue-600';
     }
 
-    function getDisplayDate(item) {
-      return item?.published_at || item?.created_at || null;
-    }
-
     function getPriorityWeight(priority) {
       const value = String(priority || '').toLowerCase();
 
@@ -465,6 +460,8 @@
       if (value === 'medium' || value === 'normal') return 2;
       return 1;
     }
+
+    // ลบการประกาศฟังก์ชัน getDisplayDate ซ้ำซ้อนออกแล้วครับ
 
     function escapeHtml(text) {
       if (text === null || text === undefined) return '';
@@ -724,25 +721,16 @@
       renderAnnouncements();
     }
 
+    // ✅ ปรับตรรกะตัดด่านดัก Fallback บั๊กออก ดึงเฉพาะข่าวสารที่เปิดใช้งานจริงเท่านั้น
     async function fetchAnnouncements() {
-      let result = await supabaseClient
+      const result = await supabaseClient
         .from('announcements')
         .select('id,title,summary,content,category,priority,cover_image_url,is_active,published_at,created_at')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (!result.error && Array.isArray(result.data) && result.data.length > 0) {
-        return result;
-      }
-
-      const fallback = await supabaseClient
-        .from('announcements')
-        .select('id,title,summary,content,category,priority,cover_image_url,is_active,published_at,created_at')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      return fallback;
+      return result;
     }
 
     async function loadAnnouncements() {
