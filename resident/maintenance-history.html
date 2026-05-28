@@ -629,20 +629,11 @@
   </div>
 
   <script>
-    // ✅ อัปเดตพิกัดโครงสร้างโปรเจกต์ก้อนใหม่แกะกล่องเสร็จเรียบร้อยแล้วครับ
-    const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
-
-    let supabaseClient = null;
+    // ✅ นำตัวแปรคีย์และตัวแปรดึงฐานข้อมูลที่มีปัญหาออกทิ้งทั้งหมดเรียบร้อย 
+    // ตัวแปรแกนกลางจะไปดึงสถานะสิทธิ์หลักมาจากไฟล์ assets/js/supabase-client.js โดยตรงแบบออโต้ครับ
     let currentProfile = null;
     let currentUser = null;
     let maintenanceRequests = [];
-
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    } else {
-      console.error('Supabase library โหลดไม่สำเร็จ');
-    }
 
     function deriveRoomId(profile) {
       if (!profile) return null;
@@ -754,6 +745,8 @@
       return null;
     }
 
+    // มีการลบฟังก์ชัน getDisplayDate ที่ซ้ำซ้อนจากไฟล์เดิมออกแล้ว
+
     function toDisplayImageUrl(url) {
       if (!url) return '';
       const fileId = extractGoogleDriveFileId(url);
@@ -835,6 +828,7 @@
       `;
 
       try {
+        // ใช้ตัวแปรแกนกลางหลัก supabaseClient เรียกใช้งานโดยตรงได้เลยครับ
         const { data, error } = await supabaseClient
           .from('maintenance_requests')
           .select('*')
