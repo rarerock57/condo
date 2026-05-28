@@ -467,22 +467,12 @@
   </div>
 
   <script>
-    const MAINTENANCE_UPLOAD_開_URL = 'https://script.google.com/macros/s/AKfycbwigb7oKJ5IVM-s9TS4GuDFlnCU7Os4cyGE8FY-COTvom3MbvkmfWlz8lnYuPKCTzki/exec';
+    const MAINTENANCE_UPLOAD_GAS_URL = 'https://script.google.com/macros/s/AKfycbwigb7oKJ5IVM-s9TS4GuDFlnCU7Os4cyGE8FY-COTvom3MbvkmfWlz8lnYuPKCTzki/exec';
 
-    // ✅ นำกล่องประกาศค่ากลับคืนประจำแท็กสคริปต์เรียบร้อยครับ (ไม่ชนกับตัวแปรใน supabase-client.js แล้ว)
-    const CURRENT_SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
-    const CURRENT_SUPABASE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
-
-    let supabaseClient = null;
+    // ✅ ลบการประกาศตัวแปร 'let supabaseClient = null;' ที่ซ้ำซ้อนทิ้งเรียบร้อย 
+    // ตัวแปรแกนกลางจะดึงสิทธิ์จากไฟล์ assets/js/supabase-client.js มารันต่อแบบไร้รอยต่อครับ
     let currentProfile = null;
     let currentUser = null;
-
-    if (window.supabase) {
-      // ✅ เรียกใช้ผ่านตัวแปรใหม่เพื่อป้องกันการชนกันของชื่อในระบบเบราว์เซอร์
-      supabaseClient = window.supabase.createClient(CURRENT_SUPABASE_URL, CURRENT_SUPABASE_KEY);
-    } else {
-      console.error('Supabase library โหลดไม่สำเร็จ');
-    }
 
     function deriveRoomId(profile) {
       if (!profile) return null;
@@ -605,8 +595,7 @@
         room: roomId || 'room'
       };
 
-      // แก้ไขชื่อตัวแปรที่ผิดพลาดให้แมตช์กันเรียบร้อย
-      const res = await fetch(MAINTENANCE_UPLOAD_開_URL, {
+      const res = await fetch(MAINTENANCE_UPLOAD_GAS_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
