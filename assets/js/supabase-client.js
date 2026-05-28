@@ -1,5 +1,6 @@
-const SUPABASE_URL = 'https://fjvcqxqchluvmxnlvhwo.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LA_kOQbeNe7R-VS9J0IM0w__n9d8km_';
+// แก้ในไฟล์ assets/js/supabase-client.js ให้ใช้โปรเจกต์ใหม่ตัวนี้นะครับ 🚀
+const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
 
 if (!window.supabase) {
   console.error('❌ Supabase library โหลดไม่สำเร็จ');
