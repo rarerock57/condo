@@ -469,8 +469,19 @@
   <script>
     const MAINTENANCE_UPLOAD_GAS_URL = 'https://script.google.com/macros/s/AKfycbwigb7oKJ5IVM-s9TS4GuDFlnCU7Os4cyGE8FY-COTvom3MbvkmfWlz8lnYuPKCTzki/exec';
 
+    // ✅ ปรับข้อมูลตัวแปรชิ้นส่วนแกนกลางหน้าต่างสิทธิ์ให้เชื่อมเข้าโปรเจกต์ใหม่เรียบร้อยครับ
+    const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
+
+    let supabaseClient = null;
     let currentProfile = null;
     let currentUser = null;
+
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    } else {
+      console.error('Supabase library โหลดไม่สำเร็จ');
+    }
 
     function deriveRoomId(profile) {
       if (!profile) return null;
@@ -481,27 +492,13 @@
       }
 
       const roomNumber = String(profile.room_number || '').trim();
-
-      if (!roomNumber) {
-        return null;
-      }
-
-      /*
-        สำคัญ:
-        เวอร์ชันเดิมเคยใช้ roomNumber.slice(-2) ทำให้ห้อง 6316 ถูกบันทึกเหลือ 16
-        จึงทำให้รายการแจ้งซ่อมใหม่ไม่แสดงในหน้าประวัติที่กรองด้วย room_id = 6316
-
-        มาตรฐานที่ใช้ในระบบนี้:
-        - room_id จริง เช่น 6316
-        - room ที่แสดงผล เช่น 630/16
-      */
+      if (!roomNumber) return null;
 
       if (roomNumber.includes('/')) {
         const parts = roomNumber.split('/');
         let left = String(parts[0] || '').replace(/\D/g, '');
         const right = String(parts[1] || '').replace(/\D/g, '');
 
-        // แปลง 630/16 -> 6316 ให้ตรงกับ room_id ที่ระบบใช้
         if (left.length > 2 && left.endsWith('0')) {
           left = left.slice(0, -1);
         }
@@ -595,13 +592,11 @@
       }
 
       const maxSize = 5 * 1024 * 1024;
-
       if (file.size > maxSize) {
         throw new Error('ไฟล์รูปภาพใหญ่เกิน 5 MB');
       }
 
       const fileBase64 = await fileToBase64(file);
-
       const payload = {
         file_base64: fileBase64,
         file_name: file.name,
@@ -615,7 +610,6 @@
       });
 
       const data = await res.json();
-
       if (!data.success) {
         throw new Error(data.error || 'อัปโหลดรูปภาพไม่สำเร็จ');
       }
@@ -638,7 +632,6 @@
       }
 
       const roomId = deriveRoomId(currentProfile);
-
       if (!roomId) {
         alert('ไม่พบเลขห้องสำหรับบันทึกคำร้อง');
         return;
@@ -735,7 +728,6 @@
       }
 
       const maxSize = 5 * 1024 * 1024;
-
       if (file.size > maxSize) {
         alert('ไฟล์รูปภาพใหญ่เกิน 5 MB');
         this.value = '';
