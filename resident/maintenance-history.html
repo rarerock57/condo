@@ -278,9 +278,6 @@
       gap: 6px;
     }
 
-    
-
-
     .status-timeline {
       margin-top: 18px;
       padding: 16px;
@@ -452,7 +449,7 @@
       white-space: pre-line;
     }
 
-.empty {
+    .empty {
       background: white;
       border: 1px dashed #cbd5e1;
       border-radius: 24px;
@@ -510,8 +507,6 @@
       .toolbar .btn {
         width: 100%;
       }
-
-
 
       .timeline-steps {
         grid-template-columns: 1fr;
@@ -584,7 +579,7 @@
       </div>
     </nav>
 
-    <main>
+    <nav>
       <section class="hero">
         <div class="container">
           <div class="hero-card">
@@ -630,13 +625,24 @@
           </div>
         </div>
       </section>
-    </main>
+    </nav>
   </div>
 
   <script>
+    // ✅ อัปเดตพิกัดโครงสร้างโปรเจกต์ก้อนใหม่แกะกล่องเสร็จเรียบร้อยแล้วครับ
+    const SUPABASE_URL = 'https://ebmhyjzbfgqppcenvstw.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_tGetlUKft2kLbjOsHliWrQ_bnGDD7XY';
+
+    let supabaseClient = null;
     let currentProfile = null;
     let currentUser = null;
     let maintenanceRequests = [];
+
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    } else {
+      console.error('Supabase library โหลดไม่สำเร็จ');
+    }
 
     function deriveRoomId(profile) {
       if (!profile) return null;
@@ -647,14 +653,10 @@
       }
 
       const roomNumber = String(profile.room_number || '').trim();
-
-      if (!roomNumber) {
-        return null;
-      }
+      if (!roomNumber) return null;
 
       if (roomNumber.includes('/')) {
         const parts = roomNumber.split('/');
-
         let left = String(parts[0] || '').replace(/\D/g, '');
         const right = String(parts[1] || '').replace(/\D/g, '');
 
@@ -685,7 +687,6 @@
         completed: 'เสร็จสิ้น',
         cancelled: 'ยกเลิก'
       };
-
       return map[status] || status || '-';
     }
 
@@ -696,7 +697,6 @@
         high: 'เร่งด่วน',
         urgent: 'ด่วนมาก'
       };
-
       return map[priority] || priority || '-';
     }
 
@@ -710,7 +710,6 @@
         cleaning: 'ความสะอาด',
         other: 'อื่นๆ'
       };
-
       return map[category] || category || '-';
     }
 
@@ -739,12 +738,10 @@
         .replace(/'/g, '&#039;');
     }
 
-
     function extractGoogleDriveFileId(url) {
       if (!url) return null;
 
       const text = String(url);
-
       let match = text.match(/[?&]id=([^&]+)/);
       if (match && match[1]) return decodeURIComponent(match[1]);
 
@@ -759,13 +756,10 @@
 
     function toDisplayImageUrl(url) {
       if (!url) return '';
-
       const fileId = extractGoogleDriveFileId(url);
-
       if (fileId) {
         return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1200`;
       }
-
       return url;
     }
 
@@ -787,25 +781,22 @@
         <div class="photo-card">
           <div class="photo-card-header">
             <span>${escapeHtml(title)}</span>
-
             <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
               <i class='bx bx-link-external'></i>
               เปิดรูป
             </a>
           </div>
-
           <img
             src="${escapeHtml(displayUrl)}"
             alt="${escapeHtml(title)}"
             loading="lazy"
-            referrerpolicy="no-referrer"
+            referpolicy="no-referrer"
             onerror="
               const empty = this.parentElement.querySelector('.photo-empty');
               if (empty) empty.classList.remove('hidden');
               this.style.display='none';
             "
           >
-
           <div class="photo-empty hidden">
             ไม่สามารถแสดงรูปได้ กรุณากดเปิดรูป
           </div>
@@ -862,7 +853,6 @@
       }
     }
 
-
     function buildStatusTimeline(status) {
       const currentStatus = status || 'submitted';
       const isCancelled = currentStatus === 'cancelled';
@@ -889,7 +879,7 @@
           <div class="status-timeline">
             <div class="timeline-title">
               <i class='bx bx-git-branch'></i>
-              Timeline สถานะงาน
+              Timeline Status
             </div>
             <div class="timeline-steps">
               <div class="timeline-step cancelled">
@@ -924,7 +914,7 @@
         <div class="status-timeline">
           <div class="timeline-title">
             <i class='bx bx-git-branch'></i>
-            Timeline สถานะงาน
+            Timeline Status
           </div>
           <div class="timeline-steps">
             ${stepHtml}
