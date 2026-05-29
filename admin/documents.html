@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดการเอกสาร - Admin Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .topbar-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #e2e8f0; color: #0f172a; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    .main-content { padding: 30px 0; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { margin: 0 0 4px; font-size: 28px; }
+    .page-header p { margin: 0; color: #64748b; font-size: 14px; }
+
+    .grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+    @media (min-width: 768px) {
+      .grid { grid-template-columns: 350px 1fr; }
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.02);
+      height: fit-content;
+    }
+    .card h3 { margin: 0 0 16px; font-size: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+
+    /* Form Styles */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font: inherit;
+      outline: none;
+      transition: 0.2s;
+    }
+    .form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+    /* Table Styles */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { background: #f1f5f9; padding: 12px 16px; font-weight: 600; color: #475569; }
+    td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge-cat {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .cat-rule { background: #fef3c7; color: #d97706; }
+    .cat-announcement { background: #dbeafe; color: #1e40af; }
+    .cat-form { background: #f3e8ff; color: #6b21a8; }
+
+    .hidden { display: none !important; }
+    .loading-text { color: #64748b; text-align: center; padding: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <nav class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="dashboard.html" class="btn btn-secondary" style="padding: 8px 12px;"><i class='bx bx-arrow-back'></i></a>
+          <strong style="font-size: 18px;">ระบบจัดการเอกสารอาคาร</strong>
+        </div>
+        <a href="dashboard.html" class="btn btn-secondary"><i class='bx bx-grid-alt'></i> แดชบอร์ด</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <div class="page-header">
+        <h2>จัดการเอกสาร (3 การ์ดหน้าบ้าน)</h2>
+        <p>เพิ่ม ลบ หรืออัปเดตลิงก์เอกสาร Google Drive เพื่อไปแสดงผลเรียลไทม์บนหน้าหลักของลูกบ้าน</p>
+      </div>
+
+      <div class="grid">
+        <!-- ฝั่งซ้าย: ฟอร์มเพิ่มเอกสาร -->
+        <div class="card">
+          <h3><i class='bx bx-plus-circle'></i> เพิ่มเอกสารใหม่</h3>
+          <form id="docForm">
+            <div class="form-group">
+              <label for="docTitle">ชื่อเอกสาร</label>
+              <input type="text" id="docTitle" class="form-control" placeholder="เช่น ระเบียบสระว่ายน้ำ, ประกาศประชุม..." required />
+            </div>
+
+            <div class="form-group">
+              <label for="docCategory">หมวดหมู่การ์ดหน้าบ้าน</label>
+              <select id="docCategory" class="form-control" required>
+                <option value="rule">เอกสารระเบียบอาคาร</option>
+                <option value="announcement">เอกสารแจ้งประชุม/ประกาศ</option>
+                <option value="form">ดาวน์โหลดแบบฟอร์ม</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="docUrl">ลิงก์แชร์ของไฟล์ (Google Drive)</label>
+              <input type="url" id="docUrl" class="form-control" placeholder="https://drive.google.com/file/d/..." required />
+              <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">*อย่าลืมเปิดสิทธิ์แชร์ใน Drive เป็น 'ทุกคนที่มีลิงก์มีสิทธิ์อ่าน'</small>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
+              <i class='bx bx-save'></i> บันทึกข้อมูล
+            </button>
+          </form>
+        </div>
+
+        <!-- ฝั่งขวา: ตารางแสดงรายการปัจจุบัน -->
+        <div class="card">
+          <h3><i class='bx bx-list-ul'></i> รายการเอกสารปัจจุบันในระบบ</h3>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ชื่อเอกสาร</th>
+                  <th>หมวดหมู่</th>
+                  <th style="width: 150px; text-align: center;">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="docTableBody">
+                <tr>
+                  <td colspan="3" class="loading-text">กำลังโหลดข้อมูลเอกสาร...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const categoryMap = {
+      rule: { label: 'ระเบียบอาคาร', class: 'cat-rule' },
+      announcement: { label: 'แจ้งประชุม/ประกาศ', class: 'cat-announcement' },
+      form: { label: 'แบบฟอร์ม', class: 'cat-form' }
+    };
+
+    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+    document.addEventListener('DOMContentLoaded', async () => {
+      // ตรวจสอบสิทธิ์เบื้องต้นก่อน (อ้างอิงจากไคลเอนต์เดิม)
+      const { data: authData } = await supabaseClient.auth.getUser();
+      if (!authData?.user) {
+        alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
+        window.location.href = '../auth/login.html';
+        return;
+      }
+      
+      await loadDocuments();
+    });
+
+    // ฟังก์ชันดึงข้อมูลจาก Supabase มาแสดงในตาราง
+    async function loadDocuments() {
+      const tbody = document.getElementById('docTableBody');
+      try {
+        const { data: docs, error } = await supabaseClient
+          .from('documents')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (docs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" class="loading-text">ยังไม่มีข้อมูลเอกสารในระบบ</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        docs.forEach(doc => {
+          const cat = categoryMap[doc.category] || { label: doc.category, class: '' };
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${doc.title}</strong></td>
+            <td><span class="badge-cat ${cat.class}">${cat.label}</span></td>
+            <td style="text-align: center; display: flex; gap: 8px; justify-content: center;">
+              <a href="${doc.file_url}" target="_blank" class="btn btn-secondary" style="padding: 6px 10px; font-size: 13px;" title="เปิดลิงก์ดูไฟล์">
+                <i class='bx bx-link-external'></i>
+              </a>
+              <button onclick="deleteDoc(${doc.id})" class="btn btn-danger" style="padding: 6px 10px; font-size: 13px;" title="ลบเอกสาร">
+                <i class='bx bx-trash'></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Error loading documents:', error);
+        tbody.innerHTML = `<tr><td colspan="3" class="loading-text" style="color:#dc2626;">โหลดข้อมูลล้มเหลว: ${error.message}</td></tr>`;
+      }
+    }
+
+    // ฟังก์ชันบันทึกข้อมูล (Insert)
+    document.getElementById('docForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      
+      const title = document.getElementById('docTitle').value.trim();
+      const category = document.getElementById('docCategory').value;
+      const file_url = document.getElementById('docUrl').value.trim();
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "<i class='bx bx-loader-alt animate-spin'></i> กำลังบันทึก...";
+
+      try {
+        const { error } = await supabaseClient
+          .from('documents')
+          .insert([{ title, category, file_url }]);
+
+        if (error) throw error;
+
+        alert('บันทึกเอกสารเรียบร้อยแล้ว!');
+        document.getElementById('docForm').reset();
+        await loadDocuments(); // โหลดตารางใหม่ลื่นๆ
+      } catch (error) {
+        alert('เกิดข้อผิดพลาดในการบันทึก: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "<i class='bx bx-save'></i> บันทึกข้อมูล";
+      }
+    });
+
+    // ฟังก์ชันลบข้อมูล (Delete)
+    async function deleteDoc(id) {
+      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเอกสารนี้ออกจากระบบ? (ไฟล์ใน Google Drive จะยังอยู่เหมือนเดิม)')) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('documents')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        alert('ลบเอกสารสำเร็จ');
+        await loadDocuments();
+      } catch (error) {
+        alert('ไม่สามารถลบข้อมูลได้: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
