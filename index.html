@@ -235,32 +235,50 @@
           <h2 class="text-3xl font-bold text-slate-800">เอกสารและข้อมูลสำคัญ</h2>
           <div class="w-14 h-1 bg-blue-600 mt-2 rounded-full"></div>
         </div>
-        <p class="hidden md:block text-slate-500">ส่วนนี้สามารถเชื่อมต่อกับระบบเอกสารในลำดับถัดไป</p>
+        <p class="hidden md:block text-slate-500 font-medium text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl"><i class='bx bx-sync animate-spin'></i> อัปเดตข้อมูลเรียลไทม์จากระบบนิติ</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-          <div class="w-12 h-12 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center mb-4">
-            <i class='bx bx-file text-2xl'></i>
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-4">
+              <i class='bx bx-file text-2xl'></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารระเบียบอาคาร</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4">รวมข้อบังคับและระเบียบการใช้งานพื้นที่ส่วนกลางภายในอาคาร</p>
+            
+            <ul id="list-rules" class="space-y-2 text-sm text-slate-600 max-h-56 overflow-y-auto pr-1">
+              <li class="text-slate-400 italic py-2">กำลังโหลดเอกสาร...</li>
+            </ul>
           </div>
-          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารระเบียบอาคาร</h3>
-          <p class="text-slate-500 text-sm leading-relaxed">รวมข้อบังคับและระเบียบการใช้งานพื้นที่ส่วนกลางภายในอาคาร</p>
         </div>
 
-        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-          <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mb-4">
-            <i class='bx bx-receipt text-2xl'></i>
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+              <i class='bx bx-receipt text-2xl'></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารแจ้งประชุม/ประกาศ</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4">ใช้สำหรับเผยแพร่หนังสือแจ้งประชุม ข่าวประชาสัมพันธ์ และเอกสารแนบ</p>
+            
+            <ul id="list-announcements" class="space-y-2 text-sm text-slate-600 max-h-56 overflow-y-auto pr-1">
+              <li class="text-slate-400 italic py-2">กำลังโหลดเอกสาร...</li>
+            </ul>
           </div>
-          <h3 class="text-xl font-bold text-slate-800 mb-2">เอกสารแจ้งประชุม/ประกาศ</h3>
-          <p class="text-slate-500 text-sm leading-relaxed">ใช้สำหรับเผยแพร่หนังสือแจ้งประชุม ข่าวประชาสัมพันธ์ และเอกสารแนบ</p>
         </div>
 
-        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-            <i class='bx bx-download text-2xl'></i>
+        <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+              <i class='bx bx-download text-2xl'></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">ดาวน์โหลดแบบฟอร์ม</h3>
+            <p class="text-slate-500 text-sm leading-relaxed mb-4">รองรับการเชื่อมกับฟอร์มการติดต่อ เอกสารคำร้อง และแบบคำขอภายในอาคาร</p>
+            
+            <ul id="list-forms" class="space-y-2 text-sm text-slate-600 max-h-56 overflow-y-auto pr-1">
+              <li class="text-slate-400 italic py-2">กำลังโหลดแบบฟอร์ม...</li>
+            </ul>
           </div>
-          <h3 class="text-xl font-bold text-slate-800 mb-2">ดาวน์โหลดแบบฟอร์ม</h3>
-          <p class="text-slate-500 text-sm leading-relaxed">รองรับการเชื่อมกับฟอร์มการติดต่อ เอกสารคำร้อง และแบบคำขอภายในอาคาร</p>
         </div>
       </div>
     </div>
@@ -460,8 +478,6 @@
       if (value === 'medium' || value === 'normal') return 2;
       return 1;
     }
-
-    // ลบการประกาศฟังก์ชัน getDisplayDate ซ้ำซ้อนออกแล้วครับ
 
     function escapeHtml(text) {
       if (text === null || text === undefined) return '';
@@ -721,7 +737,68 @@
       renderAnnouncements();
     }
 
-    // ✅ ปรับตรรกะตัดด่านดัก Fallback บั๊กออก ดึงเฉพาะข่าวสารที่เปิดใช้งานจริงเท่านั้น
+    // 📥 ฟังก์ชันดึงข้อมูลไฟล์เอกสารสำคัญจากตาราง documents มาแสดงบนหน้าจอ 3 การ์ด
+    async function loadDocumentsRealtime() {
+      const lists = {
+        rule: document.getElementById('list-rules'),
+        announcement: document.getElementById('list-announcements'),
+        form: document.getElementById('list-forms')
+      };
+
+      try {
+        if (!supabaseClient) return;
+
+        // ดึงข้อมูลเอกสารทั้งหมด เรียงลำดับตามความใหม่ล่าสุด
+        const { data: docs, error } = await supabaseClient
+          .from('documents')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // ล้าง Loader แอนิเมชันเก่าออกทั้งหมด
+        Object.values(lists).forEach(el => { if (el) el.innerHTML = ''; });
+
+        if (!docs || docs.length === 0) {
+          Object.values(lists).forEach(el => {
+            if (el) el.innerHTML = `<li class="text-slate-400 italic py-2 text-center text-xs">ยังไม่มีเอกสารในหมวดหมู่นี้</li>`;
+          });
+          return;
+        }
+
+        // นำข้อมูลเอกสารพ่นแยกการ์ดตามฟีลด์ category
+        docs.forEach(doc => {
+          const targetList = lists[doc.category];
+          if (targetList) {
+            const li = document.createElement('li');
+            li.className = 'flex justify-between items-center p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm transition-all duration-200 group';
+            li.innerHTML = `
+              <span class="truncate pr-2 text-slate-700 font-medium text-xs md:text-sm group-hover:text-blue-600 transition-colors" title="${escapeHtml(doc.title)}">
+                <i class='bx bx-file-blank text-slate-400 group-hover:text-blue-500 mr-1.5'></i>${escapeHtml(doc.title)}
+              </span>
+              <a href="${doc.file_url}" target="_blank" class="text-blue-600 hover:text-white hover:bg-blue-600 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-semibold inline-flex items-center shrink-0 transition-all">
+                <i class='bx bx-download mr-1'></i> ดูไฟล์
+              </a>
+            `;
+            targetList.appendChild(li);
+          }
+        });
+
+        // ดักกรณีหมวดหมู่ใดหมวดหมู่หนึ่งเว้นว่างเปล่า
+        Object.keys(lists).forEach(key => {
+          if (lists[key] && lists[key].children.length === 0) {
+            lists[key].innerHTML = `<li class="text-slate-400 italic py-3 text-center text-xs">ยังไม่มีเอกสารในหมวดหมู่นี้</li>`;
+          }
+        });
+
+      } catch (err) {
+        console.error('Error loadDocumentsRealtime:', err);
+        Object.values(lists).forEach(el => {
+          if (el) el.innerHTML = `<li class="text-red-500 font-medium py-2 text-center text-xs">ดึงข้อมูลล้มเหลว</li>`;
+        });
+      }
+    }
+
     async function fetchAnnouncements() {
       const result = await supabaseClient
         .from('announcements')
@@ -737,15 +814,13 @@
       const newsGrid = document.getElementById('newsGrid');
       const summaryText = document.getElementById('newsSummaryText');
 
-      if (!newsGrid) {
-        throw new Error('ไม่พบ newsGrid');
+      if (newsGrid) {
+        newsGrid.innerHTML = `
+          <div class="col-span-full text-center text-slate-400 py-14">
+            กำลังโหลดข่าวสาร...
+          </div>
+        `;
       }
-
-      newsGrid.innerHTML = `
-        <div class="col-span-full text-center text-slate-400 py-14">
-          กำลังโหลดข่าวสาร...
-        </div>
-      `;
 
       if (summaryText) {
         summaryText.textContent = 'กำลังเชื่อมต่อฐานข้อมูล...';
@@ -756,9 +831,6 @@
       }
 
       const { data, error } = await fetchAnnouncements();
-
-      console.log('announcements data:', data);
-      console.log('announcements error:', error);
 
       if (error) {
         throw new Error(error.message || 'โหลดข่าวไม่สำเร็จ');
@@ -791,9 +863,9 @@
         categoryFilter.addEventListener('change', renderAnnouncements);
       }
 
+      // รันดึงข่าวสาร
       loadAnnouncements().catch((err) => {
         console.error('init loadAnnouncements error:', err);
-
         const newsGrid = document.getElementById('newsGrid');
         if (newsGrid) {
           newsGrid.innerHTML = `
@@ -802,11 +874,13 @@
             </div>
           `;
         }
-
         if (newsSummaryText) {
           newsSummaryText.textContent = `เกิดข้อผิดพลาด: ${err.message}`;
         }
       });
+
+      // รันดึงไฟล์เอกสารเข้า 3 การ์ดแบบออโต้
+      loadDocumentsRealtime();
     }
 
     if (document.readyState === 'loading') {
