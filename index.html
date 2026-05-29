@@ -196,7 +196,7 @@
           </div>
         </div>
 
-        <div onclick="openDocumentModal('form')" class="group cursor-pointer rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm hover:shadow-xl hover:bg-white border-t-4 border-t-emerald-500 transition-all duration-300 flex flex-col justify-between">
+        <div onclick="openDocumentModal('form')" class="group pointer cursor-pointer rounded-3xl border border-slate-100 bg-slate-50 p-6 shadow-sm hover:shadow-xl hover:bg-white border-t-4 border-t-emerald-500 transition-all duration-300 flex flex-col justify-between">
           <div>
             <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
               <i class='bx bx-download text-2xl'></i>
@@ -262,8 +262,12 @@
 
   <div id="announcementModal" class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-3xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeAnnouncementModal()" class="absolute right-5 top-5 text-white/90 hover:text-white transition z-10"><i class='bx bx-x text-3xl'></i></button>
-      <img id="announcementModalImage" src="" alt="" class="w-full h-72 object-cover bg-slate-100" />
+      <button onclick="closeAnnouncementModal()" class="absolute right-5 top-5 bg-black/50 hover:bg-black/80 text-white rounded-full p-1.5 transition z-10"><i class='bx bx-x text-2xl flex'></i></button>
+      
+      <div class="w-full max-w-[800px] aspect-[4/3] mx-auto overflow-hidden bg-slate-100 border-b border-slate-100">
+        <img id="announcementModalImage" src="" alt="" class="w-full h-full object-cover" />
+      </div>
+
       <div class="p-8">
         <div class="mb-4"><span id="announcementModalCategory" class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full"></span></div>
         <h2 id="announcementModalTitle" class="text-3xl font-bold text-slate-800 mb-3"></h2>
@@ -274,10 +278,10 @@
   </div>
 
   <div id="documentTableModal" class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center backdrop-blur-sm p-4">
-    <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-4xl overflow-hidden relative max-h-[85vh] flex flex-col">
+    <div class="bg-white rounded-[28px] shadow-2xl w-full max-w-4xl min-h-[520px] max-h-[85vh] overflow-hidden relative flex flex-col transition-all duration-300">
       <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
         <div class="flex items-center gap-3">
-          <div id="modalHeaderIcon" class="w-10 h-10 rounded-xl flex items-center justify-center text-xl"></div>
+          <div id="modalHeaderIcon" class="w-11 h-11 rounded-xl flex items-center justify-center text-xl"></div>
           <div>
             <h3 id="modalHeaderTitle" class="text-xl font-bold text-slate-800">คลังเอกสาร</h3>
             <p class="text-xs text-slate-500">รายชื่อเอกสารนิติบุคคลอัปเดตล่าสุด</p>
@@ -286,15 +290,10 @@
         <button onclick="closeDocumentModal()" class="text-slate-400 hover:text-slate-600 transition"><i class='bx bx-x text-3xl'></i></button>
       </div>
 
-      <div class="p-4 border-b border-slate-100 bg-white">
+      <div class="p-5 border-b border-slate-100 bg-white">
         <div class="relative">
           <i class='bx bx-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg'></i>
-          <input
-            id="docSearchInput"
-            type="text"
-            placeholder="พิมพ์คำค้นหาเอกสารในหมวดหมู่นี้..."
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 outline-none focus:border-blue-500 focus:bg-white transition"
-          />
+          <input id="docSearchInput" type="text" placeholder="พิมพ์คำค้นหาเอกสารในหมวดหมู่นี้..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:bg-white transition" />
         </div>
       </div>
 
@@ -302,12 +301,11 @@
         <table class="w-full text-left border-collapse text-sm">
           <thead>
             <tr class="border-b border-slate-200 text-slate-600 font-semibold bg-slate-50">
-              <th class="p-3">ชื่อรายการเอกสาร</th>
-              <th class="p-3 text-center" style="width: 140px;">ดาวน์โหลด</th>
+              <th class="p-4 rounded-l-xl">ชื่อรายการเอกสาร</th>
+              <th class="p-4 text-center rounded-r-xl" style="width: 160px;">ดาวน์โหลด</th>
             </tr>
           </thead>
-          <tbody id="modalDocTableBody">
-            </tbody>
+          <tbody id="modalDocTableBody" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
@@ -322,8 +320,6 @@
     let supabaseClient = null;
     let announcementsData = [];
     let filteredAnnouncements = [];
-    
-    // คลังจัดเก็บข้อมูลไฟล์เอกสารดิบจาก Supabase
     let allDocumentsData = []; 
     let currentModalCategory = '';
 
@@ -342,10 +338,15 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // 🖼️ สำหรับรูปข่าวสาร ปล่อยตามกลไกพิจารณาของ Google Drive ดั้งเดิมตามเจตนารมณ์ของคุณ
     function normalizeDriveImage(url) {
       if (!url) return '';
       if (url.includes('drive.google.com/file/d/')) {
         const match = url.match(/\/d\/([^/]+)/);
+        if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+      }
+      if (url.includes('drive.google.com/uc?export=view&id=')) {
+        const match = url.match(/id=([^&]+)/);
         if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
       }
       return url;
@@ -388,6 +389,7 @@
       return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
+    // 📰 พาดหัวในหน้าหลัก คืนร่างเดิมแบบดั้งเดิม (รูปตามขนาดจริง ไม่ล็อกมิติ)
     function createAnnouncementCard(item) {
       const imageUrl = normalizeDriveImage(item.cover_image_url) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
       const category = item.category || 'ทั่วไป';
@@ -396,8 +398,8 @@
 
       return `
         <div class="news-card bg-white rounded-[28px] shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300">
-          <div class="overflow-hidden">
-            <img src="${imageUrl}" alt="${escapeHtml(item.title || 'news')}" onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'" class="news-image w-full h-56 object-cover transition duration-500" />
+          <div class="overflow-hidden bg-slate-100">
+            <img src="${imageUrl}" alt="${escapeHtml(item.title || 'news')}" onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'" class="news-image w-full h-56 object-cover transition duration-500 hover:scale-105" />
           </div>
           <div class="p-6">
             <div class="flex items-center justify-between gap-3 mb-4">
@@ -448,6 +450,7 @@
       categoryFilter.innerHTML = `<option value="all">ทุกหมวดหมู่</option>` + uniqueCategories.map(cat => `<option value="${cat.key}">${escapeHtml(cat.label)}</option>`).join('');
     }
 
+    // ข่าวแนะนำตัวใหญ่ขวามือ คืนค่าพิกัดความสูงตามเวอร์ชันดั้งเดิม
     function renderFeaturedAnnouncement() {
       const container = document.getElementById('featuredAnnouncement');
       if (!container || !announcementsData.length) return;
@@ -456,7 +459,9 @@
       const imageUrl = normalizeDriveImage(item.cover_image_url) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
 
       container.innerHTML = `
-        <div class="overflow-hidden"><img src="${imageUrl}" alt="featured" onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'" class="w-full h-64 object-cover" /></div>
+        <div class="overflow-hidden">
+          <img src="${imageUrl}" alt="featured" onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop'" class="w-full h-64 object-cover" />
+        </div>
         <div class="p-6">
           <div class="flex items-center justify-between gap-3 mb-4">
             <span class="px-3 py-1 ${getCategoryStyle(item.category)} text-xs font-bold rounded-full">${escapeHtml(item.category || 'ทั่วไป')}</span>
@@ -482,10 +487,18 @@
       urgentTicker.innerHTML = urgentItems.map(item => `<span class="inline-block pr-16">${escapeHtml(item.summary || item.title)}</span>`).join('');
     }
 
+    // 📥 เปิดดูรายละเอียดข่าว ล็อกขนาดเฉพาะตรงพิกัดป๊อปอัปนี้ให้เป็น 800x600 ออโตครอปแจ่มๆ
     function openAnnouncementModal(id) {
       const item = announcementsData.find(news => String(news.id) === String(id));
       if (!item) return;
-      document.getElementById('announcementModalImage').src = normalizeDriveImage(item.cover_image_url) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+      
+      // ดึงรหัสภาพในสัดส่วนเฉพาะแบบ 800x600 และทำ auto-crop (-c) เพื่อป้อนเฟรมป๊อปอัปข่าวให้ออกมาสวยเนี๊ยบ
+      let modalImg = normalizeDriveImage(item.cover_image_url);
+      if (modalImg.includes('drive.google.com/thumbnail?id=')) {
+        modalImg = modalImg.replace('&sz=w1200', '&sz=w800-h600-c');
+      }
+
+      document.getElementById('announcementModalImage').src = modalImg || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=800&auto=format&fit=crop';
       document.getElementById('announcementModalCategory').textContent = item.category || 'ทั่วไป';
       document.getElementById('announcementModalCategory').className = `px-3 py-1 ${getCategoryStyle(item.category)} text-xs font-bold rounded-full`;
       document.getElementById('announcementModalTitle').textContent = item.title || '-';
@@ -505,19 +518,15 @@
       if (document.getElementById('categoryFilter')) { document.getElementById('categoryFilter').value = value; renderAnnouncements(); }
     }
 
-    // 📥 ดึงข้อมูลไฟล์เอกจาก Supabase มาพักไว้ใน Memory (รันครั้งเดียวตอนโหลดหน้าเว็บ)
     async function prefetchAllDocuments() {
       try {
         if (!supabaseClient) return;
         const { data, error } = await supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         allDocumentsData = data || [];
-      } catch (err) {
-        console.error('Prefetch documents failed:', err);
-      }
+      } catch (err) { console.error(err); }
     }
 
-    // 🗂️ เปิดหน้าต่างตารางเอกสารตามหมวดหมู่การ์ดที่กด
     function openDocumentModal(category) {
       currentModalCategory = category;
       const modal = document.getElementById('documentTableModal');
@@ -525,9 +534,8 @@
       const headerIcon = document.getElementById('modalHeaderIcon');
       const searchInput = document.getElementById('docSearchInput');
       
-      if (searchInput) searchInput.value = ''; // รีเซ็ตคำค้นหาเก่า
+      if (searchInput) searchInput.value = '';
 
-      // เปลี่ยนหัวข้อและสีตามหมวดหมู่
       if (category === 'rule') {
         headerTitle.textContent = 'เอกสารระเบียบอาคาร';
         headerIcon.className = 'w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-amber-100 text-amber-600';
@@ -543,8 +551,7 @@
       }
 
       renderModalTable();
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
     }
 
     function closeDocumentModal() {
@@ -552,20 +559,13 @@
       if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
     }
 
-    // 📊 ฟังก์ชันกรองข้อมูลและพ่นลงตารางใน Modal ป๊อปอัป
     function renderModalTable() {
       const tbody = document.getElementById('modalDocTableBody');
       const searchInput = document.getElementById('docSearchInput');
       if (!tbody) return;
 
       const keyword = (searchInput?.value || '').trim().toLowerCase();
-
-      // กรองไฟล์เอาเฉพาะหมวดหมู่ปัจจุบัน และตรงกับคีย์เวิร์ดค้นหา
-      const docs = allDocumentsData.filter(item => {
-        const isCategory = item.category === currentModalCategory;
-        const isMatch = !keyword || (item.title && item.title.toLowerCase().includes(keyword));
-        return isCategory && isMatch;
-      });
+      const docs = allDocumentsData.filter(item => item.category === currentModalCategory && (!keyword || (item.title && item.title.toLowerCase().includes(keyword))));
 
       if (docs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="2" class="p-8 text-center text-slate-400 italic">ไม่พบรายการเอกสารในหมวดหมู่นี้</td></tr>`;
@@ -574,15 +574,8 @@
 
       tbody.innerHTML = docs.map(doc => `
         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-          <td class="p-3 font-medium text-slate-700">
-            <i class='bx bx-file-blank text-slate-400 mr-2 text-base align-middle'></i>
-            <span class="align-middle">${escapeHtml(doc.title)}</span>
-          </td>
-          <td class="p-3 text-center">
-            <a href="${doc.file_url}" target="_blank" class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-              <i class='bx bx-cloud-download text-sm'></i> ดาวน์โหลด
-            </a>
-          </td>
+          <td class="p-4 font-medium text-slate-700"><i class='bx bx-file-blank text-slate-400 mr-2 text-base align-middle'></i><span class="align-middle">${escapeHtml(doc.title)}</span></td>
+          <td class="p-4 text-center"><a href="${doc.file_url}" target="_blank" class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm"><i class='bx bx-cloud-download text-sm'></i> ดาวน์โหลด</a></td>
         </tr>
       `).join('');
     }
@@ -594,14 +587,9 @@
 
       if (searchInput) searchInput.addEventListener('input', renderAnnouncements);
       if (categoryFilter) categoryFilter.addEventListener('change', renderAnnouncements);
-      
-      // ผูกระบบ Event พิมพ์ค้นหาเอกสารในตารางป๊อปอัป
       if (docSearchInput) docSearchInput.addEventListener('input', renderModalTable);
 
-      // โดดรันดึงข้อมูลข่าวสาร
       supabaseClient && loadAnnouncements().catch(err => console.error(err));
-
-      // โดดรันดึงรายชื่อไฟล์เอกสารทั้งหมดเตรียมพร้อมไว้
       await prefetchAllDocuments();
     }
 
