@@ -197,7 +197,7 @@
   </main>
 
   <script>
-    // URL ของ Google Apps Script Web App ที่ Deploy มาเรียบร้อยแล้ว
+    // URL ของ Google Apps Script Web App
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzktos7VrRW646LPqmb-cUYCReF1eQqUFTfmuhjK6jfVjDLBua09UavX3c7xWndl4AG/exec";
 
     const categoryMap = {
@@ -208,7 +208,6 @@
 
     // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', async () => {
-      // ตรวจสอบสิทธิ์เข้าใช้งานเบื้องต้น
       const { data: authData } = await supabaseClient.auth.getUser();
       if (!authData?.user) {
         alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
@@ -273,15 +272,13 @@
         return;
       }
 
-      // ปรับสถานะปุ่มเป็นกำลังโหลด
       submitBtn.disabled = true;
       submitBtn.innerHTML = "<i class='bx bx-loader-alt animate-spin'></i> กำลังอัปโหลดไฟล์...";
 
-      // ใช้ FileReader แปลงไฟล์เป็นคีย์ข้อความรหัส
       const reader = new FileReader();
       reader.onload = async function(event) {
         const content = event.target.result;
-        const base64Data = content.split(',')[1]; // ดึงเฉพาะเนื้อข้อมูล Base64
+        const base64Data = content.split(',')[1];
 
         const payload = {
           title: title,
@@ -292,7 +289,6 @@
         };
 
         try {
-          // ยิง POST ข้ามไปหา Google Apps Script Web App
           const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -303,13 +299,13 @@
           if (result.status === 'success') {
             alert('อัปโหลดไฟล์เข้า Google Drive และบันทึกข้อมูลเรียบร้อยแล้ว!');
             document.getElementById('docForm').reset();
-            await loadDocuments(); // โหลดตารางใหม่ทันที
+            await loadDocuments();
           } else {
             alert('เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ' + result.message);
           }
         } catch (error) {
           console.error('Upload error:', error);
-          alert('ไม่สามารถอัปโหลดได้เนื่องจากโครงข่ายขัดข้อง หรือไม่ได้เปิดสิทธิ์ดึงข้อมูลแบบสาธารณะในตัวเว็บแอป');
+          alert('ไม่สามารถอัปโหลดได้เนื่องจากโครงข่ายขัดข้อง หรือระบบรักษาความปลอดภัยฝั่งเซิร์ฟเวอร์ขัดข้อง');
         } finally {
           submitBtn.disabled = false;
           submitBtn.innerHTML = "<i class='bx bx-save'></i> อัปโหลดและบันทึก";
@@ -319,7 +315,7 @@
       reader.readAsDataURL(fileInput);
     });
 
-    // ฟังก์ชันลบข้อมูลออกจากระบบ (ลบแถวเรคคอร์ดบน Supabase)
+    // ฟังก์ชันลบข้อมูลออกจากระบบ (เวอร์ชันปรับปรุงเช็กสิทธิ์ Error จริง)
     async function deleteDoc(id) {
       if (!confirm('คุณแน่ใจใช่ไหมว่าต้องการลบรายการเอกสารนี้? (รายการบนหน้าเว็บลูกบ้านจะหายไปทันที แต่ไฟล์ดิบใน Google Drive จะยังอยู่ปลอดภัย)')) return;
 
@@ -329,12 +325,16 @@
           .delete()
           .eq('id', id);
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
 
         alert('ลบข้อมูลเรียบร้อย');
-        await loadDocuments();
+        await loadDocuments(); // โหลดตารางใหม่ให้รายการหายไปวับตา
+        
       } catch (error) {
-        alert('เกิดข้อผิดพลาดในการลบ: ' + error.message);
+        console.error('Delete error:', error);
+        alert('ไม่สามารถลบข้อมูลได้จริง: ' + (error.message || 'โปรดตรวจสอบสิทธิ์ RLS บน Supabase'));
       }
     }
   </script>
