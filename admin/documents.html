@@ -56,6 +56,7 @@
     .btn-secondary:hover { background: #cbd5e1; }
     .btn-danger { background: #dc2626; color: white; }
     .btn-danger:hover { background: #b91c1c; }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
     .main-content { padding: 30px 0; }
     .page-header { margin-bottom: 24px; }
@@ -64,7 +65,7 @@
 
     .grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
     @media (min-width: 768px) {
-      .grid { grid-template-columns: 350px 1fr; }
+      .grid { grid-template-columns: 380px 1fr; }
     }
 
     .card {
@@ -110,11 +111,19 @@
 
     .hidden { display: none !important; }
     .loading-text { color: #64748b; text-align: center; padding: 20px; }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Topbar -->
   <nav class="topbar">
     <div class="container">
       <div class="topbar-inner">
@@ -127,21 +136,19 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="main-content">
     <div class="container">
       <div class="page-header">
         <h2>จัดการเอกสาร (3 การ์ดหน้าบ้าน)</h2>
-        <p>เพิ่ม ลบ หรืออัปเดตลิงก์เอกสาร Google Drive เพื่อไปแสดงผลเรียลไทม์บนหน้าหลักของลูกบ้าน</p>
+        <p>อัปโหลดไฟล์จากเครื่องตรงเข้า Google Drive พร้อมบันทึกพิกัดลง Supabase สำหรับแสดงผลหน้าบ้านอัตโนมัติ</p>
       </div>
 
       <div class="grid">
-        <!-- ฝั่งซ้าย: ฟอร์มเพิ่มเอกสาร -->
         <div class="card">
-          <h3><i class='bx bx-plus-circle'></i> เพิ่มเอกสารใหม่</h3>
+          <h3><i class='bx bx-cloud-upload'></i> อัปโหลดเอกสารใหม่</h3>
           <form id="docForm">
             <div class="form-group">
-              <label for="docTitle">ชื่อเอกสาร</label>
+              <label for="docTitle">ชื่อเอกสารที่แสดงบนหน้าเว็บ</label>
               <input type="text" id="docTitle" class="form-control" placeholder="เช่น ระเบียบสระว่ายน้ำ, ประกาศประชุม..." required />
             </div>
 
@@ -155,18 +162,17 @@
             </div>
 
             <div class="form-group">
-              <label for="docUrl">ลิงก์แชร์ของไฟล์ (Google Drive)</label>
-              <input type="url" id="docUrl" class="form-control" placeholder="https://drive.google.com/file/d/..." required />
-              <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">*อย่าลืมเปิดสิทธิ์แชร์ใน Drive เป็น 'ทุกคนที่มีลิงก์มีสิทธิ์อ่าน'</small>
+              <label for="docFile">เลือกไฟล์เอกสาร (PDF, Word, รูปภาพ)</label>
+              <input type="file" id="docFile" class="form-control" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required />
+              <small style="color:#94a3b8; font-size:11px; display:block; margin-top:4px;">*ระบบจะนำไฟล์ไปเก็บที่ Google Drive และแชร์สิทธิ์ให้อัตโนมัติ</small>
             </div>
 
             <button type="submit" id="submitBtn" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
-              <i class='bx bx-save'></i> บันทึกข้อมูล
+              <i class='bx bx-save'></i> อัปโหลดและบันทึก
             </button>
           </form>
         </div>
 
-        <!-- ฝั่งขวา: ตารางแสดงรายการปัจจุบัน -->
         <div class="card">
           <h3><i class='bx bx-list-ul'></i> รายการเอกสารปัจจุบันในระบบ</h3>
           <div class="table-responsive">
@@ -191,6 +197,9 @@
   </main>
 
   <script>
+    // URL ของ Google Apps Script Web App ที่ Deploy มาเรียบร้อยแล้ว
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzktos7VrRW646LPqmb-cUYCReF1eQqUFTfmuhjK6jfVjDLBua09UavX3c7xWndl4AG/exec";
+
     const categoryMap = {
       rule: { label: 'ระเบียบอาคาร', class: 'cat-rule' },
       announcement: { label: 'แจ้งประชุม/ประกาศ', class: 'cat-announcement' },
@@ -199,7 +208,7 @@
 
     // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', async () => {
-      // ตรวจสอบสิทธิ์เบื้องต้นก่อน (อ้างอิงจากไคลเอนต์เดิม)
+      // ตรวจสอบสิทธิ์เข้าใช้งานเบื้องต้น
       const { data: authData } = await supabaseClient.auth.getUser();
       if (!authData?.user) {
         alert('กรุณาเข้าสู่ระบบก่อนใช้งาน');
@@ -210,7 +219,7 @@
       await loadDocuments();
     });
 
-    // ฟังก์ชันดึงข้อมูลจาก Supabase มาแสดงในตาราง
+    // ดึงรายการเอกจาก Supabase มาพ่นลงตาราง
     async function loadDocuments() {
       const tbody = document.getElementById('docTableBody');
       try {
@@ -234,7 +243,7 @@
             <td><strong>${doc.title}</strong></td>
             <td><span class="badge-cat ${cat.class}">${cat.label}</span></td>
             <td style="text-align: center; display: flex; gap: 8px; justify-content: center;">
-              <a href="${doc.file_url}" target="_blank" class="btn btn-secondary" style="padding: 6px 10px; font-size: 13px;" title="เปิดลิงก์ดูไฟล์">
+              <a href="${doc.file_url}" target="_blank" class="btn btn-secondary" style="padding: 6px 10px; font-size: 13px;" title="เปิดดูไฟล์ต้นฉบับ">
                 <i class='bx bx-link-external'></i>
               </a>
               <button onclick="deleteDoc(${doc.id})" class="btn btn-danger" style="padding: 6px 10px; font-size: 13px;" title="ลบเอกสาร">
@@ -250,39 +259,69 @@
       }
     }
 
-    // ฟังก์ชันบันทึกข้อมูล (Insert)
+    // ฟังก์ชันการแปลงไฟล์เป็น Base64 และยิงส่งเข้า Apps Script
     document.getElementById('docForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const submitBtn = document.getElementById('submitBtn');
       
+      const submitBtn = document.getElementById('submitBtn');
       const title = document.getElementById('docTitle').value.trim();
       const category = document.getElementById('docCategory').value;
-      const file_url = document.getElementById('docUrl').value.trim();
+      const fileInput = document.getElementById('docFile').files[0];
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = "<i class='bx bx-loader-alt animate-spin'></i> กำลังบันทึก...";
-
-      try {
-        const { error } = await supabaseClient
-          .from('documents')
-          .insert([{ title, category, file_url }]);
-
-        if (error) throw error;
-
-        alert('บันทึกเอกสารเรียบร้อยแล้ว!');
-        document.getElementById('docForm').reset();
-        await loadDocuments(); // โหลดตารางใหม่ลื่นๆ
-      } catch (error) {
-        alert('เกิดข้อผิดพลาดในการบันทึก: ' + error.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "<i class='bx bx-save'></i> บันทึกข้อมูล";
+      if (!fileInput) {
+        alert('กรุณาเลือกไฟล์เอกสารก่อนครับ');
+        return;
       }
+
+      // ปรับสถานะปุ่มเป็นกำลังโหลด
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "<i class='bx bx-loader-alt animate-spin'></i> กำลังอัปโหลดไฟล์...";
+
+      // ใช้ FileReader แปลงไฟล์เป็นคีย์ข้อความรหัส
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        const content = event.target.result;
+        const base64Data = content.split(',')[1]; // ดึงเฉพาะเนื้อข้อมูล Base64
+
+        const payload = {
+          title: title,
+          category: category,
+          fileName: fileInput.name,
+          mimeType: fileInput.type,
+          fileData: base64Data
+        };
+
+        try {
+          // ยิง POST ข้ามไปหา Google Apps Script Web App
+          const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          
+          const result = await response.json();
+
+          if (result.status === 'success') {
+            alert('อัปโหลดไฟล์เข้า Google Drive และบันทึกข้อมูลเรียบร้อยแล้ว!');
+            document.getElementById('docForm').reset();
+            await loadDocuments(); // โหลดตารางใหม่ทันที
+          } else {
+            alert('เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          alert('ไม่สามารถอัปโหลดได้เนื่องจากโครงข่ายขัดข้อง หรือไม่ได้เปิดสิทธิ์ดึงข้อมูลแบบสาธารณะในตัวเว็บแอป');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "<i class='bx bx-save'></i> อัปโหลดและบันทึก";
+        }
+      };
+      
+      reader.readAsDataURL(fileInput);
     });
 
-    // ฟังก์ชันลบข้อมูล (Delete)
+    // ฟังก์ชันลบข้อมูลออกจากระบบ (ลบแถวเรคคอร์ดบน Supabase)
     async function deleteDoc(id) {
-      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเอกสารนี้ออกจากระบบ? (ไฟล์ใน Google Drive จะยังอยู่เหมือนเดิม)')) return;
+      if (!confirm('คุณแน่ใจใช่ไหมว่าต้องการลบรายการเอกสารนี้? (รายการบนหน้าเว็บลูกบ้านจะหายไปทันที แต่ไฟล์ดิบใน Google Drive จะยังอยู่ปลอดภัย)')) return;
 
       try {
         const { error } = await supabaseClient
@@ -292,10 +331,10 @@
 
         if (error) throw error;
 
-        alert('ลบเอกสารสำเร็จ');
+        alert('ลบข้อมูลเรียบร้อย');
         await loadDocuments();
       } catch (error) {
-        alert('ไม่สามารถลบข้อมูลได้: ' + error.message);
+        alert('เกิดข้อผิดพลาดในการลบ: ' + error.message);
       }
     }
   </script>
